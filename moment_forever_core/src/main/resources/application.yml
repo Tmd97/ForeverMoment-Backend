@@ -1,0 +1,119 @@
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  tomcat:
+    connection-timeout: 30000
+    max-connections: 200
+    threads:
+      max: 50
+      min-spare: 5
+
+# Spring Boot Configuration
+spring:
+  application:
+    name: moment-forever-platform
+
+  # Database Configuration - MySQL
+  datasource:
+    url: jdbc:mysql://localhost:3306/moment_forever_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&useUnicode=true&characterEncoding=UTF-8
+    username: root
+    password: relay
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # HikariCP Connection Pool Configuration
+  hikari:
+    pool-name: MomentForever-HikariPool
+    connection-timeout: 30000
+    maximum-pool-size: 20
+    minimum-idle: 5
+    idle-timeout: 600000
+    max-lifetime: 1800000
+    connection-test-query: SELECT 1
+    auto-commit: false
+
+  # JPA/Hibernate Configuration
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update  # Options: validate | update | create | create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        jdbc:
+          batch_size: 20
+          order_inserts: true
+          order_updates: true
+        query:
+          in_clause_parameter_padding: true
+        id:
+          new_generator_mappings: true
+    show-sql: true
+    open-in-view: false
+
+  # File Upload Configuration
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
+      file-size-threshold: 2KB
+
+  # Jackson Configuration
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+      indent-output: true
+    deserialization:
+      fail-on-unknown-properties: false
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: UTC
+    default-property-inclusion: non_null
+
+# Application Custom Configuration
+app:
+  base-url: http://localhost:8080
+  file:
+    upload-dir: ./uploads/
+    max-size: 5242880  # 5MB
+    allowed-extensions: jpg,jpeg,png,gif,webp
+    serve-path: /uploads/**
+
+# Slug Configuration
+slug:
+  separator: "-"
+  max-length: 100
+
+# Logging Configuration
+logging:
+  level:
+    com.momentforever: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.zaxxer.hikari: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %highlight(%-5level) - %cyan(%logger{36}) - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} - %-5level - %logger{36} - %msg%n"
+  file:
+    name: logs/momentForever-app.log
+    max-size: 10MB
+    max-history: 30
+
+# Actuator Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+    endpoint:
+      health:
+        show-details: always
+    probes:
+      enabled: true
