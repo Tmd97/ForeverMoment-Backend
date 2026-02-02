@@ -8,6 +8,12 @@
     </parent>
     <artifactId>moment_forever_commons</artifactId>
     <name>Archetype - moment_forever_commons</name>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+    </dependencies>
     <version>1.0-SNAPSHOT</version>
     <url>http://maven.apache.org</url>
 </project>

@@ -1,4 +1,4 @@
-package com.example.moment_forever.configs;
+package com.example.moment_forever.core.configs;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
