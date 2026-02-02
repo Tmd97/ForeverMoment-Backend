@@ -29,7 +29,7 @@ public class ResponseUtil {
     public static <T> ApiResponse<T> buildErrorResponse(String message, HttpStatus status) {
         return ApiResponse.<T>builder()
                 .setCode(status.value())
-                .setStatus("ERROR")
+                .setStatus("INTERNAL_SERVER_ERROR")
                 .setMsg(message)
                 .setResponse(null)
                 .build();

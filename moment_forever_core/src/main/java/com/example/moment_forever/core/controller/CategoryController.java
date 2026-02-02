@@ -25,7 +25,6 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<?>> createCategory(@RequestBody CategoryDto categoryDto) {
         Category category = categoryService.createCategory(categoryDto);
         CategoryDto res = CategoryBeanMapper.mapEntityToDto(category);
-
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseUtil.buildCreatedResponse(res, AppConstants.MSG_CREATED));
 
@@ -34,12 +33,7 @@ public class CategoryController {
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> getCategoryById(@PathVariable Long id) {
         Category category = categoryService.getById(id);
-        if (category == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ResponseUtil.buildErrorResponse(AppConstants.MSG_NOT_FOUND, HttpStatus.NOT_FOUND));
-        }
         CategoryDto res = CategoryBeanMapper.mapEntityToDto(category);
-
         return ResponseEntity.ok(
                 ResponseUtil.buildOkResponse(res, AppConstants.MSG_FETCHED)
         );
@@ -48,13 +42,10 @@ public class CategoryController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<?>> getAllCategories() {
-
         List<Category> categories = categoryService.getAll();
-
         List<CategoryDto> res = categories.stream()
                 .map(CategoryBeanMapper::mapEntityToDto)
                 .toList();
-
         return ResponseEntity.ok(
                 ResponseUtil.buildOkResponse(res, AppConstants.MSG_FETCHED)
         );
@@ -64,18 +55,8 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<?>> updateCategory(
             @PathVariable Long id,
             @RequestBody CategoryDto categoryDto) {
-
         Category updated = categoryService.updateCategory(id, categoryDto);
-
-        if (updated == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ResponseUtil.buildErrorResponse(
-                            AppConstants.MSG_NOT_FOUND,
-                            HttpStatus.NOT_FOUND));
-        }
-
         CategoryDto res = CategoryBeanMapper.mapEntityToDto(updated);
-
         return ResponseEntity.ok(
                 ResponseUtil.buildOkResponse(res, AppConstants.MSG_UPDATED)
         );
@@ -84,14 +65,7 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> deleteCategory(@PathVariable Long id) {
-
-        boolean deleted = categoryService.deleteCategory(id);
-        if (!deleted) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ResponseUtil.buildErrorResponse(
-                            AppConstants.MSG_NOT_FOUND,
-                            HttpStatus.NOT_FOUND));
-        }
+        categoryService.deleteCategory(id);
         return ResponseEntity.ok(
                 ResponseUtil.buildOkResponse(null, AppConstants.MSG_DELETED)
         );

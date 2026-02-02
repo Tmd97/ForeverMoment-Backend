@@ -30,8 +30,22 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ResponseUtil.buildErrorResponse(
-                        "Internal server error",
+                        ex.getMessage(),
                         HttpStatus.INTERNAL_SERVER_ERROR
+                ));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResourceNotFoundException(
+            RuntimeException ex) {
+
+        System.err.println("Runtime exception: " + ex.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(ResponseUtil.buildErrorResponse(
+                        ex.getMessage(),
+                        HttpStatus.NOT_FOUND
                 ));
     }
 }
