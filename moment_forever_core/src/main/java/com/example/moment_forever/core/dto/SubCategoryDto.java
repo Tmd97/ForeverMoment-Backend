@@ -1,29 +1,31 @@
 package com.example.moment_forever.core.dto;
-import java.util.ArrayList;
-import java.util.List;
 
-public class CategoryDto extends NamedEntityDto {
+public class SubCategoryDto {
 
     private Long id;
     private String name;
     private String description;
     private String slug;
     private String icon;
+    private String thumbnailUrl;
     private Integer displayOrder;
     private Boolean isActive;
-    private List<SubCategoryDto> subCategories = new ArrayList<>();
+    private Long categoryId;
+    private String categoryName;
+    private String categorySlug;
 
     // Constructors
-    public CategoryDto() {}
+    public SubCategoryDto() {}
 
-    public CategoryDto(Long id, String name, String slug) {
+    public SubCategoryDto(Long id, String name, String slug, Long categoryId) {
         this.id = id;
         this.name = name;
         this.slug = slug;
+        this.categoryId = categoryId;
     }
 
     // Getters and Setters
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -63,6 +65,14 @@ public class CategoryDto extends NamedEntityDto {
         this.icon = icon;
     }
 
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
+    }
+
     public Integer getDisplayOrder() {
         return displayOrder;
     }
@@ -79,11 +89,27 @@ public class CategoryDto extends NamedEntityDto {
         this.isActive = isActive;
     }
 
-    public List<SubCategoryDto> getSubCategories() {
-        return subCategories;
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    public void setSubCategories(List<SubCategoryDto> subCategories) {
-        this.subCategories = subCategories;
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public String getCategorySlug() {
+        return categorySlug;
+    }
+
+    public void setCategorySlug(String categorySlug) {
+        this.categorySlug = categorySlug;
     }
 }

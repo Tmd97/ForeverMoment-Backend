@@ -1,6 +1,8 @@
 package com.example.moment_forever.data.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 
@@ -10,18 +12,23 @@ public abstract class NamedEntity {
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name="id")
-    private long id;
+    private Long id;
 
     @Column(name="name")
     private String name;
 
+    @Column(name = "is_active")
+    private Boolean isActive=true;
+
+    @CreationTimestamp
     @Column(name="created_on")
     private Date createdOn;
 
+    @UpdateTimestamp
     @Column(name = "updated_on", insertable = false, updatable = false)
     private Date updatedOn;
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
@@ -51,5 +58,12 @@ public abstract class NamedEntity {
 
     public void setUpdatedOn(Date updatedOn) {
         this.updatedOn = updatedOn;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+    public void setActive(boolean active) {
+        isActive = active;
     }
 }

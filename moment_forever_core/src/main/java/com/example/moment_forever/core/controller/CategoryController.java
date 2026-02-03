@@ -23,31 +23,26 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<?>> createCategory(@RequestBody CategoryDto categoryDto) {
-        Category category = categoryService.createCategory(categoryDto);
-        CategoryDto res = CategoryBeanMapper.mapEntityToDto(category);
+        CategoryDto categoryResponse = categoryService.createCategory(categoryDto);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ResponseUtil.buildCreatedResponse(res, AppConstants.MSG_CREATED));
+                .body(ResponseUtil.buildCreatedResponse(categoryResponse, AppConstants.MSG_CREATED));
 
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> getCategoryById(@PathVariable Long id) {
-        Category category = categoryService.getById(id);
-        CategoryDto res = CategoryBeanMapper.mapEntityToDto(category);
+        CategoryDto categoryResponse = categoryService.getById(id);
         return ResponseEntity.ok(
-                ResponseUtil.buildOkResponse(res, AppConstants.MSG_FETCHED)
+                ResponseUtil.buildOkResponse(categoryResponse, AppConstants.MSG_FETCHED)
         );
     }
 
 
     @GetMapping
     public ResponseEntity<ApiResponse<?>> getAllCategories() {
-        List<Category> categories = categoryService.getAll();
-        List<CategoryDto> res = categories.stream()
-                .map(CategoryBeanMapper::mapEntityToDto)
-                .toList();
+        List<CategoryDto> categoryDtos = categoryService.getAll();
         return ResponseEntity.ok(
-                ResponseUtil.buildOkResponse(res, AppConstants.MSG_FETCHED)
+                ResponseUtil.buildOkResponse(categoryDtos, AppConstants.MSG_FETCHED)
         );
     }
 
@@ -55,10 +50,9 @@ public class CategoryController {
     public ResponseEntity<ApiResponse<?>> updateCategory(
             @PathVariable Long id,
             @RequestBody CategoryDto categoryDto) {
-        Category updated = categoryService.updateCategory(id, categoryDto);
-        CategoryDto res = CategoryBeanMapper.mapEntityToDto(updated);
+        CategoryDto updateCategory = categoryService.updateCategory(id, categoryDto);
         return ResponseEntity.ok(
-                ResponseUtil.buildOkResponse(res, AppConstants.MSG_UPDATED)
+                ResponseUtil.buildOkResponse(updateCategory, AppConstants.MSG_UPDATED)
         );
     }
 
