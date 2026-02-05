@@ -55,37 +55,39 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                // Disable CSRF (we're using JWT, not sessions)
-                .csrf(csrf -> csrf.disable())
-
-                // Configure authorization rules
+        http.csrf(csrf -> csrf.disable())
+                // Configure authorization rules - ORDER IS IMPORTANT!
                 .authorizeHttpRequests(auth -> auth
-                        // PUBLIC ENDPOINTS (no authentication required)
-                        .requestMatchers("/api/auth/**").permitAll()           // Login, register
-                        .requestMatchers("/api/public/**").permitAll()         // Public info
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // API docs
-                        .requestMatchers("/error").permitAll()                 // Error pages
+                        // 1. Public endpoints - should come FIRST
+                        // Request matchers strip the context path automatically
+                        .requestMatchers(
+                                "/auth/**",// All auth endpoints
+                                "/public/**",         // All public endpoints
+                                "/error",                 // Error endpoint
+                                "/swagger-ui/**",         // Swagger UI
+                                "/v3/api-docs/**",        // API docs
+                                "/swagger-ui.html",       // Swagger HTML
+                                "/webjars/**",            // WebJars for Swagger
+                                "/swagger-resources/**"   // Swagger resources
+                        ).permitAll()
+                         //2. Admin endpoints
+                        .requestMatchers("/admin/**", "/admin/**").hasRole("ADMIN")
 
-                        // ADMIN ENDPOINTS (requires ADMIN role)
-                        .requestMatchers("/admin/**").hasRole("ADMIN")        // Admin portal
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")    // Admin API
+                        // 3. User endpoints
+                        .requestMatchers(
+                                "/user/**",
+                                "/booking/**",
+                                "/review/**"
+                        ).hasRole("USER")
 
-                        // USER ENDPOINTS (requires USER role)
-                        .requestMatchers("/api/user/**").hasRole("USER")      // User profile
-                        .requestMatchers("/api/booking/**").hasRole("USER")   // Booking
-                        .requestMatchers("/api/review/**").hasRole("USER")    // Reviews
-
-                        // All other endpoints require authentication
+                        // 4. All other requests require authentication - MUST BE LAST
                         .anyRequest().authenticated()
                 )
 
-                // Configure session management (stateless = JWT)
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Add JWT filter before username/password filter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

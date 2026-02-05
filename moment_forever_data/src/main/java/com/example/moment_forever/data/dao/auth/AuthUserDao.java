@@ -1,9 +1,7 @@
 package com.example.moment_forever.data.dao.auth;
 
 import com.example.moment_forever.data.dao.GenericDao;
-import com.example.moment_forever.data.dao.GenericDaoImpl;
 import com.example.moment_forever.data.entities.auth.AuthUser;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;

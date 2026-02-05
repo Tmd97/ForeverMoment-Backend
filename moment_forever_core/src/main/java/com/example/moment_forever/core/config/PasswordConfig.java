@@ -28,6 +28,6 @@ public class PasswordConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         // Strength 10 = 2^10 iterations = good balance of security & performance
-        return new BCryptPasswordEncoder(10);
+        return new BCryptPasswordEncoder();
     }
 }

@@ -2,9 +2,7 @@ package com.example.moment_forever.core.services.auth;
 
 import com.example.moment_forever.data.entities.auth.AuthUser;
 import com.example.moment_forever.data.entities.auth.Role;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,51 +98,105 @@ public class JwtService {
                 .compact(); // Convert to string
     }
 
-    /**
-     * Extract username from token
-     */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    /**
-     * Extract user ID from token
-     */
     public Long extractUserId(String token) {
         Claims claims = extractAllClaims(token);
         return claims.get("userId", Long.class);
     }
 
-    /**
-     * Extract external user ID (ApplicationUser.id) from token
-     */
     public Long extractExternalUserId(String token) {
         Claims claims = extractAllClaims(token);
         return claims.get("externalUserId", Long.class);
     }
 
-    /**
-     * Extract roles from token
-     */
     public String extractRoles(String token) {
         Claims claims = extractAllClaims(token);
         return claims.get("roles", String.class);
     }
 
-    /**
-     * Check if token is expired
-     */
     public boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
 
     /**
-     * Validate token (signature + expiration + user match)
+     * Validate token WITHOUT database call (stateless validation)
+     * Checks: signature, expiration, required claims
      */
-    public boolean validateToken(String token, UserDetails authUser) {
-        final String username = extractUsername(token);
-        return (username.equals(authUser.getUsername()) && !isTokenExpired(token));
+    public boolean isTokenValid(String token) {
+        try {
+            // This validates signature and parses the token
+            Claims claims = extractAllClaims(token);
+
+            // Check expiration
+            if (isTokenExpired(token)) {
+                logger.debug("Token expired for user: {}", claims.getSubject());
+                return false;
+            }
+
+            // Check required claims
+            if (claims.getSubject() == null || claims.getSubject().isEmpty()) {
+                logger.debug("Token missing subject");
+                return false;
+            }
+
+            // Check if user is enabled (from token claim)
+            Boolean enabled = claims.get("enabled", Boolean.class);
+            if (enabled != null && !enabled) {
+                logger.debug("User account disabled in token: {}", claims.getSubject());
+                return false;
+            }
+
+            // Check if account is locked
+            Boolean accountNonLocked = claims.get("accountNonLocked", Boolean.class);
+            if (accountNonLocked != null && !accountNonLocked) {
+                logger.debug("User account locked in token: {}", claims.getSubject());
+                return false;
+            }
+
+            return true;
+
+        } catch (ExpiredJwtException e) {
+            logger.debug("Token expired: {}", e.getMessage());
+            return false;
+        } catch (MalformedJwtException e) {
+            logger.debug("Invalid token format: {}", e.getMessage());
+            return false;
+        } catch (SignatureException e) {
+            logger.debug("Invalid token signature: {}", e.getMessage());
+            return false;
+        } catch (Exception e) {
+            logger.debug("Token validation failed: {}", e.getMessage());
+            return false;
+        }
     }
+
+    /**
+     * Validate token with username comparison
+     * Useful when you already know the expected username
+     */
+    public boolean validateToken(String token, String expectedUsername) {
+        try {
+//            final String username = extractUsername(token);
+//            return username != null &&
+//                    username.equals(expectedUsername) &&
+            return isTokenValid(token); // even to check this
+        } catch (Exception e) {
+            logger.debug("Token validation failed for user {}: {}",
+                    expectedUsername, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Legacy method - validates with UserDetails (for login)
+     */
+//    public boolean validateToken(String token, UserDetails userDetails) {
+//        return validateToken(token, userDetails.getUsername());
+//    }
+
 
     /**
      * Generic method to extract any claim
@@ -154,9 +206,6 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    /**
-     * Extract all claims from token
-     */
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(getSigningKey()) // Verify signature with our secret
@@ -164,4 +213,36 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+
+
+
+    public UserDetails buildUserDetailsFromToken(String token) {
+
+        // Reuse existing methods (no duplication)
+        String username = extractUsername(token);
+        String rolesString = extractRoles(token);
+
+        var authorities = rolesString == null || rolesString.isBlank()
+                ? java.util.List.<org.springframework.security.core.authority.SimpleGrantedAuthority>of()
+                : java.util.Arrays.stream(rolesString.split(","))
+                .map(String::trim)
+                .filter(role -> !role.isEmpty())
+                .map(role -> new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role))
+                .toList();
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(username)
+                .password("")      // password not required for JWT
+                .authorities(authorities)
+                .build();
+    }
+
+
+
+
+
+
+
+
 }

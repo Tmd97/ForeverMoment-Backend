@@ -36,13 +36,13 @@ public class AuthController {
      * Login user
      * POST /api/auth/login
      */
-//    @PostMapping("/login")
-//    public ResponseEntity<AuthResponse> login(
-//            @Valid @RequestBody LoginRequest request) {
-//
-//        AuthResponse response = authService.login(request);
-//        return ResponseEntity.ok(response);
-//    }
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(
+            @Valid @RequestBody LoginRequest request) {
+
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
+    }
 
     /**
      * Refresh access token using refresh token

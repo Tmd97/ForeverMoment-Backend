@@ -21,7 +21,7 @@ import java.io.IOException;
 
 /**
  * JwtAuthenticationFilter - Intercepts requests and validates JWT tokens
- *
+ * <p>
  * This filter runs BEFORE Spring Security's authentication mechanisms
  * It extracts JWT token from Authorization header and validates it
  */
@@ -33,14 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtService jwtService;
     private final CustomUserDetailsService userDetailsService;
 
-    // Constants
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
     @Autowired
-    public JwtAuthenticationFilter(
-            JwtService jwtService,
-            CustomUserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JwtService jwtService, CustomUserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
     }
@@ -81,36 +78,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             username = jwtService.extractUsername(jwt);
             logger.debug("Extracted username from token: {}", username);
 
-            // Step 3: If we have username AND no authentication is set in SecurityContext
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = jwtService.buildUserDetailsFromToken(jwt);
 
-                // Step 4: Load user details from database
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                logger.debug("User details loaded for: {}", username);
+            // Step 5: Validate token
+            if (jwtService.validateToken(jwt, username)) {
+                logger.debug("Token validation successful for user: {}", username);
 
-                // Step 5: Validate token
-                if (jwtService.validateToken(jwt, userDetails)) {
-                    logger.debug("Token validation successful for user: {}", username);
+                // Step 6: Create Authentication object
+                UsernamePasswordAuthenticationToken authToken =
+                        new UsernamePasswordAuthenticationToken(
+                                userDetails,
+                                null, // credentials are null because we're using token
+                                userDetails.getAuthorities()
+                        );
 
-                    // Step 6: Create Authentication object
-                    UsernamePasswordAuthenticationToken authToken =
-                            new UsernamePasswordAuthenticationToken(
-                                    userDetails,
-                                    null, // credentials are null because we're using token
-                                    userDetails.getAuthorities()
-                            );
+                // Add request details to authentication
+                authToken.setDetails(
+                        new WebAuthenticationDetailsSource().buildDetails(request)
+                );
 
-                    // Add request details to authentication
-                    authToken.setDetails(
-                            new WebAuthenticationDetailsSource().buildDetails(request)
-                    );
-
-                    // Step 7: Set authentication in SecurityContext
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
-                    logger.debug("Authentication set in SecurityContext for user: {}", username);
-                } else {
-                    logger.warn("Token validation failed for user: {}", username);
-                }
+                // Step 7: Set authentication in SecurityContext
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+                logger.debug("Authentication set in SecurityContext for user: {}", username);
+            } else {
+                logger.warn("Token validation failed for user: {}", username);
             }
 
         } catch (Exception e) {
@@ -148,29 +139,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         return null;
-    }
-
-    /**
-     * Check if request has valid JWT token
-     */
-    public boolean hasValidToken(HttpServletRequest request) {
-        String token = extractTokenFromRequest(request);
-
-        if (token == null) {
-            return false;
-        }
-
-        try {
-            String username = jwtService.extractUsername(token);
-            if (username == null) {
-                return false;
-            }
-
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-            return jwtService.validateToken(token, userDetails);
-
-        } catch (Exception e) {
-            return false;
-        }
     }
 }

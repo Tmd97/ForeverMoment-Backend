@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -45,7 +46,8 @@ public class AuthUser implements UserDetails {
     @OneToMany(mappedBy = "authUser", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<AuthUserRole> userRoles = new HashSet<>();
 
-    public AuthUser() {}
+    public AuthUser() {
+    }
 
     public AuthUser(String username, String encodedPassword) {
         this.username = username;
@@ -168,20 +170,12 @@ public class AuthUser implements UserDetails {
         return false;
     }
 
-
+    // we prepopulated the ROLE (ADMIN, USER, etc.) inside ROLE entity via data seeder
     public void addRole(Role role) {
-        boolean alreadyHasRole = userRoles.stream()
-                .anyMatch(userRole ->
-                        userRole.getRole() != null &&
-                                userRole.getRole().getId().equals(role.getId())
-                );
-
-        if (!alreadyHasRole) {
-            AuthUserRole authUserRole = new AuthUserRole();
-            authUserRole.setAuthUser(this);
-            authUserRole.setRole(role);
-            userRoles.add(authUserRole);
-        }
+        AuthUserRole authUserRole = new AuthUserRole();
+        authUserRole.setRole(role);
+        authUserRole.setAuthUser(this);
+        this.getUserRoles().add(authUserRole);
     }
 
     public void removeRole(Role role) {
@@ -190,7 +184,6 @@ public class AuthUser implements UserDetails {
                         userRole.getRole().getId().equals(role.getId())
         );
     }
-
 
 
     @PrePersist
