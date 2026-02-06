@@ -136,9 +136,11 @@ public class AuthService {
         AuthUser authUser = authUserOptional.get();
         validateUserCredentials(request, authUser);
         String jwtToken = jwtService.generateToken(authUser);
-        AuthResponse authResponse= new AuthResponse();
+        String refreshToken = jwtService.generateAndSaveRefreshToken(authUser);
+        AuthResponse authResponse = new AuthResponse();
         authResponse.setEmail(authUser.getUsername());
         authResponse.setToken(jwtToken);
+        authResponse.setRefreshToken(refreshToken);
         authResponse.setMessage("Login successful");
         return authResponse;
 
@@ -157,5 +159,9 @@ public class AuthService {
             logger.warn("Login failed: Invalid password for user - {}", request.getEmail());
             throw new IllegalArgumentException("Invalid email or password");
         }
+    }
+
+    public AuthResponse generateRefreshToken(String oldRefreshToken) {
+        return jwtService.generateRefreshTokenWithAccessToken(oldRefreshToken);
     }
 }

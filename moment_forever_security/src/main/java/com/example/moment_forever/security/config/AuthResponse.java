@@ -14,8 +14,9 @@ public class AuthResponse {
 
     public AuthResponse() {}
 
-    public AuthResponse(String token, Long userId, String email, String fullName) {
+    public AuthResponse(String token, String refreshToken, Long userId, String email, String fullName) {
         this.token = token;
+        this.refreshToken = refreshToken;
         this.userId = userId;
         this.email = email;
         this.fullName = fullName;

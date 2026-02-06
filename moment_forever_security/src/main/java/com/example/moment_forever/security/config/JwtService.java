@@ -1,19 +1,27 @@
 package com.example.moment_forever.security.config;
 
+import com.example.moment_forever.common.errorhandler.CustomAuthException;
+import com.example.moment_forever.data.dao.auth.AuthUserDao;
+import com.example.moment_forever.data.dao.auth.RefreshTokenDao;
 import com.example.moment_forever.data.entities.auth.AuthUser;
+import com.example.moment_forever.data.entities.auth.AuthUserRole;
+import com.example.moment_forever.data.entities.auth.RefreshToken;
 import com.example.moment_forever.data.entities.auth.Role;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -21,6 +29,8 @@ import java.util.stream.Collectors;
 public class JwtService {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtService.class);
+    private final AuthUserDao authUserDao;
+    private final RefreshTokenDao refreshTokenDao;
 
     @Value("${jwt.secret}")
     private String secret;
@@ -30,6 +40,12 @@ public class JwtService {
 
     @Value("${jwt.refresh-expiration}")
     private Long refreshExpiration; // in milliseconds (e.g., 604800000 = 7 days)
+
+    @Autowired
+    public JwtService(AuthUserDao authUserDao, RefreshTokenDao refreshTokenDao) {
+        this.authUserDao = authUserDao;
+        this.refreshTokenDao = refreshTokenDao;
+    }
 
     // Generate signing key from secret
     private SecretKey getSigningKey() {
@@ -74,14 +90,43 @@ public class JwtService {
     /**
      * Generate refresh token (longer expiration, less data)
      */
-    public String generateRefreshToken(AuthUser authUser) {
+    public String generateAndSaveRefreshToken(AuthUser authUser) {
         logger.debug("Generating refresh token for user: {}", authUser.getUsername());
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", authUser.getId());
+        claims.put("externalUserId", authUser.getExternalUserId());
         claims.put("type", "refresh"); // Mark as refresh token
 
-        return buildToken(claims, authUser.getUsername(), refreshExpiration);
+        String rawRefreshToken = buildToken(claims, authUser.getUsername(), refreshExpiration);
+        // save it to the DB for old refresh token revoke, prevent attacks & hack, for block account
+        saveNewRefreshToken(authUser, rawRefreshToken);
+        return rawRefreshToken;
+    }
+
+    // ===== Hash helper =====
+    private String hashToken(String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (Exception e) {
+            throw new RuntimeException("Token hashing failed", e);
+        }
+    }
+
+    public void saveNewRefreshToken(AuthUser user, String rawToken) {
+
+
+        RefreshToken token = new RefreshToken();
+        token.setUser(user);
+        token.setTokenHash(hashToken(rawToken));
+        token.setCreatedAt(LocalDateTime.now());
+        token.setExpiryDate(
+                LocalDateTime.now().plus(refreshExpiration, ChronoUnit.MILLIS)
+        );
+        token.setRevoked(false);
+        refreshTokenDao.save(token);
     }
 
     /**
@@ -93,6 +138,8 @@ public class JwtService {
                 .setSubject(subject)                   // User identifier
                 .setIssuedAt(new Date(System.currentTimeMillis())) // When issued (iat)
                 .setExpiration(new Date(System.currentTimeMillis() + expiration)) // When expires
+                .setIssuer("moment-forever-app")
+                .setAudience("moment-forever-client")
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256) // Sign with secret key
                 .compact(); // Convert to string
     }
@@ -214,8 +261,6 @@ public class JwtService {
     }
 
 
-
-
     public UserDetails buildUserDetailsFromToken(String token) {
 
         // Reuse existing methods (no duplication)
@@ -235,5 +280,62 @@ public class JwtService {
                 .password("")      // password not required for JWT
                 .authorities(authorities)
                 .build();
+    }
+
+    public AuthResponse generateRefreshTokenWithAccessToken(String token) {
+        try {
+            // Step 1: Validate signature & expiration first
+            if (!isTokenValid(token)) {
+                throw new IllegalArgumentException("Invalid or expired token");
+            }
+
+            // Step 2: Extract claims
+            Claims claims = extractAllClaims(token);
+
+            // Step 3: Check if it is a refresh token
+            String type = claims.get("type", String.class);
+            if (!"refresh".equals(type)) {
+                throw new IllegalArgumentException("Provided token is not a refresh token");
+            }
+
+            // Step 4: Rebuild AuthUser from DB (never from the token)
+            AuthUser authUser = authUserDao.findById(claims.get("userId", Long.class));
+            // Optional: Set roles if you want to generate an access token with roles
+            Set<AuthUserRole> userRoles = authUser.getUserRoles();
+            authUser.setUserRoles(userRoles);
+
+            // 4. HASH incoming refresh token
+            String tokenHash = hashToken(token);
+
+            // step 6: get the old refresh token from the DB
+            // 5. Find token in DB
+            RefreshToken storedToken;
+            try {
+                storedToken = refreshTokenDao
+                        .findByTokenHashAndRevokedFalse(tokenHash);
+            } catch (Exception e) {
+                throw new CustomAuthException("Refresh token expired");
+            }
+
+            // 6. Check expiry in DB (extra safety)
+            if (storedToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+                throw new CustomAuthException("Refresh token expired");
+            }
+
+            // 7. Revoke OLD refresh token (rotation)
+            storedToken.setRevoked(true);
+            refreshTokenDao.save(storedToken);
+            String accessToken = generateToken(authUser);
+            String generatedRefreshToken = generateAndSaveRefreshToken(authUser);
+
+            AuthResponse authResponse = new AuthResponse();
+            authResponse.setToken(accessToken);
+            authResponse.setRefreshToken(generatedRefreshToken);
+            return authResponse;
+
+        } catch (Exception e) {
+            logger.debug("Failed to generate token from refresh token: {}", e.getMessage());
+            throw new CustomAuthException("Invalid refresh token");
+        }
     }
 }

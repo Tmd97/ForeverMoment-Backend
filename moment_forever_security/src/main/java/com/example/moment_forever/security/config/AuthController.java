@@ -46,18 +46,18 @@ public class AuthController {
      * Refresh access token using refresh token
      * POST /api/auth/refresh
      */
-//    @PostMapping("/refresh")
-//    public ResponseEntity<AuthResponse> refreshToken(
-//            @RequestHeader("Authorization") String refreshToken) {
-//
-//        // Remove "Bearer " prefix if present
-//        if (refreshToken.startsWith("Bearer ")) {
-//            refreshToken = refreshToken.substring(7);
-//        }
-//
-//        AuthResponse response = authService.refreshToken(refreshToken);
-//        return ResponseEntity.ok(response);
-//    }
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> getRefreshToken(
+            @RequestHeader("Authorization") String token) {
+
+        // Remove "Bearer " prefix if present
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }
+
+        AuthResponse response = authService.generateRefreshToken(token);
+        return ResponseEntity.ok(response);
+    }
 
     /**
      * Logout user (invalidate token)
