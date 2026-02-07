@@ -2,6 +2,8 @@ package com.example.moment_forever.common.response;
 
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
+
 public class ResponseUtil {
 
     private ResponseUtil() {
@@ -35,6 +37,16 @@ public class ResponseUtil {
                 .build();
     }
 
+    public static <T> ApiResponse<T> buildErrorResponse(String message, HttpStatus status, List<String> errors) {
+        return ApiResponse.<T>builder()
+                .setCode(status.value())
+                .setStatus("VALIDATION_ERROR")
+                .setMsg(message)
+                .setErrors(errors)
+                .setResponse(null)
+                .build();
+    }
+
     public static <T> ApiResponse<T> buildConflictResponse(String message) {
         return buildErrorResponse(message, HttpStatus.CONFLICT);
     }
@@ -47,4 +59,7 @@ public class ResponseUtil {
         return buildErrorResponse(message, HttpStatus.BAD_REQUEST);
     }
 
+    public static <T> ApiResponse<T> buildValidationErrorResponse(String msg, List<String> errors) {
+        return buildErrorResponse(msg, HttpStatus.BAD_REQUEST, errors);
+    }
 }

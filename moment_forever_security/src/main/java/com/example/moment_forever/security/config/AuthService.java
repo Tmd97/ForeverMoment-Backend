@@ -73,19 +73,20 @@ public class AuthService {
 
         // Step 4: Map ROLE_USER to the new AuthUser
         Optional<Role> roleOptional = roleDao.findByNameIgnoreCase(request.getRole());
-        if (roleOptional.isEmpty()) {
-            logger.error("ROLE_USER not found in the database");
-            throw new RuntimeException("Internal server error during registration as USER role is missing");
-        }
         Role role = roleOptional.get();
-        AuthUserRole authUserRole = new AuthUserRole();
-        authUserRole.setAuthUser(authUser);
-        authUserRole.setRole(role);
-        try {
-            authUserRoleDao.save(authUserRole);
-        } catch (Exception e) {
-            logger.error("Error assigning ROLE_USER to AuthUser id: {}", savedAuthUser.getId(), e);
-            throw new RuntimeException("Internal server error during registration");
+        if (role.getName().equalsIgnoreCase("USER") || role.getName().equalsIgnoreCase("ADMIN")) {
+            AuthUserRole authUserRole = new AuthUserRole();
+            authUserRole.setAuthUser(savedAuthUser);
+            authUserRole.setRole(role);
+            try {
+                authUserRoleDao.save(authUserRole);
+            } catch (Exception e) {
+                logger.error("Error assigning ROLE_USER to AuthUser id: {}", savedAuthUser.getId(), e);
+                throw new RuntimeException("Internal server error during registration");
+            }
+        } else {
+            logger.warn("Invalid role specified during registration: {}. Defaulting to ROLE_USER", request.getRole());
+            throw new CustomAuthException("Invalid role specified. Allowed values: USER, ADMIN");
         }
         return buildRegistrationResponseWithoutToken(savedAuthUser, savedAppUser);
     }

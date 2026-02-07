@@ -21,23 +21,27 @@ public class RoleDaoImpl extends GenericDaoImpl<Role, Long> implements RoleDao {
 
     @Override
     public Optional<Role> findByNameIgnoreCase(String name) {
+        if(name==null || name.isEmpty()){
+            return Optional.empty();
+        }
         TypedQuery<Role> query = em.createQuery(
-                "SELECT r FROM Role r WHERE LOWER(r.name) = LOWER(:name)",
+                "SELECT r FROM Role r WHERE UPPER(r.name) = UPPER(:name)",
                 Role.class
         );
-        query.setParameter("name", name);
+        query.setParameter("name", name.trim());
 
-        try {
-            return Optional.of(query.getSingleResult());
-        } catch (Exception e) {
+        List<Role> results = query.getResultList();
+        if (results.isEmpty()) {
             return Optional.empty();
+        } else {
+            return Optional.of(results.get(0));
         }
     }
 
     @Override
     public boolean existsByNameIgnoreCase(String name) {
         TypedQuery<Long> query = em.createQuery(
-                "SELECT COUNT(r) FROM Role r WHERE LOWER(r.name) = LOWER(:name)",
+                "SELECT COUNT(r) FROM Role r WHERE UPPER(r.name) = UPPER(:name)",
                 Long.class
         );
         query.setParameter("name", name);

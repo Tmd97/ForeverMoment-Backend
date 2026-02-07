@@ -20,6 +20,7 @@ public class RegisterRequest {
     private String phoneNumber;
     private String preferredCity;
 
+    @NotBlank(message = "Role is required. Allowed values: USER, ADMIN")
     private String role; // Optional: role can be set by admin or default to "USER"
 
     // Constructors

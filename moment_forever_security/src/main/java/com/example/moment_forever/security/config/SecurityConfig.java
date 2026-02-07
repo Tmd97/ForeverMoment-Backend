@@ -85,7 +85,7 @@ public class SecurityConfig {
                                 "/swagger-resources/**"   // Swagger resources
                         ).permitAll()
                         //2. Admin endpoints
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
 
 
                         // 3. User endpoints
@@ -93,7 +93,7 @@ public class SecurityConfig {
                                 "/user/**",
                                 "/booking/**",
                                 "/review/**"
-                        ).hasRole("USER")
+                        ).hasAnyRole("USER","ADMIN")
 
                         // 4. All other requests require authentication - MUST BE LAST
                         .anyRequest().authenticated()
