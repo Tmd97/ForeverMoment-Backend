@@ -19,20 +19,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/user")
 public class AppUserController {
-
-
     @Autowired
     private AppUserService appUserService;
-
-
-//    @PostMapping("/profile/")
-//    public ResponseEntity<ApiResponse<?>> createUserProfile(@RequestBody ApplicationUserDto userDto) {
-//        ApplicationUserDto applicationUserDto = appUserService.createUserProfile(userDto);
-//        return ResponseEntity.ok(
-//                ResponseUtil.buildCreatedResponse(applicationUserDto, AppConstants.MSG_CREATED)
-//        );
-//    }
-
 
     @GetMapping("/profile/{userId}")
     public ResponseEntity<ApiResponse<?>> getUserProfile(@PathVariable Long userId) {

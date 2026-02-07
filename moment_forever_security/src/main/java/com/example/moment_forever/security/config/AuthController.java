@@ -64,7 +64,7 @@ public class AuthController {
      * POST /api/auth/logout
      */
     @PostMapping("/logout")
-    public ApiResponse<?> logout(
+    public ResponseEntity<ApiResponse<?>> logout(
             @RequestHeader("Authorization") String token) {
 
         // Remove "Bearer " prefix if present
@@ -72,7 +72,7 @@ public class AuthController {
             token = token.substring(7);
         }
         authService.logout(token);
-        return ResponseUtil.buildOkResponse(null,"Logout successful");
+        return ResponseEntity.status(HttpStatus.CREATED).body(ResponseUtil.buildOkResponse(null,"Logout successful"));
     }
 
     /**
