@@ -1,5 +1,6 @@
 package com.example.moment_forever.core.services;
 
+import com.example.moment_forever.common.errorhandler.ResourceNotFoundException;
 import com.example.moment_forever.core.dto.SubCategoryDto;
 import com.example.moment_forever.core.mapper.SubCategoryBeanMapper;
 import com.example.moment_forever.data.dao.CategoryDao;
@@ -114,7 +115,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     public List<SubCategoryDto> getAll() {
         List<SubCategory> subCategories = subCategoryDao.findAll();
         if (subCategories == null || subCategories.isEmpty()) {
-            throw new RuntimeException("No SubCategories exist");
+            throw new ResourceNotFoundException("No SubCategories exist");
         }
         return subCategories.stream()
                 .map(SubCategoryBeanMapper::mapEntityToDto)

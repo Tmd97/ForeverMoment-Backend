@@ -1,51 +1,31 @@
-package com.example.moment_forever.data.entities;
+package com.example.moment_forever.core.dto;
 
-import com.example.moment_forever.data.entities.auth.AuthUser;
-import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "application_users")
-public class ApplicationUser extends NamedEntity {
+public class UserProfileRequestDto {
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "auth_user_id", unique = true, nullable = false)
-    private AuthUser authUser;
-
-    @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
 
-    @Column(name = "email", nullable = false, unique = true, length = 150)
+    @NotBlank(message = "Email is required")
+    @Email
+    @Size(max = 150)
     private String email;
 
-    @Column(name = "phone_number", length = 20)
+    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number")
     private String phoneNumber;
 
-    @Column(name = "profile_picture_url", length = 500)
+    @Size(max = 500)
     private String profilePictureUrl;
 
-    @Column(name = "date_of_birth")
     private LocalDateTime dateOfBirth;
 
-    @Column(name = "preferred_city", length = 50)
+    @Size(max = 50)
     private String preferredCity;
-
-    public ApplicationUser() {
-    }
-
-    public ApplicationUser(String fullName, String email) {
-        this.fullName = fullName;
-        this.email = email;
-    }
-
-    public void setAuthUser(AuthUser authUser) {
-        this.authUser = authUser;
-    }
-
-    public AuthUser getAuthUser() {
-        return authUser;
-    }
 
     public String getFullName() {
         return fullName;

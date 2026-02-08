@@ -1,8 +1,10 @@
 package com.example.moment_forever.data.dao.auth;
 
+import com.example.moment_forever.common.errorhandler.ResourceNotFoundException;
 import com.example.moment_forever.data.dao.GenericDaoImpl;
 import com.example.moment_forever.data.entities.auth.AuthUser;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
@@ -28,8 +30,8 @@ public class AuthUserDaoImpl extends GenericDaoImpl<AuthUser, Long> implements A
 
         try {
             return Optional.of(query.getSingleResult());
-        } catch (Exception e) {
-            return Optional.empty();
+        } catch (NoResultException e) {
+            throw new ResourceNotFoundException("User not found with username: " + username);
         }
     }
 
@@ -68,8 +70,8 @@ public class AuthUserDaoImpl extends GenericDaoImpl<AuthUser, Long> implements A
 
         try {
             return Optional.of(query.getSingleResult());
-        } catch (Exception e) {
-            return Optional.empty();
+        } catch (NoResultException e) {
+            throw new ResourceNotFoundException("User not found with username: " + username);
         }
     }
 }

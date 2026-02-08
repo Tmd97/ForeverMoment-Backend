@@ -25,7 +25,7 @@ public abstract class NamedEntity {
     private Date createdOn;
 
     @UpdateTimestamp
-    @Column(name = "updated_on", insertable = false, updatable = false)
+    @Column(name = "updated_on")
     private Date updatedOn;
 
     public Long getId() {

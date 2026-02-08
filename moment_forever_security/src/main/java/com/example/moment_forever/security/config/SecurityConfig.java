@@ -2,6 +2,7 @@ package com.example.moment_forever.security.config;
 
 import com.example.moment_forever.security.jwt_exception_handler.JwtAccessDeniedHandler;
 import com.example.moment_forever.security.jwt_exception_handler.JwtAuthenticationEntryPoint;
+import com.example.moment_forever.security.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,13 +15,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * SecurityConfig - Main security configuration
- *
+ * <p>
  * Configures:
  * 1. Which endpoints are public/protected
  * 2. JWT authentication filter
@@ -58,9 +58,6 @@ public class SecurityConfig {
         this.accessDeniedHandler = accessDeniedHandler;
     }
 
-    /**
-     * Main security filter chain configuration
-     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -72,30 +69,24 @@ public class SecurityConfig {
                 )
                 // Configure authorization rules - ORDER IS IMPORTANT!
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Public endpoints - should come FIRST
+                        //Public endpoints - should come FIRST
                         // Request matchers strip the context path automatically
                         .requestMatchers(
-                                "/auth/**",// All auth endpoints
-                                "/public/**",         // All public endpoints
-                                "/error",                 // Error endpoint
-                                "/swagger-ui/**",         // Swagger UI
-                                "/v3/api-docs/**",        // API docs
-                                "/swagger-ui.html",       // Swagger HTML
-                                "/webjars/**",            // WebJars for Swagger
-                                "/swagger-resources/**"   // Swagger resources
+                                "/auth/**",
+                                "/public/**",
+                                "/error",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"           //for Swagger UI assets)
                         ).permitAll()
-                        //2. Admin endpoints
-                        .requestMatchers("/admin/**").hasAnyRole("ADMIN")
-
-
-                        // 3. User endpoints
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers(
                                 "/user/**",
                                 "/booking/**",
                                 "/review/**"
-                        ).hasRole("USER")
-
-                        // 4. All other requests require authentication - MUST BE LAST
+                        ).hasAnyRole("USER", "ADMIN")
                         .anyRequest().authenticated()
                 )
 

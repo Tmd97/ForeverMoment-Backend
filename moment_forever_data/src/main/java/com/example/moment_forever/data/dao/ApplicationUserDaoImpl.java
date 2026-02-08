@@ -1,4 +1,6 @@
 package com.example.moment_forever.data.dao;
+
+import com.example.moment_forever.common.errorhandler.ResourceNotFoundException;
 import com.example.moment_forever.data.entities.ApplicationUser;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
@@ -42,7 +44,7 @@ public class ApplicationUserDaoImpl extends GenericDaoImpl<ApplicationUser, Long
         try {
             return Optional.of(query.getSingleResult());
         } catch (Exception e) {
-            return Optional.empty();
+            throw new ResourceNotFoundException("ApplicationUser with authUserId " + authUserId + " not found");
         }
     }
 
@@ -111,5 +113,12 @@ public class ApplicationUserDaoImpl extends GenericDaoImpl<ApplicationUser, Long
         query.setParameter("pattern", searchPattern);
 
         return query.getResultList();
+    }
+
+    @Override
+    public void deleteByAppUserId(Long authUserId) {
+        em.createQuery("DELETE FROM ApplicationUser a WHERE a.authUser.id = :authUserId")
+                .setParameter("authUserId", authUserId)
+                .executeUpdate();
     }
 }

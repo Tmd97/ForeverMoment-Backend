@@ -1,51 +1,24 @@
-package com.example.moment_forever.data.entities;
-
-import com.example.moment_forever.data.entities.auth.AuthUser;
-import jakarta.persistence.*;
+package com.example.moment_forever.core.dto;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "application_users")
-public class ApplicationUser extends NamedEntity {
-
-    @OneToOne(optional = false)
-    @JoinColumn(name = "auth_user_id", unique = true, nullable = false)
-    private AuthUser authUser;
-
-    @Column(name = "full_name", nullable = false, length = 100)
+public class ApplicationUserDto {
+    private Long id;
     private String fullName;
-
-    @Column(name = "email", nullable = false, unique = true, length = 150)
     private String email;
-
-    @Column(name = "phone_number", length = 20)
     private String phoneNumber;
-
-    @Column(name = "profile_picture_url", length = 500)
     private String profilePictureUrl;
-
-    @Column(name = "date_of_birth")
     private LocalDateTime dateOfBirth;
-
-    @Column(name = "preferred_city", length = 50)
     private String preferredCity;
 
-    public ApplicationUser() {
+    public Long getId() {
+        return id;
     }
 
-    public ApplicationUser(String fullName, String email) {
-        this.fullName = fullName;
-        this.email = email;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setAuthUser(AuthUser authUser) {
-        this.authUser = authUser;
-    }
-
-    public AuthUser getAuthUser() {
-        return authUser;
-    }
 
     public String getFullName() {
         return fullName;

@@ -1,10 +1,13 @@
 package com.example.moment_forever.common.response;
 
+import java.util.List;
+
 public class ApiResponse<T> {
     private int code;
     private String status;
     private String msg;
     private T response;
+    private List<String> errors; // NEW: for validation errors
 
     // Private constructor - only Builder can create instances
     ApiResponse(ApiResponseBuilder<T> builder) {
@@ -12,12 +15,7 @@ public class ApiResponse<T> {
         this.status = builder.status;
         this.msg = builder.msg;
         this.response = builder.response;
-    }
-
-    public ApiResponse (final int code, final String status, final String message) {
-        this.code = code;
-        this.status = status;
-        this.msg = message;
+        this.errors = builder.errors;
     }
 
     // Remove all other constructors and the created() method
@@ -39,6 +37,10 @@ public class ApiResponse<T> {
         return response;
     }
 
+    public List<String> getErrors() {
+        return errors;
+    }
+
     // Static method to get a builder
     public static <T> ApiResponseBuilder<T> builder() {
         return new ApiResponseBuilder<T>();
@@ -50,9 +52,11 @@ public class ApiResponse<T> {
         private String status;
         private String msg;
         private T response;
+        private List<String> errors; // NEW: for validation errors
 
         // Private constructor
-        private ApiResponseBuilder() {}
+        private ApiResponseBuilder() {
+        }
 
         public ApiResponseBuilder<T> setCode(int code) {
             this.code = code;
@@ -73,6 +77,14 @@ public class ApiResponse<T> {
             this.response = response;
             return this;
         }
+
+        public ApiResponseBuilder<T> setErrors(List<String> errors) {
+            this.errors = errors;
+            return this;
+        }
+
+
+
 
         public ApiResponse<T> build() {
             // You can add validation here if needed

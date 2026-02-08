@@ -1,4 +1,4 @@
-package com.example.moment_forever.security.config;
+package com.example.moment_forever.security.service;
 
 import com.example.moment_forever.data.dao.auth.AuthUserDao;
 import com.example.moment_forever.data.entities.auth.AuthUser;
