@@ -1,9 +1,9 @@
-package com.example.moment_forever.security.config;
+package com.example.moment_forever.security.dto;
 import com.example.moment_forever.data.entities.auth.AuthUser;
 
 public class AuthBeanMapper {
 
-    public static AuthUser mapDtoToEntity(RegisterRequest registerRequest) {
+    public static AuthUser mapDtoToEntity(RegisterRequestDto registerRequest) {
         AuthUser authUser= new AuthUser();
         authUser.setUsername(registerRequest.getEmail());
         authUser.setPassword(registerRequest.getPassword());
@@ -15,7 +15,7 @@ public class AuthBeanMapper {
     }
 
      public static void mapEntityToDto(AuthUser authUser) {
-        RegisterRequest registerRequest = new RegisterRequest();
+        RegisterRequestDto registerRequest = new RegisterRequestDto();
         registerRequest.setEmail(authUser.getUsername());
         registerRequest.setPassword(authUser.getPassword());
 

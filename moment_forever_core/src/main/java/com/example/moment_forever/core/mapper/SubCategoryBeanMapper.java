@@ -20,7 +20,6 @@ public class SubCategoryBeanMapper {
         if (entity == null) return null;
 
         SubCategoryDto dto = new SubCategoryDto();
-        dto.setId(entity.getId());
         dto.setName(entity.getName());
         dto.setDescription(entity.getDescription());
         dto.setSlug(entity.getSlug());

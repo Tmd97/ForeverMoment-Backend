@@ -1,10 +1,11 @@
-package com.example.moment_forever.security.config;
+package com.example.moment_forever.security.dto;
 
+import com.example.moment_forever.data.entities.NamedEntity;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public class RegisterRequest {
+public class RegisterRequestDto extends NamedEntity {
 
     @NotBlank(message = "Email is required")
     @Email(message = "Valid email is required")
@@ -24,10 +25,10 @@ public class RegisterRequest {
     private String role; // Optional: role can be set by admin or default to "USER"
 
     // Constructors
-    public RegisterRequest() {
+    public RegisterRequestDto() {
     }
 
-    public RegisterRequest(String email, String password, String fullName) {
+    public RegisterRequestDto(String email, String password, String fullName) {
         this.email = email;
         this.password = password;
         this.fullName = fullName;

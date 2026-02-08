@@ -1,4 +1,4 @@
-package com.example.moment_forever.security.config;
+package com.example.moment_forever.security.service;
 
 import com.example.moment_forever.common.errorhandler.CustomAuthException;
 import com.example.moment_forever.data.dao.auth.AuthUserDao;
@@ -7,6 +7,7 @@ import com.example.moment_forever.data.entities.auth.AuthUser;
 import com.example.moment_forever.data.entities.auth.AuthUserRole;
 import com.example.moment_forever.data.entities.auth.RefreshToken;
 import com.example.moment_forever.data.entities.auth.Role;
+import com.example.moment_forever.security.dto.AuthResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.transaction.Transactional;
@@ -106,7 +107,7 @@ public class JwtService {
     }
 
     // ===== Hash helper =====
-    private String hashToken(String token) {
+    public String hashToken(String token) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(token.getBytes(StandardCharsets.UTF_8));

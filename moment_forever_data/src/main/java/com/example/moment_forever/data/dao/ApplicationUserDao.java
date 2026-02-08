@@ -45,4 +45,6 @@ public interface ApplicationUserDao extends GenericDao<ApplicationUser, Long> {
      * Search users by name or email (partial match, case-insensitive)
      */
     List<ApplicationUser> searchByNameOrEmail(String searchTerm);
+
+    void deleteByAppUserId(Long id);
 }

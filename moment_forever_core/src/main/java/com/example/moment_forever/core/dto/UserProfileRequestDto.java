@@ -1,25 +1,30 @@
 package com.example.moment_forever.core.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.time.LocalDateTime;
 
-public class ApplicationUserDto {
-    private Long id;
+public class UserProfileRequestDto {
+
     private String fullName;
+
+    @NotBlank(message = "Email is required")
+    @Email
+    @Size(max = 150)
     private String email;
+
+    @Size(max = 20)
     private String phoneNumber;
+
+    @Size(max = 500)
     private String profilePictureUrl;
+
     private LocalDateTime dateOfBirth;
+
+    @Size(max = 50)
     private String preferredCity;
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long setId(Long id) {
-        this.id = id;
-        return id;
-    }
-
 
     public String getFullName() {
         return fullName;

@@ -1,18 +1,17 @@
 package com.example.moment_forever.data.entities;
 
+import com.example.moment_forever.data.entities.auth.AuthUser;
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "application_users")
-public class ApplicationUser {
+public class ApplicationUser extends NamedEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "auth_user_id", nullable = false, unique = true)
-    private Long authUserId; // Reference to AuthUser.id
+    @OneToOne(optional = false)
+    @JoinColumn(name = "auth_user_id", unique = true, nullable = false)
+    private AuthUser authUser;
 
     @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
@@ -32,34 +31,20 @@ public class ApplicationUser {
     @Column(name = "preferred_city", length = 50)
     private String preferredCity;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    public ApplicationUser() {
+    }
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    public ApplicationUser() {}
-
-    public ApplicationUser(Long authUserId, String fullName, String email) {
-        this.authUserId = authUserId;
+    public ApplicationUser(String fullName, String email) {
         this.fullName = fullName;
         this.email = email;
     }
 
-    public Long getId() {
-        return id;
+    public void setAuthUser(AuthUser authUser) {
+        this.authUser = authUser;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getAuthUserId() {
-        return authUserId;
-    }
-
-    public void setAuthUserId(Long authUserId) {
-        this.authUserId = authUserId;
+    public AuthUser getAuthUser() {
+        return authUser;
     }
 
     public String getFullName() {
@@ -108,34 +93,5 @@ public class ApplicationUser {
 
     public void setPreferredCity(String preferredCity) {
         this.preferredCity = preferredCity;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    // Lifecycle callbacks
-    @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
     }
 }

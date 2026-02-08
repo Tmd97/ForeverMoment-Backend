@@ -1,16 +1,16 @@
-package com.example.moment_forever.security.config;
+package com.example.moment_forever.security.service;
 
 import com.example.moment_forever.common.errorhandler.CustomAuthException;
-import com.example.moment_forever.common.response.ApiResponse;
-import com.example.moment_forever.common.response.ResponseUtil;
 import com.example.moment_forever.data.dao.ApplicationUserDao;
 import com.example.moment_forever.data.dao.auth.AuthUserDao;
 import com.example.moment_forever.data.dao.auth.AuthUserRoleDao;
+import com.example.moment_forever.data.dao.auth.RefreshTokenDao;
 import com.example.moment_forever.data.dao.auth.RoleDao;
 import com.example.moment_forever.data.entities.ApplicationUser;
 import com.example.moment_forever.data.entities.auth.AuthUser;
 import com.example.moment_forever.data.entities.auth.AuthUserRole;
 import com.example.moment_forever.data.entities.auth.Role;
+import com.example.moment_forever.security.dto.*;
 import jakarta.validation.Valid;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -33,8 +33,9 @@ public class AuthService {
     private final RoleDao roleDao;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final RefreshTokenDao refreshTokenDao;
 
-    public AuthService(AuthenticationManager authenticationManager, AuthUserDao authUserDao, AuthUserRoleDao authUserRoleDao, ApplicationUserDao applicationUserDao, RoleDao roleDao, PasswordEncoder passwordEncoder, JwtService jwtService) {
+    public AuthService(AuthenticationManager authenticationManager, AuthUserDao authUserDao, AuthUserRoleDao authUserRoleDao, ApplicationUserDao applicationUserDao, RoleDao roleDao, PasswordEncoder passwordEncoder, JwtService jwtService, RefreshTokenDao refreshTokenDao) {
         this.authenticationManager = authenticationManager;
         this.authUserDao = authUserDao;
         this.authUserRoleDao = authUserRoleDao;
@@ -42,31 +43,18 @@ public class AuthService {
         this.roleDao = roleDao;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
+        this.refreshTokenDao = refreshTokenDao;
     }
 
-    /**
-     * 1. Register a new user
-     */
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequestDto request) {
 
         validateEmailNotExists(request.getEmail());
-        // Step 1: Create and save AuthUser
-        AuthUser authUser = createAuthUser(request);  // Transient
-        // TODO: (encoding to be done) ENCODE THE PASSWORD HERE!
+        AuthUser authUser = AuthBeanMapper.mapDtoToEntity(request);
+        //TODO: (encoding to be done) ENCODE THE PASSWORD HERE!
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         authUser.setPassword(encodedPassword);
-        AuthUser savedAuthUser = authUserDao.save(authUser);  // Now MANAGED
 
-        // Step 2: Create and save ApplicationUser
-        ApplicationUser appUser = createApplicationUser(request, savedAuthUser.getId());  // Transient
-        ApplicationUser savedAppUser = applicationUserDao.save(appUser);  // Now MANAGED
-
-        // Step 3: Link them together
-        savedAuthUser.setExternalUserId(savedAppUser.getId());  // Auto-tracked
-        savedAppUser.setAuthUserId(savedAuthUser.getId());      // Auto-tracked
-
-        // Step 4: Map ROLE_USER to the new AuthUser
         Optional<Role> roleOptional = roleDao.findByNameIgnoreCase(request.getRole());
         if (roleOptional.isEmpty()) {
             logger.warn("Role not found during registration: {}. Defaulting to ROLE_USER", request.getRole());
@@ -74,8 +62,15 @@ public class AuthService {
         }
         Role role = roleOptional.get();
         AuthUserRole authUserRole = new AuthUserRole();
-        authUserRole.setAuthUser(savedAuthUser);
+        authUserRole.setAuthUser(authUser);
         authUserRole.setRole(role);
+        AuthUser savedAuthUser = authUserDao.save(authUser);
+
+        // create User profile (minimal info) and link to AuthUser
+        ApplicationUser appUser = AppUserBeanMapper.mapDtoToEntity(request);
+        appUser.setAuthUser(authUser);
+        ApplicationUser savedAppUser = applicationUserDao.save(appUser);
+
         try {
             authUserRoleDao.save(authUserRole);
         } catch (Exception e) {
@@ -94,26 +89,6 @@ public class AuthService {
         return registrationResponse;
     }
 
-    private ApplicationUser createApplicationUser(RegisterRequest request, Long authUserId) {
-        ApplicationUser applicationUser = AppUserBeanMapper.mapDtoToEntity(request, authUserId);
-        try {
-            return applicationUserDao.save(applicationUser);
-        } catch (Exception e) {
-            logger.error("Error creating ApplicationUser for authUserId: {}", authUserId, e);
-            throw new RuntimeException("Internal server error during registration");
-        }
-
-    }
-
-    private AuthUser createAuthUser(RegisterRequest request) {
-        try {
-            return AuthBeanMapper.mapDtoToEntity(request);
-        } catch (Exception e) {
-            logger.error("Error mapping RegisterRequest to AuthUser entity", e);
-            throw new CustomAuthException("Internal server error during registration");
-        }
-    }
-
     private void validateEmailNotExists(String email) {
         if (authUserDao.existsByUsername(email)) {
             logger.warn("Registration failed: Email already exists - {}", email);
@@ -129,6 +104,16 @@ public class AuthService {
             throw new CustomAuthException("Please register before logging in. User not found: " + request.getEmail());
         }
         AuthUser authUser = authUserOptional.get();
+
+        if (!authUser.isAccountNonLocked()) {
+            logger.warn("Login failed: Account is locked for user - {}", request.getEmail());
+            throw new CustomAuthException("Your account is locked. Please contact support.");
+        }
+        if (!authUser.isAccountNonExpired()) {
+            logger.warn("Login failed: Account is expired for user - {}", request.getEmail());
+            throw new CustomAuthException("Your account is expired. Please verify your email.");
+        }
+
         validateUserCredentials(request, authUser);
         String jwtToken = jwtService.generateToken(authUser);
         String refreshToken = jwtService.generateAndSaveRefreshToken(authUser);
@@ -147,6 +132,8 @@ public class AuthService {
             throw new CustomAuthException("Refresh token is required for logout");
         }
         try {
+            // revoke the refresh token to invalidate the session, access token will expire on its own after short time
+            // it will log out from the current session, other sessions will remain active until their refresh tokens are revoked or expired
             jwtService.revokeRefreshToken(refreshToken);
             logger.info("User logged out successfully");
         } catch (Exception e) {
@@ -160,13 +147,6 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), authUser.getPassword())) {
             logger.warn("Login failed: Invalid password for user - {}", request.getEmail());
             throw new CustomAuthException("Invalid email or password");
-        }
-    }
-
-    private void validateUserCredentialsWithoutEncryption(@Valid LoginRequest request, AuthUser authUser) {
-        if (!request.getPassword().equals(authUser.getPassword())) {
-            logger.warn("Login failed: Invalid password for user - {}", request.getEmail());
-            throw new IllegalArgumentException("Invalid email or password");
         }
     }
 

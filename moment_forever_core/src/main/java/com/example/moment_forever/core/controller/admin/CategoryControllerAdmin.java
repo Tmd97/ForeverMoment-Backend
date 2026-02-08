@@ -1,4 +1,4 @@
-package com.example.moment_forever.core.controller.restricted;
+package com.example.moment_forever.core.controller.admin;
 
 import com.example.moment_forever.common.response.ApiResponse;
 import com.example.moment_forever.common.response.ResponseUtil;
