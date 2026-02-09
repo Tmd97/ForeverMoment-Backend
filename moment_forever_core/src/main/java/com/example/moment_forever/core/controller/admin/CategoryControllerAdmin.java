@@ -55,7 +55,6 @@ public class CategoryControllerAdmin {
         );
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<?>> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);

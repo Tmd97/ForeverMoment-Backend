@@ -37,6 +37,9 @@ public class SubCategoryServiceImpl implements SubCategoryService {
         }
 
         // Get the Category
+        if(requestDto.getCategoryId() == null) {
+            throw new IllegalArgumentException("Category id must be provided for SubCategory creation");
+        }
         Category category = categoryDao.findById(requestDto.getCategoryId());
         if (category == null) {
             throw new IllegalArgumentException("Category with id " + requestDto.getCategoryId() + " not found");
