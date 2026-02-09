@@ -1,30 +1,13 @@
-package com.example.moment_forever.core.dto.request;
-
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+package com.example.moment_forever.common.dto.response;
 
 import java.time.LocalDateTime;
 
-public class UserProfileRequestDto {
-
+public class AppUserResponseDto extends NamedEntityDto {
     private String fullName;
-
-    @NotBlank(message = "Email is required")
-    @Email
-    @Size(max = 150)
     private String email;
-
-    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number")
     private String phoneNumber;
-
-    @Size(max = 500)
     private String profilePictureUrl;
-
     private LocalDateTime dateOfBirth;
-
-    @Size(max = 50)
     private String preferredCity;
 
     public String getFullName() {

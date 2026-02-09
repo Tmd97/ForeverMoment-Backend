@@ -10,7 +10,10 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
 
 //TODO: Email Based authentication, Password Reset, Account Verification, etc.
 @RestController
@@ -24,6 +27,7 @@ public class AuthController {
         this.authService = authService;
     }
 
+                          // Only admin can register new users (for now)
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<?>> register(
             @Valid @RequestBody RegisterRequestDto request) {

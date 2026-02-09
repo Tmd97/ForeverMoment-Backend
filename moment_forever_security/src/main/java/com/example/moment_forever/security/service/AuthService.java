@@ -150,6 +150,9 @@ public class AuthService {
         }
     }
 
+    /*
+        * Generate a new refresh token using the provided refresh token
+     */
     @Transactional
     public AuthResponse generateRefreshToken(String oldRefreshToken) {
         return jwtService.generateRefreshTokenWithAccessToken(oldRefreshToken);

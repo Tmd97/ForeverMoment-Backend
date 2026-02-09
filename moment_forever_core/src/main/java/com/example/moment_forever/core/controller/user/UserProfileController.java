@@ -2,8 +2,8 @@ package com.example.moment_forever.core.controller.user;
 
 import com.example.moment_forever.common.response.ApiResponse;
 import com.example.moment_forever.common.response.ResponseUtil;
-import com.example.moment_forever.core.dto.response.AppUserResponseDto;
-import com.example.moment_forever.core.dto.request.UserProfileRequestDto;
+import com.example.moment_forever.common.dto.response.AppUserResponseDto;
+import com.example.moment_forever.common.dto.request.UserProfileRequestDto;
 import com.example.moment_forever.core.services.UserProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

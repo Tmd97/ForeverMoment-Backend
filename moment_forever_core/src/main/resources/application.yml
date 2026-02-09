@@ -111,7 +111,7 @@ jwt:
   secret: "your-256-bit-secret-key-must-be-at-least-32-characters-long-here"
 
   # Token expiration times (in milliseconds)
-  expiration: 86400000    # 24 hours = 24 * 60 * 60 * 1000
+  expiration: 900000    # 24 hours = 24 * 60 * 60 * 1000
   refresh-expiration: 604800000  # 7 days = 7 * 24 * 60 * 60 * 1000
 
   # Token issuer (optional)

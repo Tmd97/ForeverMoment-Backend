@@ -1,8 +1,7 @@
-package com.example.moment_forever.core.dto.request;
+package com.example.moment_forever.common.dto.response;
 
-public class SubCategoryRequestDto{
+public class SubCategoryResponseDto extends NamedEntityDto{
 
-    private String name;
     private String description;
     private String slug;
     private String icon;
@@ -14,7 +13,7 @@ public class SubCategoryRequestDto{
     private String categorySlug;
 
     // Constructors
-    public SubCategoryRequestDto() {}
+    public SubCategoryResponseDto() {}
 
 
     public void setActive(Boolean active) {
@@ -92,12 +91,4 @@ public class SubCategoryRequestDto{
     public void setCategorySlug(String categorySlug) {
         this.categorySlug = categorySlug;
     }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
 }

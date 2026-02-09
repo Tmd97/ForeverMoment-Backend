@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
 
     // 5️⃣ Optional: Catch-all for any other exceptions
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAllExceptions(Exception ex) {
+    public ResponseEntity<ApiResponse<Void>> handleAllExceptions(RuntimeException ex) {
         log.error("Unexpected exception", ex);
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)

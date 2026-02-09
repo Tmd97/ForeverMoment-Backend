@@ -1,7 +1,7 @@
 package com.example.moment_forever.core.mapper;
 
-import com.example.moment_forever.core.dto.request.SubCategoryRequestDto;
-import com.example.moment_forever.core.dto.response.SubCategoryResponseDto;
+import com.example.moment_forever.common.dto.request.SubCategoryRequestDto;
+import com.example.moment_forever.common.dto.response.SubCategoryResponseDto;
 import com.example.moment_forever.data.entities.SubCategory;
 
 public class SubCategoryBeanMapper {

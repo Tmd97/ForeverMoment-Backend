@@ -1,9 +1,9 @@
 package com.example.moment_forever.core.services;
 
 import com.example.moment_forever.common.errorhandler.ResourceNotFoundException;
-import com.example.moment_forever.core.dto.request.CategoryRequestDto;
-import com.example.moment_forever.core.dto.request.SubCategoryRequestDto;
-import com.example.moment_forever.core.dto.response.CategoryResponseDto;
+import com.example.moment_forever.common.dto.request.CategoryRequestDto;
+import com.example.moment_forever.common.dto.request.SubCategoryRequestDto;
+import com.example.moment_forever.common.dto.response.CategoryResponseDto;
 import com.example.moment_forever.core.mapper.CategoryBeanMapper;
 import com.example.moment_forever.core.mapper.SubCategoryBeanMapper;
 import com.example.moment_forever.data.dao.CategoryDao;

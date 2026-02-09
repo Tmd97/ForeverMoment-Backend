@@ -3,7 +3,7 @@ package com.example.moment_forever.core.controller.pub;
 import com.example.moment_forever.common.response.ApiResponse;
 import com.example.moment_forever.common.response.ResponseUtil;
 import com.example.moment_forever.common.utils.AppConstants;
-import com.example.moment_forever.core.dto.response.SubCategoryResponseDto;
+import com.example.moment_forever.common.dto.response.SubCategoryResponseDto;
 import com.example.moment_forever.core.services.SubCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

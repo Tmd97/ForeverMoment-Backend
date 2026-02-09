@@ -2,8 +2,8 @@ package com.example.moment_forever.core.services;
 
 import com.example.moment_forever.common.errorhandler.CustomAuthException;
 import com.example.moment_forever.common.errorhandler.ResourceNotFoundException;
-import com.example.moment_forever.core.dto.response.AppUserResponseDto;
-import com.example.moment_forever.core.dto.request.UserProfileRequestDto;
+import com.example.moment_forever.common.dto.response.AppUserResponseDto;
+import com.example.moment_forever.common.dto.request.UserProfileRequestDto;
 import com.example.moment_forever.core.mapper.ApplicationUserBeanMapper;
 import com.example.moment_forever.data.dao.ApplicationUserDao;
 import com.example.moment_forever.data.dao.auth.AuthUserDao;

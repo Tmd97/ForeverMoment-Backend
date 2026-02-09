@@ -3,7 +3,7 @@ package com.example.moment_forever.common.utils;
 public class AppConstants {
 
     // Application
-    public static final String APP_NAME = "CherishX Platform";
+    public static final String APP_NAME = "Moment Forever Platform";
     public static final String VERSION = "1.0.0";
 
     // File Upload

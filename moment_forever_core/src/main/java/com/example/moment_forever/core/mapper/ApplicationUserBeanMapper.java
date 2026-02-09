@@ -1,7 +1,7 @@
 package com.example.moment_forever.core.mapper;
 
-import com.example.moment_forever.core.dto.response.AppUserResponseDto;
-import com.example.moment_forever.core.dto.request.UserProfileRequestDto;
+import com.example.moment_forever.common.dto.response.AppUserResponseDto;
+import com.example.moment_forever.common.dto.request.UserProfileRequestDto;
 import com.example.moment_forever.data.entities.ApplicationUser;
 
 public class ApplicationUserBeanMapper {
