@@ -17,6 +17,7 @@ public class CategoryBeanMapper {
         entity.setDescription(dto.getDescription());
         entity.setSlug(dto.getSlug());
         entity.setDisplayOrder(dto.getDisplayOrder());
+        entity.setActive(dto.getIsActive());
     }
 //    public static void mapDtoToEntity(CategoryRequestDto dto, Category entity) {
 //        entity.setName(dto.getName());
@@ -41,6 +42,7 @@ public class CategoryBeanMapper {
         dto.setDescription(entity.getDescription());
         dto.setSlug(entity.getSlug());
         dto.setDisplayOrder(entity.getDisplayOrder());
+        dto.setIsActive(entity.isActive());
 
         return dto;
     }

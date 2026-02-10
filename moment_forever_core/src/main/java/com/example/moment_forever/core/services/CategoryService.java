@@ -37,8 +37,8 @@ public class CategoryService {
 //                category.setSubCategory(subCategory);
 //            }
 //        }
-        categoryDao.save(category);
-        return CategoryBeanMapper.mapEntityToDto(category);
+        Category res = categoryDao.save(category);
+        return CategoryBeanMapper.mapEntityToDto(res);
     }
 
     @Transactional
@@ -50,7 +50,7 @@ public class CategoryService {
         }
         // map only updatable fields
         CategoryBeanMapper.mapDtoToEntity(categoryRequestDto, existing);
-         Category res=categoryDao.update(existing);
+        Category res = categoryDao.update(existing);
         return CategoryBeanMapper.mapEntityToDto(res);
 
     }
