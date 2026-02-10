@@ -21,7 +21,7 @@ public class SubCategoryRequestDto {
     private String thumbnailUrl;
 
     @Min(0)
-    private Integer displayOrder;
+    private Long displayOrder;
     private Boolean isActive=true;
 
     // Constructors
@@ -76,11 +76,11 @@ public class SubCategoryRequestDto {
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public Integer getDisplayOrder() {
+    public Long getDisplayOrder() {
         return displayOrder;
     }
 
-    public void setDisplayOrder(Integer displayOrder) {
+    public void setDisplayOrder(Long displayOrder) {
         this.displayOrder = displayOrder;
     }
 

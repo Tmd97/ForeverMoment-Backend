@@ -24,6 +24,9 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     @Autowired
     private CategoryDao categoryDao;
 
+    @Autowired
+    private ReorderingService reorderingService;
+
     @Override
     @Transactional
     public SubCategoryResponseDto createSubCategory(SubCategoryRequestDto requestDto) {
@@ -45,6 +48,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
         SubCategory subCategory = new SubCategory();
         SubCategoryBeanMapper.mapDtoToEntity(requestDto, subCategory);
         subCategory.setCategory(category);
+        Long max=reorderingService.getMaxOrder(SubCategory.class);
+        subCategory.setDisplayOrder(max+1);
         SubCategory saved = subCategoryDao.save(subCategory);
 
         SubCategoryResponseDto responseDto= SubCategoryBeanMapper.mapEntityToDto(saved);

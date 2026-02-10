@@ -6,7 +6,7 @@ public class SubCategoryResponseDto extends NamedEntityDto{
     private String slug;
     private String icon;
     private String thumbnailUrl;
-    private Integer displayOrder;
+    private Long displayOrder;
     private Boolean isActive;
     private Long categoryId;
     private String categoryName;
@@ -52,11 +52,11 @@ public class SubCategoryResponseDto extends NamedEntityDto{
         this.thumbnailUrl = thumbnailUrl;
     }
 
-    public Integer getDisplayOrder() {
+    public Long getDisplayOrder() {
         return displayOrder;
     }
 
-    public void setDisplayOrder(Integer displayOrder) {
+    public void setDisplayOrder(Long displayOrder) {
         this.displayOrder = displayOrder;
     }
 
