@@ -3,6 +3,7 @@ package com.example.moment_forever.data.dao.auth;
 import com.example.moment_forever.common.errorhandler.ResourceNotFoundException;
 import com.example.moment_forever.data.dao.GenericDaoImpl;
 import com.example.moment_forever.data.entities.auth.AuthUser;
+import com.example.moment_forever.data.entities.auth.AuthUserRole;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -10,6 +11,7 @@ import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -73,5 +75,18 @@ public class AuthUserDaoImpl extends GenericDaoImpl<AuthUser, Long> implements A
         } catch (NoResultException e) {
             throw new ResourceNotFoundException("User not found with username: " + username);
         }
+    }
+
+    // it return the empty list not null when no user found with the role id
+    @Override
+    public List<AuthUserRole> findAuthUserByRole(Long id) {
+        TypedQuery<AuthUserRole> query = em.createQuery(
+                "SELECT ur FROM AuthUserRole ur " +
+                        "JOIN FETCH ur.authUser au " +
+                        "WHERE ur.role.id = :roleId",
+                AuthUserRole.class
+        );
+        query.setParameter("roleId", id);
+        return query.getResultList();
     }
 }

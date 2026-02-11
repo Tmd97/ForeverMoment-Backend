@@ -2,7 +2,11 @@ package com.example.moment_forever.core.mapper;
 
 import com.example.moment_forever.common.dto.response.AppUserResponseDto;
 import com.example.moment_forever.common.dto.request.UserProfileRequestDto;
+import com.example.moment_forever.common.dto.response.RoleResponseDto;
 import com.example.moment_forever.data.entities.ApplicationUser;
+import com.example.moment_forever.data.entities.auth.AuthUser;
+
+import java.util.List;
 
 public class ApplicationUserBeanMapper {
 

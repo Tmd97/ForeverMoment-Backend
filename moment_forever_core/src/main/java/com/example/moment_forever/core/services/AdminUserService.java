@@ -7,7 +7,10 @@ import com.example.moment_forever.common.dto.request.UserProfileRequestDto;
 import com.example.moment_forever.core.mapper.ApplicationUserBeanMapper;
 import com.example.moment_forever.data.dao.ApplicationUserDao;
 import com.example.moment_forever.data.dao.auth.AuthUserDao;
+import com.example.moment_forever.data.dao.auth.AuthUserRoleDao;
 import com.example.moment_forever.data.entities.ApplicationUser;
+import com.example.moment_forever.data.entities.auth.AuthUserRole;
+import com.example.moment_forever.data.entities.auth.Role;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -27,6 +31,10 @@ public class AdminUserService {
 
     @Autowired
     private AuthUserDao authUserDao;
+
+    @Autowired
+    private AuthUserRoleDao authUserRoleDao;
+
 
     @Transactional(readOnly = true)
     public AppUserResponseDto getAppUserById(Long id) {
@@ -71,7 +79,7 @@ public class AdminUserService {
 
     //TODO: we can also add soft delete functionality here instead of hard delete, as per requirement
     /*
-        * This method deletes the user account along with the associated authentication details.
+     * This method deletes the user account along with the associated authentication details.
      */
 //    @Transactional
 //    public void deleteUserAccount(Long userId) {
@@ -104,5 +112,17 @@ public class AdminUserService {
         }
         applicationUserDao.deleteByAppUserId(userProfile.getAuthUser().getId());
         logger.info("User Account deleted successfully for userId: {}", userId);
+    }
+
+    @Transactional
+    public List<Role> getUserRoles(Long userId) {
+        List<AuthUserRole> authUserRoles = authUserRoleDao.findByAuthUserId(userId);
+        if (authUserRoles == null || authUserRoles.isEmpty()) {
+            throw new ResourceNotFoundException("No roles found for user id: " + userId);
+        }
+        List<Role> roleList = authUserRoles.stream()
+                .map(AuthUserRole::getRole).collect(Collectors.toList());
+
+        return roleList;
     }
 }

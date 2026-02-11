@@ -17,7 +17,7 @@ public class RoleBeanMapper {
         }
 
         Role role = new Role();
-        role.setName(dto.getName());
+        role.setName(dto.getRoleName());
         role.setDescription(dto.getDescription());
 
         // Set permission level with default value 10 if not provided
@@ -39,7 +39,7 @@ public class RoleBeanMapper {
         }
 
         // Update allowed fields
-        entity.setName(dto.getName());
+        entity.setName(dto.getRoleName());
         entity.setDescription(dto.getDescription());
 
         // Update permission level if provided, otherwise keep existing
@@ -64,7 +64,7 @@ public class RoleBeanMapper {
 
         RoleResponseDto dto = new RoleResponseDto();
         dto.setId(entity.getId());
-        dto.setName(entity.getName());
+        dto.setRoleName(entity.getName());
         dto.setDescription(entity.getDescription());
         dto.setPermissionLevel(entity.getPermissionLevel());
         dto.setActive(entity.isActive());

@@ -1,10 +1,12 @@
 package com.example.moment_forever.common.dto.response;
 
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class RoleResponseDto {
     private Long id;
-    private String name;
+    @JsonProperty("roleName")
+    private String roleName;
     private String description;
     private Integer permissionLevel;
     private Boolean isActive;
@@ -21,13 +23,15 @@ public class RoleResponseDto {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    // New canonical accessors for response
+    public String getRoleName() {
+        return roleName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
+
 
     public String getDescription() {
         return description;

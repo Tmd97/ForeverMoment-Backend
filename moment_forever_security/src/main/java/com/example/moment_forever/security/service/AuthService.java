@@ -75,7 +75,7 @@ public class AuthService {
         appUser.setAuthUser(authUser);
         ApplicationUser savedAppUser = applicationUserDao.save(appUser);
 
-//  TODO: optimize this way (to be done later) authUser.addRole(role);  (that too can be done)
+//  TODO: optimize this way (to be done later)       authUser.addRole(role);  (that too can be done)
 
         try {
             authUserRoleDao.save(authUserRole);

@@ -1,5 +1,6 @@
 package com.example.moment_forever.core.controller.admin;
 
+import com.example.moment_forever.common.dto.request.AuthUserResponseDto;
 import com.example.moment_forever.common.response.ApiResponse;
 import com.example.moment_forever.common.response.ResponseUtil;
 import com.example.moment_forever.common.utils.AppConstants;
@@ -103,4 +104,13 @@ public class AdminRoleController {
                 ResponseUtil.buildOkResponse(response, "Role deactivated successfully")
         );
     }
+
+    @GetMapping("/{roleId}/users")
+    public ResponseEntity<ApiResponse<?>> getAllUserByRole(@PathVariable Long roleId) {
+        List<AuthUserResponseDto> responses = roleService.getAllUserByRole(roleId);
+        return ResponseEntity.ok(
+                ResponseUtil.buildOkResponse(responses, "All account details of User fetched successfully")
+        );
+    }
+
 }

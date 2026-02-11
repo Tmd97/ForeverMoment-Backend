@@ -6,6 +6,7 @@ import com.example.moment_forever.common.utils.AppConstants;
 import com.example.moment_forever.common.dto.response.AppUserResponseDto;
 import com.example.moment_forever.common.dto.request.UserProfileRequestDto;
 import com.example.moment_forever.core.services.AdminUserService;
+import com.example.moment_forever.data.entities.auth.Role;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -66,6 +67,14 @@ public class AdminUserController {
     public ResponseEntity<ApiResponse<?>> deleteAccount(Long userId) {
         appUserService.deleteAccount(userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(ResponseUtil.buildOkResponse(null, "User Profile deleted successfully"));
+    }
+
+    @GetMapping("/{userId}/roles")
+    public ResponseEntity<ApiResponse<?>> getUserRoles(@PathVariable Long userId) {
+        List<Role> roleList = appUserService.getUserRoles(userId);
+        return ResponseEntity.ok(
+                ResponseUtil.buildOkResponse(roleList, "User roles fetched successfully")
+        );
     }
 
 }

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.MethodNotAllowedException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -59,12 +60,11 @@ public class GlobalExceptionHandler {
                 .body(ResponseUtil.buildErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    // 5️⃣ Optional: Catch-all for any other exceptions
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiResponse<Void>> handleAllExceptions(RuntimeException ex) {
+    @ExceptionHandler(NotAllowedCustomException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotAllowed(NotAllowedCustomException ex) {
         log.error("Unexpected exception", ex);
         return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ResponseUtil.buildErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR));
+                .status(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
+                .body(ResponseUtil.buildErrorResponse(ex.getMessage(), HttpStatus.NON_AUTHORITATIVE_INFORMATION));
     }
 }

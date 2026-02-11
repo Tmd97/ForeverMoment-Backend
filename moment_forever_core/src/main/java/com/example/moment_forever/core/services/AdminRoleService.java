@@ -1,18 +1,26 @@
 package com.example.moment_forever.core.services;
 
+import com.example.moment_forever.common.dto.request.AuthUserResponseDto;
 import com.example.moment_forever.common.dto.request.RoleRequestDto;
 import com.example.moment_forever.common.dto.response.RoleResponseDto;
 
+import com.example.moment_forever.common.errorhandler.NotAllowedCustomException;
 import com.example.moment_forever.common.errorhandler.ResourceNotFoundException;
+import com.example.moment_forever.core.mapper.ApplicationUserBeanMapper;
 import com.example.moment_forever.core.mapper.RoleBeanMapper;
+import com.example.moment_forever.data.dao.auth.AuthUserDao;
 import com.example.moment_forever.data.dao.auth.RoleDao;
+import com.example.moment_forever.data.entities.auth.AuthUser;
+import com.example.moment_forever.data.entities.auth.AuthUserRole;
 import com.example.moment_forever.data.entities.auth.Role;
+import com.example.moment_forever.security.dto.AuthBeanMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class AdminRoleService {
@@ -20,15 +28,19 @@ public class AdminRoleService {
     @Autowired
     private RoleDao roleDao;
 
-    // System roles that cannot be deleted
-    private static final List<String> SYSTEM_ROLES = List.of("ADMIN", "SUPER_ADMIN", "USER");
+    @Autowired
+    private AuthUserDao authUserDao;
+
+    // TODO: (need discussion) System roles that cannot be deleted
+    private static final List<String> SYSTEM_ROLES = List.of("SYSTEM", "SUPER_ADMIN");
 
     @Transactional
     public RoleResponseDto createRole(RoleRequestDto requestDto) {
-
-        if (roleDao.existsByNameIgnoreCase(requestDto.getName())) {
+        //Only Super Admin can create system roles
+        checkRoleCreationAndModificationAllowed(requestDto);
+        if (roleDao.existsByNameIgnoreCase(requestDto.getRoleName())) {
             throw new IllegalArgumentException(
-                    "Role with name '" + requestDto.getName() + "' already exists"
+                    "Role with name '" + requestDto.getRoleName() + "' already exists"
             );
         }
         Role role = RoleBeanMapper.mapDtoToEntity(requestDto);
@@ -66,6 +78,15 @@ public class AdminRoleService {
     }
 
     @Transactional(readOnly = true)
+    public List<AuthUserResponseDto> getAllUserByRole(Long roleId) {
+        List<AuthUserRole> authUserRoles = authUserDao.findAuthUserByRole(roleId);
+        List<AuthUser> authUserList = authUserRoles.stream()
+                .map(AuthUserRole::getAuthUser)
+                .toList();
+        return authUserList.stream().map(AuthBeanMapper::mapEntityToDtoForAuth).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public List<RoleResponseDto> getSystemRoles() {
         List<Role> roles = roleDao.findBySystemRoleTrue();
         return RoleBeanMapper.toDtoList(roles);
@@ -74,11 +95,12 @@ public class AdminRoleService {
     @Transactional
     public RoleResponseDto updateRole(Long id, RoleRequestDto requestDto) {
         Role role = getRoleByIdValidation(id);
+        validIfSuperAdmin(role);
         // Check if name is being changed and already exists
-        if (!role.getName().equalsIgnoreCase(requestDto.getName()) &&
-                roleDao.existsByNameIgnoreCase(requestDto.getName())) {
+        if (!role.getName().equalsIgnoreCase(requestDto.getRoleName()) &&
+                roleDao.existsByNameIgnoreCase(requestDto.getRoleName())) {
             throw new IllegalArgumentException(
-                    "Role with name '" + requestDto.getName() + "' already exists"
+                    "Role with name '" + requestDto.getRoleName() + "' already exists"
             );
         }
 
@@ -91,13 +113,7 @@ public class AdminRoleService {
     @Transactional
     public void deleteRole(Long id) {
         Role role = getRoleByIdValidation(id);
-        // Prevent deletion of system roles
-        if (role.isSystemRole() || SYSTEM_ROLES.contains(role.getName())) {
-            throw new IllegalStateException(
-                    "Cannot delete system role: " + role.getName()
-            );
-        }
-
+        validIfSuperAdmin(role);
         // Soft delete - just deactivate instead of actual delete
         role.setActive(false);
         roleDao.save(role);
@@ -109,6 +125,7 @@ public class AdminRoleService {
     @Transactional
     public RoleResponseDto activateRole(Long id) {
         Role role = getRoleByIdValidation(id);
+        validIfSuperAdmin(role);
         role.setActive(true);
         Role updatedRole = roleDao.save(role);
         return RoleBeanMapper.mapEntityToDto(updatedRole);
@@ -117,16 +134,25 @@ public class AdminRoleService {
     @Transactional
     public RoleResponseDto deactivateRole(Long id) {
         Role role = getRoleByIdValidation(id);
-        // Don't allow deactivating system roles
-        if (role.isSystemRole() || SYSTEM_ROLES.contains(role.getName())) {
-            throw new IllegalStateException(
-                    "Cannot deactivate system role: " + role.getName()
-            );
-        }
-
+        validIfSuperAdmin(role);
         role.setActive(false);
         Role updatedRole = roleDao.save(role);
         return RoleBeanMapper.mapEntityToDto(updatedRole);
+    }
+
+    private void validIfSuperAdmin(Role role) {
+        if (role.getName().equalsIgnoreCase("SUPER_ADMIN")) {
+            throw new NotAllowedCustomException(
+                    "Cannot modify system role: " + role.getName()
+            );
+        }
+    }
+
+
+    public void checkRoleCreationAndModificationAllowed(RoleRequestDto requestDto) {
+        if (requestDto.getSystemRole() != null && requestDto.getSystemRole()) {
+            throw new NotAllowedCustomException("Only Super Admin can create system roles");
+        }
     }
 
     private Role getRoleByIdValidation(Long id) {

@@ -2,10 +2,13 @@ package com.example.moment_forever.data.dao.auth;
 
 import com.example.moment_forever.data.dao.GenericDao;
 import com.example.moment_forever.data.entities.auth.AuthUser;
+import com.example.moment_forever.data.entities.auth.AuthUserRole;
+import jakarta.persistence.TypedQuery;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -21,4 +24,6 @@ public interface AuthUserDao extends GenericDao<AuthUser, Long>{
     Optional<AuthUser> findByUsernameWithRoles(@Param("username") String username);
 
     boolean existsByExternalUserId(Long externalUserId);
+
+    List<AuthUserRole> findAuthUserByRole(Long id);
 }

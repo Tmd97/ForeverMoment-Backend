@@ -1,6 +1,7 @@
 package com.example.moment_forever.data.dao.auth;
 
 import com.example.moment_forever.data.dao.GenericDaoImpl;
+import com.example.moment_forever.data.entities.auth.AuthUserRole;
 import com.example.moment_forever.data.entities.auth.Role;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -20,15 +21,15 @@ public class RoleDaoImpl extends GenericDaoImpl<Role, Long> implements RoleDao {
     }
 
     @Override
-    public Optional<Role> findByNameIgnoreCase(String name) {
-        if (name == null || name.isEmpty()) {
+    public Optional<Role> findByNameIgnoreCase(String roleName) {
+        if (roleName == null || roleName.isEmpty()) {
             return Optional.empty();
         }
         TypedQuery<Role> query = em.createQuery(
-                "SELECT r FROM Role r WHERE UPPER(r.name) = UPPER(:name)",
+                "SELECT r FROM Role r WHERE UPPER(r.name) = UPPER(:roleName)",
                 Role.class
         );
-        query.setParameter("name", name.trim());
+        query.setParameter("roleName", roleName.trim());
 
         List<Role> results = query.getResultList();
         if (results.isEmpty()) {
@@ -39,12 +40,12 @@ public class RoleDaoImpl extends GenericDaoImpl<Role, Long> implements RoleDao {
     }
 
     @Override
-    public boolean existsByNameIgnoreCase(String name) {
+    public boolean existsByNameIgnoreCase(String roleName) {
         TypedQuery<Long> query = em.createQuery(
-                "SELECT COUNT(r) FROM Role r WHERE UPPER(r.name) = UPPER(:name)",
+                "SELECT COUNT(r) FROM Role r WHERE UPPER(r.name) = UPPER(:roleName)",
                 Long.class
         );
-        query.setParameter("name", name);
+        query.setParameter("roleName", roleName);
 
         return query.getSingleResult() > 0;
     }
@@ -68,9 +69,8 @@ public class RoleDaoImpl extends GenericDaoImpl<Role, Long> implements RoleDao {
     @Override
     public List<Role> getAllActiveRoles() {
         return em.createQuery(
-                "SELECT DISTINCT r FROM Role r " +
-                        "LEFT JOIN FETCH r.userRoles ur " +
-                        "LEFT JOIN FETCH ur.authUser",
+                "SELECT r FROM Role r " +
+                        "WHERE r.isActive= true",
                 Role.class
         ).getResultList();
     }

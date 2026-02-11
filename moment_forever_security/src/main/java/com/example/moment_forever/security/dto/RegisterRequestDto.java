@@ -1,10 +1,12 @@
 package com.example.moment_forever.security.dto;
 
 import com.example.moment_forever.data.entities.NamedEntity;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class RegisterRequestDto {
 
     @NotBlank(message = "Email is required")
@@ -21,7 +23,7 @@ public class RegisterRequestDto {
     private String phoneNumber;
     private String preferredCity;
 
-    @NotBlank
+    @NotNull(message = "Role ID is required")
     private Long roleId;
 
     // Constructors
