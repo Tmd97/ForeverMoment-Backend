@@ -53,7 +53,6 @@ public class SubCategoryServiceImpl implements SubCategoryService {
         SubCategory saved = subCategoryDao.save(subCategory);
 
         SubCategoryResponseDto responseDto= SubCategoryBeanMapper.mapEntityToDto(saved);
-        responseDto.setCategoryId(requestDto.getCategoryId());
         return responseDto;
     }
 
