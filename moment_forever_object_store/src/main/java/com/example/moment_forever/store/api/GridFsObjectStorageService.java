@@ -1,6 +1,5 @@
-package com.example.moment_forever.store.gridfs;
+package com.example.moment_forever.store.api;
 
-import com.example.moment_forever.store.ObjectStorageService;
 import com.example.moment_forever.store.dto.ObjectMetadata;
 import com.example.moment_forever.store.exception.ObjectStorageException;
 import com.mongodb.client.gridfs.model.GridFSFile;

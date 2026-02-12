@@ -1,6 +1,6 @@
 package com.example.moment_forever.core.services;
 
-import com.example.moment_forever.store.ObjectStorageService;
+import com.example.moment_forever.store.api.ObjectStorageService;
 import com.example.moment_forever.store.dto.ImageMetadataResponse;
 import com.example.moment_forever.store.dto.ImageResponse;
 import com.example.moment_forever.store.dto.ObjectMetadata;

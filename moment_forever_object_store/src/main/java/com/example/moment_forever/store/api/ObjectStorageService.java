@@ -1,4 +1,4 @@
-package com.example.moment_forever.store;
+package com.example.moment_forever.store.api;
 
 import com.example.moment_forever.store.dto.ObjectMetadata;
 import org.springframework.core.io.Resource;

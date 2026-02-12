@@ -33,6 +33,14 @@ spring:
      password: npg_2reOZYBAa8Xb
      driver-class-name: org.postgresql.Driver
 
+  # MongoDB Configuration - For GridFS File Storage (Images)
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: moment_forever
+      # For cloud MongoDB like Atlas:
+      # uri: mongodb+srv://username:password@cluster.mongodb.net/moment_forever_files
+
   # HikariCP Connection Pool Configuration
   hikari:
     pool-name: MomentForever-HikariPool
@@ -187,15 +195,17 @@ springdoc:
     path: /v3/api-docs
     #http://localhost:8080/api/swagger-ui/index.html
 
-########### FOR MONGO DB GRIDFS ##############
+
+
+
+
+# For GridFS
 object:
   store:
     provider: gridfs
-    gridfs-bucket: my_images
-    s3-region: us-east-1
-    s3-bucket: my-s3-bucket
+    gridfs-bucket: my-images
 
-
+---
 # For S3
 #object:
 #  store:

@@ -45,11 +45,13 @@
         </dependency>
 
         <!-- Spring Cloud AWS use its own BOM as version not managed by springboot
-         for this we have added that dependency management and added version-->
-        <dependency>
-            <groupId>io.awspring.cloud</groupId>
-            <artifactId>spring-cloud-aws-starter-s3</artifactId>
-        </dependency>
+         for this we have added that dependency management and added version-
+         remove this if configure s3 manually-->
+<!--        <dependency>-->
+<!--            <groupId>io.awspring.cloud</groupId>-->
+<!--            <artifactId>spring-cloud-aws-starter-s3</artifactId>-->
+<!--        </dependency>-->
+
 
 
     </dependencies>
