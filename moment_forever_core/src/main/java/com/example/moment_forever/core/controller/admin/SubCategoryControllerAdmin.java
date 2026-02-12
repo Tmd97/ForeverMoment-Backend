@@ -9,6 +9,7 @@ import com.example.moment_forever.common.dto.response.SubCategoryResponseDto;
 import com.example.moment_forever.core.services.ReorderingService;
 import com.example.moment_forever.core.services.SubCategoryService;
 import com.example.moment_forever.data.entities.Category;
+import com.example.moment_forever.data.entities.SubCategory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -96,7 +97,7 @@ public class SubCategoryControllerAdmin {
     @PatchMapping("/reorder")
     public ResponseEntity<ApiResponse<?>> reOrderTheItems(
             @RequestBody ReorderRequestDto reorderRequestDto) {
-        reorderingService.reorderItems(reorderRequestDto.getId(), reorderRequestDto.getNewPosition(), Category.class);
+        reorderingService.reorderItems(reorderRequestDto.getId(), reorderRequestDto.getNewPosition(), SubCategory.class);
         return ResponseEntity.ok(
                 ResponseUtil.buildOkResponse(null, AppConstants.MSG_UPDATED)
         );
