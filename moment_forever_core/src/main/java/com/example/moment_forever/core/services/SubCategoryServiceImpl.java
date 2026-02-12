@@ -71,8 +71,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
         }
 
         // If slug is being changed, check for duplicates
-        if (!existing.getSlug().equals(requestDto.getSlug()) &&
-                subCategoryDao.existsBySlug(requestDto.getSlug())) {
+        if (existing.getSlug()!=null &&(!existing.getSlug().equals(requestDto.getSlug()) &&
+                subCategoryDao.existsBySlug(requestDto.getSlug()))) {
             throw new IllegalArgumentException("SubCategory with slug '" + requestDto.getSlug() + "' already exists");
         }
 
