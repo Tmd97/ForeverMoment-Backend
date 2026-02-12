@@ -1,11 +1,14 @@
 package com.example.moment_forever.core.controller.admin;
 
+import com.example.moment_forever.common.dto.request.ReorderRequestDto;
 import com.example.moment_forever.common.response.ApiResponse;
 import com.example.moment_forever.common.response.ResponseUtil;
 import com.example.moment_forever.common.utils.AppConstants;
 import com.example.moment_forever.common.dto.request.SubCategoryRequestDto;
 import com.example.moment_forever.common.dto.response.SubCategoryResponseDto;
+import com.example.moment_forever.core.services.ReorderingService;
 import com.example.moment_forever.core.services.SubCategoryService;
+import com.example.moment_forever.data.entities.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +22,9 @@ public class SubCategoryControllerAdmin {
 
     @Autowired
     private SubCategoryService subCategoryService;
+
+    @Autowired
+    private ReorderingService reorderingService;
 
     @PostMapping("/category")
     public ResponseEntity<ApiResponse<?>> createSubCategory(@RequestBody SubCategoryRequestDto subCategoryRequestDto) {
@@ -84,6 +90,15 @@ public class SubCategoryControllerAdmin {
         subCategoryService.deleteSubCategory(id);
         return ResponseEntity.ok(
                 ResponseUtil.buildOkResponse(null, AppConstants.MSG_DELETED)
+        );
+    }
+
+    @PatchMapping("/reorder")
+    public ResponseEntity<ApiResponse<?>> reOrderTheItems(
+            @RequestBody ReorderRequestDto reorderRequestDto) {
+        reorderingService.reorderItems(reorderRequestDto.getId(), reorderRequestDto.getNewPosition(), Category.class);
+        return ResponseEntity.ok(
+                ResponseUtil.buildOkResponse(null, AppConstants.MSG_UPDATED)
         );
     }
 }
