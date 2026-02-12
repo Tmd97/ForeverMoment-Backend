@@ -69,6 +69,8 @@ public class GridFsObjectStorageService implements ObjectStorageService {
                 public long contentLength() {
                     return file.getLength();
                 }
+
+
             };
         } catch (Exception e) {
             throw new ObjectStorageException("Failed to retrieve file: " + id, e);

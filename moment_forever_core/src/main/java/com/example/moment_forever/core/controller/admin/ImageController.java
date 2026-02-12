@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -37,12 +38,17 @@ public class ImageController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Resource> downloadImage(@PathVariable String id) {
+    public ResponseEntity<Resource> downloadImage(@PathVariable String id) throws IOException {
         Resource resource = imageService.downloadImage(id);
 
+        // Get content type from metadata service
+        String contentType = imageService.getContentType(id)
+                .orElse("application/octet-stream");
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .contentType(MediaType.parseMediaType(contentType))
+                .contentLength(resource.contentLength())
                 .body(resource);
     }
 

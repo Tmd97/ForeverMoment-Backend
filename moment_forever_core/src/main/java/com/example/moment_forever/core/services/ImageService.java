@@ -101,6 +101,11 @@ public class ImageService {
         storageService.delete(id);
     }
 
+    public Optional<String> getContentType(String id) {
+        return storageService.getMetadata(id)
+                .map(ObjectMetadata::getContentType);
+    }
+
     /**
      * Delete multiple images
      */
