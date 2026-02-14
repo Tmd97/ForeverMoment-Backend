@@ -113,7 +113,6 @@ public class AdminRoleService {
     @Transactional
     public void deleteRole(Long id) {
         Role role = getRoleByIdValidation(id);
-        validIfSuperAdmin(role);
         // Soft delete - just deactivate instead of actual delete
 //        role.setActive(false);
 //        roleDao.save(role);

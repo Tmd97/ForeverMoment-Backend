@@ -27,6 +27,7 @@ public class AdminRoleController {
     private AdminRoleService roleService;
 
     @PostMapping
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @Operation(summary = "Create Role", description = "Create a new user role")
     public ResponseEntity<ApiResponse<?>> createRole(@Valid @RequestBody RoleRequestDto requestDto) {
         RoleResponseDto response = roleService.createRole(requestDto);
@@ -74,6 +75,7 @@ public class AdminRoleController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<?>> updateRole(
             @PathVariable Long id,
             @Valid @RequestBody RoleRequestDto requestDto) {
@@ -83,6 +85,7 @@ public class AdminRoleController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<?>> deleteRole(@PathVariable Long id) {
         roleService.deleteRole(id);
         return ResponseEntity.ok(
@@ -90,6 +93,7 @@ public class AdminRoleController {
     }
 
     @PatchMapping("/{id}/activate")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<?>> activateRole(@PathVariable Long id) {
         RoleResponseDto response = roleService.activateRole(id);
         return ResponseEntity.ok(
@@ -97,6 +101,7 @@ public class AdminRoleController {
     }
 
     @PatchMapping("/{id}/deactivate")
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     public ResponseEntity<ApiResponse<?>> deactivateRole(@PathVariable Long id) {
         RoleResponseDto response = roleService.deactivateRole(id);
         return ResponseEntity.ok(
