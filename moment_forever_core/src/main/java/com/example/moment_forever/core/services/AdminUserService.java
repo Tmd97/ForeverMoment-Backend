@@ -1,10 +1,12 @@
 package com.example.moment_forever.core.services;
 
 import com.example.moment_forever.common.dto.response.AdminAppUserResponseDto;
+import com.example.moment_forever.common.dto.response.RoleResponseDto;
 import com.example.moment_forever.common.errorhandler.CustomAuthException;
 import com.example.moment_forever.common.errorhandler.ResourceNotFoundException;
 import com.example.moment_forever.common.dto.request.UserProfileRequestDto;
 import com.example.moment_forever.core.mapper.ApplicationUserBeanMapper;
+import com.example.moment_forever.core.mapper.RoleBeanMapper;
 import com.example.moment_forever.data.dao.ApplicationUserDao;
 import com.example.moment_forever.data.dao.auth.AuthUserDao;
 import com.example.moment_forever.data.dao.auth.AuthUserRoleDao;
@@ -87,7 +89,7 @@ public class AdminUserService {
 
     @Transactional
     public AdminAppUserResponseDto updateAppUser(Long userId,
-            UserProfileRequestDto userDto) {
+                                                 UserProfileRequestDto userDto) {
         ApplicationUser existing = applicationUserDao.findById(userId);
         if (existing == null) {
             throw new ResourceNotFoundException("No such user for given Id exist " + userId);
@@ -138,14 +140,15 @@ public class AdminUserService {
     }
 
     @Transactional
-    public List<Role> getUserRoles(Long userId) {
+    public List<RoleResponseDto> getUserRoles(Long userId) {
         List<AuthUserRole> authUserRoles = authUserRoleDao.findByAuthUserId(userId);
         if (authUserRoles == null || authUserRoles.isEmpty()) {
             throw new ResourceNotFoundException("No roles found for user id: " + userId);
         }
-        List<Role> roleList = authUserRoles.stream()
-                .map(AuthUserRole::getRole).collect(Collectors.toList());
+        List<RoleResponseDto> responseDtos = authUserRoles.stream()
+                .map(authUserRole -> authUserRole.getRole())
+                .map(RoleBeanMapper::mapEntityToDto).collect(Collectors.toList());
 
-        return roleList;
+        return responseDtos;
     }
 }

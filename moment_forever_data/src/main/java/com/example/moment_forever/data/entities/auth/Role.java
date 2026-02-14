@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 @Table(name = "roles")
 public class Role {
 
-    //TODO role not have relationship with auth_user_roles, only role_id in auth_user_roles, no need to map it here
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

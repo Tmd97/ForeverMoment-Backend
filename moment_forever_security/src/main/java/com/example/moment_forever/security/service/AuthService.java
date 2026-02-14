@@ -41,8 +41,8 @@ public class AuthService {
     private final RefreshTokenDao refreshTokenDao;
 
     public AuthService(AuthenticationManager authenticationManager, AuthUserDao authUserDao,
-            AuthUserRoleDao authUserRoleDao, ApplicationUserDao applicationUserDao, RoleDao roleDao,
-            PasswordEncoder passwordEncoder, JwtService jwtService, RefreshTokenDao refreshTokenDao) {
+                       AuthUserRoleDao authUserRoleDao, ApplicationUserDao applicationUserDao, RoleDao roleDao,
+                       PasswordEncoder passwordEncoder, JwtService jwtService, RefreshTokenDao refreshTokenDao) {
         this.authenticationManager = authenticationManager;
         this.authUserDao = authUserDao;
         this.authUserRoleDao = authUserRoleDao;
@@ -61,32 +61,12 @@ public class AuthService {
         // TODO: (encoding to be done) ENCODE THE PASSWORD HERE!
         String encodedPassword = passwordEncoder.encode(request.getPassword());
         authUser.setPassword(encodedPassword);
-
         Role role = roleDao.findById(request.getRoleId());
-        if (role == null) {
-            logger.warn("Role not found during registration: {}. Defaulting to ROLE_USER", request.getRoleId());
-            throw new CustomAuthException("Specified role not found. Allowed values: USER, ADMIN, SUPER_ADMIN");
-        }
-
-        AuthUserRole authUserRole = new AuthUserRole();
-        authUserRole.setAuthUser(authUser);
-        authUserRole.setRole(role);
+        authUser.addRole(role);
         AuthUser savedAuthUser = authUserDao.save(authUser);
-
-        // create User profile (minimal info) and link to AuthUser
         ApplicationUser appUser = AppUserBeanMapper.mapDtoToEntity(request);
         appUser.setAuthUser(authUser);
         ApplicationUser savedAppUser = applicationUserDao.save(appUser);
-
-        // TODO: optimize this way (to be done later) authUser.addRole(role); (that too
-        // can be done)
-
-        try {
-            authUserRoleDao.save(authUserRole);
-        } catch (Exception e) {
-            logger.error("Error assigning ROLE_USER to AuthUser id: {}", savedAuthUser.getId(), e);
-            throw new RuntimeException("Internal server error during registration");
-        }
         return buildRegistrationResponseWithoutToken(savedAuthUser, savedAppUser);
     }
 

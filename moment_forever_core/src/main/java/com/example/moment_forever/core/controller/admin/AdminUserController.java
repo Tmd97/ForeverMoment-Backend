@@ -1,6 +1,7 @@
 package com.example.moment_forever.core.controller.admin;
 
 import com.example.moment_forever.common.dto.response.AdminAppUserResponseDto;
+import com.example.moment_forever.common.dto.response.RoleResponseDto;
 import com.example.moment_forever.common.response.ApiResponse;
 import com.example.moment_forever.common.response.ResponseUtil;
 import com.example.moment_forever.common.utils.AppConstants;
@@ -85,9 +86,9 @@ public class AdminUserController {
 
     @GetMapping("/{userId}/roles")
     public ResponseEntity<ApiResponse<?>> getUserRoles(@PathVariable Long userId) {
-        List<Role> roleList = appUserService.getUserRoles(userId);
+        List<RoleResponseDto> roleResponseDtos = appUserService.getUserRoles(userId);
         return ResponseEntity.ok(
-                ResponseUtil.buildOkResponse(roleList, "User roles fetched successfully"));
+                ResponseUtil.buildOkResponse(roleResponseDtos, "User roles fetched successfully"));
     }
 
 }

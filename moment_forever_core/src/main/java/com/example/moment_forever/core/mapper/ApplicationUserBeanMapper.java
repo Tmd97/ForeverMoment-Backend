@@ -5,6 +5,8 @@ import com.example.moment_forever.common.dto.response.AppUserResponseDto;
 import com.example.moment_forever.common.dto.request.UserProfileRequestDto;
 import com.example.moment_forever.data.entities.ApplicationUser;
 
+import java.util.List;
+
 public class ApplicationUserBeanMapper {
 
     public static void mapDtoToEntity(UserProfileRequestDto dto, ApplicationUser entity) {
@@ -62,7 +64,7 @@ public class ApplicationUserBeanMapper {
             dto.setAuthLastLogin(entity.getAuthUser().getLastLogin());
 
             if (entity.getAuthUser().getUserRoles() != null) {
-                java.util.List<String> roles = entity.getAuthUser().getUserRoles().stream()
+                List<String> roles = entity.getAuthUser().getUserRoles().stream()
                         .map(authUserRole -> authUserRole.getRole().getName())
                         .collect(java.util.stream.Collectors.toList());
                 dto.setRoles(roles);
