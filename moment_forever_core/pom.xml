@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.cherishx</groupId>
+        <groupId>com.forvmom</groupId>
         <artifactId>MomentForeverApp</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -36,19 +36,19 @@
 
         <!-- Your internal modules - NO VERSION NEEDED -->
         <dependency>
-            <groupId>com.cherishx</groupId>
+            <groupId>com.forvmom</groupId>
             <artifactId>moment_forever_commons</artifactId>
             <!-- No version - comes from parent's dependencyManagement -->
         </dependency>
 
         <dependency>
-            <groupId>com.cherishx</groupId>
+            <groupId>com.forvmom</groupId>
             <artifactId>moment_forever_data</artifactId>
             <!-- No version - comes from parent's dependencyManagement -->
         </dependency>
 
         <dependency>
-            <groupId>com.cherishx</groupId>
+            <groupId>com.forvmom</groupId>
             <artifactId>moment_forever_security</artifactId>
         </dependency>
 
@@ -107,13 +107,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.cherishx</groupId>
+            <groupId>com.forvmom</groupId>
             <artifactId>moment_forever_security</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.cherishx</groupId>
+            <groupId>com.forvmom</groupId>
             <artifactId>moment_forever_object_store</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>compile</scope>

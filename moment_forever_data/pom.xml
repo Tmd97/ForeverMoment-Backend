@@ -2,7 +2,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.cherishx</groupId>
+        <groupId>com.forvmom</groupId>
         <artifactId>MomentForeverApp</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath> <!-- Added -->
@@ -21,7 +21,7 @@
 
         <!-- Commons module -->
         <dependency>
-            <groupId>com.cherishx</groupId>
+            <groupId>com.forvmom</groupId>
             <artifactId>moment_forever_commons</artifactId>
         </dependency>
         <dependency>

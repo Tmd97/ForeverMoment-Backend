@@ -20,18 +20,18 @@ spring:
     name: moment-forever-platform
 
 
-#    datasource:
-#      url: jdbc:postgresql://localhost:5432/moment_forever_db
-#      username: postgres
-#      password: relay
-#      driver-class-name: org.postgresql.Driver
+  datasource:
+    url: jdbc:postgresql://localhost:5432/moment_forever_db
+    username: postgres
+    password: groote
+    driver-class-name: org.postgresql.Driver
 
     # Database Configuration - Postgres SQL
-  datasource:
-     url: jdbc:postgresql://ep-morning-king-ahlsqkrx-pooler.c-3.us-east-1.aws.neon.tech/moment_forever_db?sslmode=require&channel_binding=require
-     username: neondb_owner
-     password: npg_2reOZYBAa8Xb
-     driver-class-name: org.postgresql.Driver
+#  datasource:
+#     url: jdbc:postgresql://ep-morning-king-ahlsqkrx-pooler.c-3.us-east-1.aws.neon.tech/moment_forever_db?sslmode=require&channel_binding=require
+#     username: neondb_owner
+#     password: npg_2reOZYBAa8Xb
+#     driver-class-name: org.postgresql.Driver
 
   # MongoDB Configuration - For GridFS File Storage (Images)
   data:

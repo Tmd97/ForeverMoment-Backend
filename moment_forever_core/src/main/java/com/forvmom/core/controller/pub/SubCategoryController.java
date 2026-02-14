@@ -1,0 +1,55 @@
+package com.forvmom.core.controller.pub;
+
+import com.forvmom.common.response.ApiResponse;
+import com.forvmom.common.response.ResponseUtil;
+import com.forvmom.common.utils.AppConstants;
+import com.forvmom.common.dto.response.SubCategoryResponseDto;
+import com.forvmom.core.services.SubCategoryService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/public/subcategories")
+@Tag(name = "Public SubCategory API", description = "Endpoints for browsing sub-categories")
+public class SubCategoryController {
+
+    @Autowired
+    private SubCategoryService subCategoryService;
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Get SubCategory by ID", description = "Fetch a single sub-category by its unique ID")
+    public ResponseEntity<ApiResponse<?>> getSubCategoryById(@PathVariable Long id) {
+        SubCategoryResponseDto subCategoryResponse = subCategoryService.getById(id);
+        return ResponseEntity.ok(
+                ResponseUtil.buildOkResponse(subCategoryResponse, AppConstants.MSG_FETCHED));
+    }
+
+    @GetMapping("/slug/{slug}")
+    @Operation(summary = "Get SubCategory by Slug", description = "Fetch a single sub-category by its URL-friendly slug")
+    public ResponseEntity<ApiResponse<?>> getSubCategoryBySlug(@PathVariable String slug) {
+        SubCategoryResponseDto subCategoryResponse = subCategoryService.getBySlug(slug);
+        return ResponseEntity.ok(
+                ResponseUtil.buildOkResponse(subCategoryResponse, AppConstants.MSG_FETCHED));
+    }
+
+    @GetMapping
+    @Operation(summary = "Get All SubCategories", description = "Fetch a list of all available sub-categories")
+    public ResponseEntity<ApiResponse<?>> getAllSubCategories() {
+        List<SubCategoryResponseDto> subCategoryDtos = subCategoryService.getAll();
+        return ResponseEntity.ok(
+                ResponseUtil.buildOkResponse(subCategoryDtos, AppConstants.MSG_FETCHED));
+    }
+
+    @GetMapping("/category/{categoryId}")
+    @Operation(summary = "Get SubCategories by Category", description = "Fetch all sub-categories belonging to a specific parent category")
+    public ResponseEntity<ApiResponse<?>> getSubCategoriesByCategory(@PathVariable Long categoryId) {
+        List<SubCategoryResponseDto> subCategoryDtoList = subCategoryService.getByCategoryId(categoryId);
+        return ResponseEntity.ok(
+                ResponseUtil.buildOkResponse(subCategoryDtoList, AppConstants.MSG_FETCHED));
+    }
+}

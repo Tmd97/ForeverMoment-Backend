@@ -12,7 +12,7 @@
         <relativePath/> <!-- lookup from repository -->
     </parent>
 
-    <groupId>com.cherishx</groupId>
+    <groupId>com.forvmom</groupId>
     <artifactId>MomentForeverApp</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
@@ -38,17 +38,17 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.cherishx</groupId>
+                <groupId>com.forvmom</groupId>
                 <artifactId>moment_forever_commons</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.cherishx</groupId>
+                <groupId>com.forvmom</groupId>
                 <artifactId>moment_forever_data</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.cherishx</groupId>
+                <groupId>com.forvmom</groupId>
                 <artifactId>moment_forever_core</artifactId>
                 <version>${project.version}</version>
             </dependency>

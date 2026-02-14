@@ -62,7 +62,7 @@
     </root>
 
     <!-- Application-specific packages - DEBUG level -->
-    <logger name="com.example.moment_forever" level="DEBUG" additivity="false">
+    <logger name="com.forvmom" level="DEBUG" additivity="false">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
     </logger>
