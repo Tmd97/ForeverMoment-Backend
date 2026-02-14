@@ -17,12 +17,15 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
 
 //TODO: Email Based authentication, Password Reset, Account Verification, etc.
 @RestController
 @RequestMapping("/auth")
+@Tag(name = "Authentication API", description = "Endpoints for user registration and login")
 public class AuthController {
 
     private final AuthService authService;
@@ -33,21 +36,26 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+    @Operation(summary = "Register User", description = "Register a new user account")
     public ResponseEntity<ApiResponse<?>> register(
             @Valid @RequestBody RegisterRequestDto request) {
         authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ResponseUtil.buildCreatedResponse(null, "User registered successfully"));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ResponseUtil.buildCreatedResponse(null, "User registered successfully"));
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Login User", description = "Authenticate user and return JWT token")
     public ResponseEntity<ApiResponse<?>> login(
             @Valid @RequestBody LoginRequest request) {
 
         AuthResponse response = authService.login(request);
-        return ResponseEntity.status(HttpStatus.OK).body(ResponseUtil.buildOkResponse(response, "User logged in successfully"));
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ResponseUtil.buildOkResponse(response, "User logged in successfully"));
     }
 
     @PostMapping("/refresh")
+    @Operation(summary = "Refresh Token", description = "Generate a new access token using refresh token")
     public ResponseEntity<AuthResponse> getRefreshToken(
             @RequestHeader("Authorization") String token) {
 
@@ -60,8 +68,8 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-
     @PostMapping("/logout")
+    @Operation(summary = "Logout User", description = "Invalidate current session/token")
     public ResponseEntity<ApiResponse<?>> logout(
             @RequestHeader("Authorization") String token) {
 
@@ -74,6 +82,7 @@ public class AuthController {
     }
 
     @GetMapping("/health")
+    @Operation(summary = "Health Check", description = "Check if auth service is running")
     public ResponseEntity<String> healthCheck() {
         return ResponseEntity.ok("Authentication API is running");
     }
