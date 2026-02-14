@@ -171,7 +171,8 @@ public class AuthUser implements UserDetails {
         return false;
     }
 
-    // we prepopulated the ROLE (ADMIN, USER, etc.) inside ROLE entity via data seeder
+    // we prepopulated the ROLE (ADMIN, USER, etc.) inside ROLE entity via data
+    // seeder
     public void addRole(Role role) {
         AuthUserRole authUserRole = new AuthUserRole();
         authUserRole.setRole(role);
@@ -180,12 +181,9 @@ public class AuthUser implements UserDetails {
     }
 
     public void removeRole(Role role) {
-        userRoles.removeIf(userRole ->
-                userRole.getRole() != null &&
-                        userRole.getRole().getId().equals(role.getId())
-        );
+        userRoles.removeIf(userRole -> userRole.getRole() != null &&
+                userRole.getRole().getId().equals(role.getId()));
     }
-
 
     @PrePersist
     protected void onCreate() {

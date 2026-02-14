@@ -2,10 +2,8 @@ package com.forvmom.security.dto;
 
 import com.forvmom.data.entities.NamedEntity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class RegisterRequestDto {
 
@@ -20,6 +18,7 @@ public class RegisterRequestDto {
     @NotBlank(message = "Full name is required")
     private String fullName;
 
+    @Pattern(regexp = "^\\+?[1-9]\\d{1,14}$", message = "Invalid phone number")
     private String phoneNumber;
     private String preferredCity;
 

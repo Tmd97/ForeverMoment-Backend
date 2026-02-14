@@ -2,12 +2,15 @@ package com.forvmom.data.entities;
 
 import com.forvmom.data.entities.auth.AuthUser;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 import java.time.LocalDateTime;
 
 @Table(name = "application_users")
-@org.hibernate.annotations.SQLDelete(sql = "UPDATE application_users SET deleted = true WHERE id = ?")
-@org.hibernate.annotations.Where(clause = "deleted = false")
+@SQLDelete(sql = "UPDATE application_users SET deleted = true WHERE id = ?")
+@Where(clause = "deleted = false")
 @Entity
 public class ApplicationUser extends NamedEntity {
 
