@@ -14,4 +14,12 @@ public interface SubCategoryDao extends GenericDao<SubCategory, Long> {
     List<SubCategory> findBySlug(String slug);
 
     boolean existsBySlug(String slug);
+
+    List<SubCategory> findAllWithCategory();
+
+    SubCategory findByIdWithCategory(Long id);
+
+    List<SubCategory> findByCategoryIdWithCategory(Long categoryId);
+
+    List<SubCategory> findBySlugWithCategory(String slug);
 }

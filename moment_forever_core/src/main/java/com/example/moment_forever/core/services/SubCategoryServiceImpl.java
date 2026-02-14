@@ -44,15 +44,15 @@ public class SubCategoryServiceImpl implements SubCategoryService {
             throw new ResourceNotFoundException("No Category exist with id " + requestDto.getCategoryId());
         }
 
-        //Link SubCategory to Category and save
+        // Link SubCategory to Category and save
         SubCategory subCategory = new SubCategory();
         SubCategoryBeanMapper.mapDtoToEntity(requestDto, subCategory);
         subCategory.setCategory(category);
-        Long max=reorderingService.getMaxOrder(SubCategory.class);
-        subCategory.setDisplayOrder(max+1);
+        Long max = reorderingService.getMaxOrder(SubCategory.class);
+        subCategory.setDisplayOrder(max + 1);
         SubCategory saved = subCategoryDao.save(subCategory);
 
-        SubCategoryResponseDto responseDto= SubCategoryBeanMapper.mapEntityToDto(saved);
+        SubCategoryResponseDto responseDto = SubCategoryBeanMapper.mapEntityToDto(saved);
         return responseDto;
     }
 
@@ -71,7 +71,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
         }
 
         // If slug is being changed, check for duplicates
-        if (existing.getSlug()!=null &&(!existing.getSlug().equals(requestDto.getSlug()) &&
+        if (existing.getSlug() != null && (!existing.getSlug().equals(requestDto.getSlug()) &&
                 subCategoryDao.existsBySlug(requestDto.getSlug()))) {
             throw new IllegalArgumentException("SubCategory with slug '" + requestDto.getSlug() + "' already exists");
         }
@@ -84,7 +84,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     @Override
     @Transactional(readOnly = true)
     public SubCategoryResponseDto getById(Long id) {
-        SubCategory subCategory = subCategoryDao.findById(id);
+        SubCategory subCategory = subCategoryDao.findByIdWithCategory(id);
         if (subCategory == null) {
             throw new ResourceNotFoundException("SubCategory with id " + id + " does not exist");
         }
@@ -94,7 +94,7 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     @Override
     @Transactional(readOnly = true)
     public SubCategoryResponseDto getBySlug(String slug) {
-        List<SubCategory> subCategories = subCategoryDao.findBySlug(slug);
+        List<SubCategory> subCategories = subCategoryDao.findBySlugWithCategory(slug);
         if (subCategories.isEmpty()) {
             throw new ResourceNotFoundException("SubCategory with slug '" + slug + "' does not exist");
         }
@@ -104,7 +104,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     @Override
     @Transactional(readOnly = true)
     public List<SubCategoryResponseDto> getAll() {
-        List<SubCategory> subCategories = subCategoryDao.findAll();
+        // Use optimized query to fetch SubCategories + Category
+        List<SubCategory> subCategories = subCategoryDao.findAllWithCategory();
         if (subCategories == null || subCategories.isEmpty()) {
             return new ArrayList<>();
         } else {
@@ -117,7 +118,8 @@ public class SubCategoryServiceImpl implements SubCategoryService {
     @Override
     @Transactional(readOnly = true)
     public List<SubCategoryResponseDto> getByCategoryId(Long categoryId) {
-        List<SubCategory> subCategories = subCategoryDao.findByCategoryId(categoryId);
+        // Use optimized query to fetch SubCategories + Category
+        List<SubCategory> subCategories = subCategoryDao.findByCategoryIdWithCategory(categoryId);
         if (subCategories == null || subCategories.isEmpty()) {
             throw new ResourceNotFoundException("No SubCategories found for category id " + categoryId);
         }

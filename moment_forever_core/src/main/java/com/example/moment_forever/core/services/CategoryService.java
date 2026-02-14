@@ -28,15 +28,17 @@ public class CategoryService extends ReorderingService {
     @Autowired
     private ReorderingService reorderingService;
 
-    //TODO remove from request the display Order, as backend have done set and return
+    // TODO remove from request the display Order, as backend have done set and
+    // return
     public CategoryResponseDto createCategory(CategoryRequestDto categoryRequestDto) {
         if (categoryDao.existsByName(categoryRequestDto.getName())) {
-            throw new IllegalArgumentException("Category with name '" + categoryRequestDto.getName() + "' already exists");
+            throw new IllegalArgumentException(
+                    "Category with name '" + categoryRequestDto.getName() + "' already exists");
         }
         Category category = new Category();
         CategoryBeanMapper.mapDtoToEntity(categoryRequestDto, category);
-        Long max=reorderingService.getMaxOrder(Category.class);
-        category.setDisplayOrder(max+1);
+        Long max = reorderingService.getMaxOrder(Category.class);
+        category.setDisplayOrder(max + 1);
         Category res = categoryDao.save(category);
         return CategoryBeanMapper.mapEntityToDto(res);
     }
@@ -57,7 +59,8 @@ public class CategoryService extends ReorderingService {
 
     @Transactional(readOnly = true)
     public CategoryResponseDto getById(Long id) {
-        Category category = categoryDao.findById(id);
+        // Use optimized query to fetch Category + SubCategories
+        Category category = categoryDao.findByIdWithSubCategories(id);
         if (category == null) {
             throw new ResourceNotFoundException("Category with given Id " + id + " is not exist");
         }
@@ -66,8 +69,9 @@ public class CategoryService extends ReorderingService {
 
     @Transactional(readOnly = true)
     public List<CategoryResponseDto> getAll() {
-        List<Category> categories = categoryDao.findAll();
-        if (categories == null || categories.size() == 0) {
+        // Use optimized query to fetch Categories + SubCategories
+        List<Category> categories = categoryDao.findAllWithSubCategories();
+        if (categories == null || categories.isEmpty()) {
             return new ArrayList<>();
         } else {
             return categories.stream()
