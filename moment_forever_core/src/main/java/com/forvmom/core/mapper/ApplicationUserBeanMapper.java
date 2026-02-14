@@ -69,6 +69,13 @@ public class ApplicationUserBeanMapper {
                         .collect(java.util.stream.Collectors.toList());
                 dto.setRoles(roles);
             }
+
+            if (entity.getAuthUser().getUserRoles() != null) {
+                List<Long> rolesIds = entity.getAuthUser().getUserRoles().stream()
+                        .map(authUserRole -> authUserRole.getRole().getId())
+                        .collect(java.util.stream.Collectors.toList());
+                dto.setRoleIds(rolesIds);
+            }
         }
         return dto;
     }

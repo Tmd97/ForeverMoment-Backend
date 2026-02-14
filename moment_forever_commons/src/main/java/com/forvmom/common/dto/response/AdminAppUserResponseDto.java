@@ -9,6 +9,7 @@ public class AdminAppUserResponseDto extends AppUserResponseDto {
     private Boolean enabled;
     private Boolean accountNonLocked;
     private String createdBy;
+    private List<Long> roleIds;
 
     public List<String> getRoles() {
         return roles;
@@ -104,5 +105,14 @@ public class AdminAppUserResponseDto extends AppUserResponseDto {
 
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
+    }
+
+
+    public List<Long> getRoleIds() {
+        return roleIds;
+    }
+
+    public void setRoleIds(List<Long> roleIds) {
+        this.roleIds = roleIds;
     }
 }
