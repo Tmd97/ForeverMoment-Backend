@@ -77,8 +77,6 @@ public class LocationControllerAdmin {
         return ResponseEntity.ok(ResponseUtil.buildOkResponse(null, "Location status toggled successfully"));
     }
 
-    // ─── Pincode endpoints ────────────────────────────────────────────────────
-
     @PostMapping("/pincodes")
     @Operation(summary = "Add Pincode", description = "Add a pincode to a location")
     public ResponseEntity<ApiResponse<?>> addPincode(@RequestBody PincodeRequestDto requestDto) {
