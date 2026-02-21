@@ -5,7 +5,7 @@ import com.forvmom.common.dto.response.NamedEntityDto;
 import jakarta.validation.constraints.NotBlank;
 
 @JsonIgnoreProperties(ignoreUnknown = false)
-public class LocationRequestDto extends NamedEntityDto {
+public class LocationRequestDto {
 
     @NotBlank(message = "Location name is required")
     private String name;
