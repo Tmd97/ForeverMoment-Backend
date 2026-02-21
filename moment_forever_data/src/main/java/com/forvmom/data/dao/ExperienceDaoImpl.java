@@ -38,10 +38,33 @@ public class ExperienceDaoImpl extends GenericDaoImpl<Experience, Long> implemen
     @Override
     public Experience findByIdWithDetail(Long id) {
         try {
+            // Query 1 of 2: Experience + detail + subCategory + inclusionMappers
             return em.createQuery(
                     "SELECT DISTINCT e FROM Experience e " +
                             "LEFT JOIN FETCH e.detail " +
                             "LEFT JOIN FETCH e.subCategory " +
+                            "LEFT JOIN FETCH e.inclusionMappers im " +
+                            "LEFT JOIN FETCH im.inclusion " +
+                            "WHERE e.id = :id",
+                    Experience.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Query 2 of 2 for detail fetch: loads policyMappers onto an already-loaded
+     * Experience (Hibernate 2nd-level cache / same session merges the result).
+     */
+    @Override
+    public Experience findByIdWithPolicies(Long id) {
+        try {
+            return em.createQuery(
+                    "SELECT DISTINCT e FROM Experience e " +
+                            "LEFT JOIN FETCH e.policyMappers pm " +
+                            "LEFT JOIN FETCH pm.policy " +
                             "WHERE e.id = :id",
                     Experience.class)
                     .setParameter("id", id)
@@ -54,10 +77,30 @@ public class ExperienceDaoImpl extends GenericDaoImpl<Experience, Long> implemen
     @Override
     public Experience findBySlugWithDetail(String slug) {
         try {
+            // Query 1 of 2: Experience + detail + subCategory + inclusionMappers
             return em.createQuery(
                     "SELECT DISTINCT e FROM Experience e " +
                             "LEFT JOIN FETCH e.detail " +
                             "LEFT JOIN FETCH e.subCategory " +
+                            "LEFT JOIN FETCH e.inclusionMappers im " +
+                            "LEFT JOIN FETCH im.inclusion " +
+                            "WHERE e.slug = :slug",
+                    Experience.class)
+                    .setParameter("slug", slug)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /** Query 2 of 2 for detail fetch: loads policyMappers for a given slug. */
+    @Override
+    public Experience findBySlugWithPolicies(String slug) {
+        try {
+            return em.createQuery(
+                    "SELECT DISTINCT e FROM Experience e " +
+                            "LEFT JOIN FETCH e.policyMappers pm " +
+                            "LEFT JOIN FETCH pm.policy " +
                             "WHERE e.slug = :slug",
                     Experience.class)
                     .setParameter("slug", slug)

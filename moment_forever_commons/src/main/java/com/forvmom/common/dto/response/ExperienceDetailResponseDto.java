@@ -5,16 +5,16 @@ import java.util.Date;
 public class ExperienceDetailResponseDto {
 
     private Long id;
-    private Long experienceId;
     private String shortDescription;
     private String description;
     private Integer durationMinutes;
     private Integer maxCapacity;
     private Integer minAge;
-    private String cancellationPolicy;
+    /** Minutes the team needs to setup at venue before client arrival */
+    private Integer completionTime;
+    /** Minimum hours gap required between booking time and slot start */
+    private Integer minHours;
     private String termsConditions;
-    private String inclusions;
-    private String exclusions;
     private String whatToBring;
     private Boolean isActive;
     private Date createdOn;
@@ -26,14 +26,6 @@ public class ExperienceDetailResponseDto {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Long getExperienceId() {
-        return experienceId;
-    }
-
-    public void setExperienceId(Long experienceId) {
-        this.experienceId = experienceId;
     }
 
     public String getShortDescription() {
@@ -76,12 +68,20 @@ public class ExperienceDetailResponseDto {
         this.minAge = minAge;
     }
 
-    public String getCancellationPolicy() {
-        return cancellationPolicy;
+    public Integer getCompletionTime() {
+        return completionTime;
     }
 
-    public void setCancellationPolicy(String cancellationPolicy) {
-        this.cancellationPolicy = cancellationPolicy;
+    public void setCompletionTime(Integer completionTime) {
+        this.completionTime = completionTime;
+    }
+
+    public Integer getMinHours() {
+        return minHours;
+    }
+
+    public void setMinHours(Integer minHours) {
+        this.minHours = minHours;
     }
 
     public String getTermsConditions() {
@@ -90,22 +90,6 @@ public class ExperienceDetailResponseDto {
 
     public void setTermsConditions(String termsConditions) {
         this.termsConditions = termsConditions;
-    }
-
-    public String getInclusions() {
-        return inclusions;
-    }
-
-    public void setInclusions(String inclusions) {
-        this.inclusions = inclusions;
-    }
-
-    public String getExclusions() {
-        return exclusions;
-    }
-
-    public void setExclusions(String exclusions) {
-        this.exclusions = exclusions;
     }
 
     public String getWhatToBring() {

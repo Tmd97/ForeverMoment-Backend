@@ -5,6 +5,8 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 
 import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "experience")
@@ -33,6 +35,20 @@ public class Experience extends NamedEntity {
 
     @OneToOne(mappedBy = "experience", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     private ExperienceDetail detail;
+
+    /**
+     * Junction rows linking this experience to reusable inclusion items.
+     * LAZY — only loaded when explicitly JOIN FETCHed (detail endpoint).
+     */
+    @OneToMany(mappedBy = "experience", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ExperienceInclusionMapper> inclusionMappers = new HashSet<>();
+
+    /**
+     * Junction rows linking this experience to reusable cancellation policy points.
+     * LAZY — only loaded when explicitly JOIN FETCHed (detail endpoint).
+     */
+    @OneToMany(mappedBy = "experience", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ExperienceCancellationPolicyMapper> policyMappers = new HashSet<>();
 
     public String getSlug() {
         return slug;
@@ -90,5 +106,31 @@ public class Experience extends NamedEntity {
         this.detail = detail;
         if (detail != null)
             detail.setExperience(this);
+    }
+
+    public Set<ExperienceInclusionMapper> getInclusionMappers() {
+        return inclusionMappers;
+    }
+
+    public void setInclusionMappers(Set<ExperienceInclusionMapper> inclusionMappers) {
+        this.inclusionMappers = inclusionMappers;
+    }
+
+    public Set<ExperienceCancellationPolicyMapper> getPolicyMappers() {
+        return policyMappers;
+    }
+
+    public void setPolicyMappers(Set<ExperienceCancellationPolicyMapper> policyMappers) {
+        this.policyMappers = policyMappers;
+    }
+
+    public void addInclusionMapper(ExperienceInclusionMapper mapper) {
+        inclusionMappers.add(mapper);
+        mapper.setExperience(this);
+    }
+
+    public void addPolicyMapper(ExperienceCancellationPolicyMapper mapper) {
+        policyMappers.add(mapper);
+        mapper.setExperience(this);
     }
 }

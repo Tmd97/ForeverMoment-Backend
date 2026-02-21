@@ -12,7 +12,11 @@ public interface ExperienceDao extends GenericDao<Experience, Long> {
 
     Experience findByIdWithDetail(Long id);
 
+    Experience findByIdWithPolicies(Long id);
+
     Experience findBySlugWithDetail(String slug);
+
+    Experience findBySlugWithPolicies(String slug);
 
     List<Experience> findAllWithDetail();
 

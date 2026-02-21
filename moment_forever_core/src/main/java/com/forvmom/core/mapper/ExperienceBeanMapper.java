@@ -11,12 +11,11 @@ import com.forvmom.data.entities.ExperienceDetail;
 
 public class ExperienceBeanMapper {
 
-    // ─── Experience mapping ───────────────────────────────────────────────────
+    private ExperienceBeanMapper() {
+    }
 
-    /**
-     * Maps basic Experience fields from ExperienceRequestDto (used for standalone
-     * update)
-     */
+    // ─── Experience Entity Mapping ─────────────────────────────────────────────
+
     public static void mapDtoToEntity(ExperienceRequestDto dto, Experience entity) {
         if (dto == null || entity == null)
             return;
@@ -30,7 +29,6 @@ public class ExperienceBeanMapper {
             entity.setActive(dto.getIsActive());
     }
 
-    /** Maps basic Experience fields from the combined create/update DTO */
     public static void mapCreateDtoToEntity(ExperienceCreateRequestDto dto, Experience entity) {
         if (dto == null || entity == null)
             return;
@@ -44,16 +42,54 @@ public class ExperienceBeanMapper {
             entity.setActive(dto.getIsActive());
     }
 
+    // ─── ExperienceDetail Mapping ─────────────────────────────────────────────
+
     /**
-     * Maps entity to lightweight highlight DTO for list endpoints.
+     * Maps detail fields from the combined create/update DTO.
+     * Inclusions and cancellation policies are separate M:M relationships —
+     * handled by ExperienceInclusionService / ExperienceCancellationPolicyService.
+     */
+    public static void mapCreateDtoToDetail(ExperienceCreateRequestDto dto, ExperienceDetail entity) {
+        if (dto == null || entity == null)
+            return;
+        entity.setShortDescription(dto.getShortDescription());
+        entity.setDescription(dto.getDescription());
+        entity.setDurationMinutes(dto.getDurationMinutes());
+        entity.setMaxCapacity(dto.getMaxCapacity());
+        entity.setMinAge(dto.getMinAge());
+        entity.setCompletionTime(dto.getCompletionTime());
+        entity.setMinHours(dto.getMinHours());
+        entity.setTermsConditions(dto.getTermsConditions());
+        entity.setWhatToBring(dto.getWhatToBring());
+    }
+
+    public static void mapDetailDtoToEntity(ExperienceDetailRequestDto dto, ExperienceDetail entity) {
+        if (dto == null || entity == null)
+            return;
+        entity.setShortDescription(dto.getShortDescription());
+        entity.setDescription(dto.getDescription());
+        entity.setDurationMinutes(dto.getDurationMinutes());
+        entity.setMaxCapacity(dto.getMaxCapacity());
+        entity.setMinAge(dto.getMinAge());
+        entity.setCompletionTime(dto.getCompletionTime());
+        entity.setMinHours(dto.getMinHours());
+        entity.setTermsConditions(dto.getTermsConditions());
+        entity.setWhatToBring(dto.getWhatToBring());
+        if (dto.getIsActive() != null)
+            entity.setIsActive(dto.getIsActive());
+    }
+
+    // ─── Response DTO Mapping ─────────────────────────────────────────────────
+
+    /**
+     * Lightweight DTO for list endpoints.
      * Surfaces shortDescription, durationMinutes, maxCapacity from detail (if
-     * loaded)
-     * without embedding the full detail block.
+     * loaded).
+     * Inclusions & cancellation policies are NOT included in list views.
      */
     public static ExperienceHighlightResponseDto mapEntityToHighlightDto(Experience entity) {
         if (entity == null)
             return null;
-
         ExperienceHighlightResponseDto dto = new ExperienceHighlightResponseDto();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
@@ -74,28 +110,25 @@ public class ExperienceBeanMapper {
                 dto.setCategoryName(entity.getSubCategory().getCategory().getName());
             }
         }
-
-        // Surface key detail fields for card display (no full detail object embedded)
         if (entity.getDetail() != null) {
             dto.setShortDescription(entity.getDetail().getShortDescription());
             dto.setDurationMinutes(entity.getDetail().getDurationMinutes());
             dto.setMaxCapacity(entity.getDetail().getMaxCapacity());
         }
-
         return dto;
     }
 
     /**
-     * Maps entity to response DTO.
-     * 
-     * @param includeDetail if true, embeds the full ExperienceDetail block; false
-     *                      for list views
+     * Full response DTO for single-item fetches (GET /experiences/{id} or
+     * /slug/{slug}).
+     * Inclusions and cancellation policies are populated separately by the service
+     * via InclusionPolicyBeanMapper after this call.
+     *
+     * @param includeDetail pass true for single-item responses
      */
-    // TODO: well fetching the subcategory while creating the experience, it is N+1 query issue?
     public static ExperienceResponseDto mapEntityToDto(Experience entity, boolean includeDetail) {
         if (entity == null)
             return null;
-
         ExperienceResponseDto dto = new ExperienceResponseDto();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
@@ -116,64 +149,27 @@ public class ExperienceBeanMapper {
                 dto.setCategoryName(entity.getSubCategory().getCategory().getName());
             }
         }
-
         if (includeDetail && entity.getDetail() != null) {
             dto.setDetail(mapDetailToDto(entity.getDetail()));
         }
-
+        // Note: inclusions and cancellationPolicies are set by ExperienceServiceImpl
+        // after a separate JOIN FETCH query — keeping this mapper free of DAO calls.
         return dto;
-    }
-
-    /** Maps detail fields from the combined create DTO */
-    public static void mapCreateDtoToDetail(ExperienceCreateRequestDto dto, ExperienceDetail entity) {
-        if (dto == null || entity == null)
-            return;
-        entity.setShortDescription(dto.getShortDescription());
-        entity.setDescription(dto.getDescription());
-        entity.setDurationMinutes(dto.getDurationMinutes());
-        entity.setMaxCapacity(dto.getMaxCapacity());
-        entity.setMinAge(dto.getMinAge());
-        entity.setCancellationPolicy(dto.getCancellationPolicy());
-        entity.setTermsConditions(dto.getTermsConditions());
-        entity.setInclusions(dto.getInclusions());
-        entity.setExclusions(dto.getExclusions());
-        entity.setWhatToBring(dto.getWhatToBring());
-    }
-
-    /** Maps detail fields from the standalone detail upsert DTO */
-    public static void mapDetailDtoToEntity(ExperienceDetailRequestDto dto, ExperienceDetail entity) {
-        if (dto == null || entity == null)
-            return;
-        entity.setShortDescription(dto.getShortDescription());
-        entity.setDescription(dto.getDescription());
-        entity.setDurationMinutes(dto.getDurationMinutes());
-        entity.setMaxCapacity(dto.getMaxCapacity());
-        entity.setMinAge(dto.getMinAge());
-        entity.setCancellationPolicy(dto.getCancellationPolicy());
-        entity.setTermsConditions(dto.getTermsConditions());
-        entity.setInclusions(dto.getInclusions());
-        entity.setExclusions(dto.getExclusions());
-        entity.setWhatToBring(dto.getWhatToBring());
-        if (dto.getIsActive() != null)
-            entity.setIsActive(dto.getIsActive());
     }
 
     public static ExperienceDetailResponseDto mapDetailToDto(ExperienceDetail entity) {
         if (entity == null)
             return null;
-
         ExperienceDetailResponseDto dto = new ExperienceDetailResponseDto();
         dto.setId(entity.getId());
-        dto.setExperienceId(entity.getExperience() != null ? entity.getExperience().getId() : null);
         dto.setShortDescription(entity.getShortDescription());
         dto.setDescription(entity.getDescription());
         dto.setDurationMinutes(entity.getDurationMinutes());
         dto.setMaxCapacity(entity.getMaxCapacity());
         dto.setMinAge(entity.getMinAge());
-        dto.setCancellationPolicy(entity.getCancellationPolicy());
+        dto.setCompletionTime(entity.getCompletionTime());
+        dto.setMinHours(entity.getMinHours());
         dto.setTermsConditions(entity.getTermsConditions());
-        dto.setInclusions(entity.getInclusions());
-        dto.setExclusions(entity.getExclusions());
         dto.setWhatToBring(entity.getWhatToBring());
         dto.setIsActive(entity.getIsActive());
         dto.setCreatedOn(entity.getCreatedOn());

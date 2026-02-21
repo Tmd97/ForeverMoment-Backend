@@ -45,10 +45,11 @@ public class ExperienceCreateRequestDto {
     private Integer durationMinutes;
     private Integer maxCapacity;
     private Integer minAge;
-    private String cancellationPolicy;
+    /** Minutes the setup team needs at venue before client arrival */
+    private Integer completionTime;
+    /** Minimum hours gap required between booking time and slot start */
+    private Integer minHours;
     private String termsConditions;
-    private String inclusions;
-    private String exclusions;
     private String whatToBring;
 
     public String getName() {
@@ -155,12 +156,20 @@ public class ExperienceCreateRequestDto {
         this.minAge = minAge;
     }
 
-    public String getCancellationPolicy() {
-        return cancellationPolicy;
+    public Integer getCompletionTime() {
+        return completionTime;
     }
 
-    public void setCancellationPolicy(String cancellationPolicy) {
-        this.cancellationPolicy = cancellationPolicy;
+    public void setCompletionTime(Integer completionTime) {
+        this.completionTime = completionTime;
+    }
+
+    public Integer getMinHours() {
+        return minHours;
+    }
+
+    public void setMinHours(Integer minHours) {
+        this.minHours = minHours;
     }
 
     public String getTermsConditions() {
@@ -169,22 +178,6 @@ public class ExperienceCreateRequestDto {
 
     public void setTermsConditions(String termsConditions) {
         this.termsConditions = termsConditions;
-    }
-
-    public String getInclusions() {
-        return inclusions;
-    }
-
-    public void setInclusions(String inclusions) {
-        this.inclusions = inclusions;
-    }
-
-    public String getExclusions() {
-        return exclusions;
-    }
-
-    public void setExclusions(String exclusions) {
-        this.exclusions = exclusions;
     }
 
     public String getWhatToBring() {

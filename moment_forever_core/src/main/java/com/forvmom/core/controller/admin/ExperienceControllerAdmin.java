@@ -94,18 +94,18 @@ public class ExperienceControllerAdmin {
 
     // ─── ExperienceDetail ─────────────────────────────────────────────────────
 
-    @PutMapping("/{id}/detail")
-    @Operation(summary = "Upsert Experience Detail", description = "Creates or updates the detail for an experience")
-    public ResponseEntity<ApiResponse<?>> upsertDetail(@PathVariable Long id,
-            @RequestBody ExperienceDetailRequestDto requestDto) {
-        ExperienceDetailResponseDto response = experienceService.upsertDetail(id, requestDto);
-        return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_UPDATED));
-    }
+//    @PutMapping("/{id}/detail")
+//    @Operation(summary = "Upsert Experience Detail", description = "Creates or updates the detail for an experience")
+//    public ResponseEntity<ApiResponse<?>> upsertDetail(@PathVariable Long id,
+//            @RequestBody ExperienceDetailRequestDto requestDto) {
+//        ExperienceDetailResponseDto response = experienceService.upsertDetail(id, requestDto);
+//        return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_UPDATED));
+//    }
 
-    @GetMapping("/{id}/detail")
-    @Operation(summary = "Get Experience Detail")
-    public ResponseEntity<ApiResponse<?>> getDetail(@PathVariable Long id) {
-        ExperienceDetailResponseDto response = experienceService.getDetail(id);
-        return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_FETCHED));
-    }
+//    @GetMapping("/{id}/detail")
+//    @Operation(summary = "Get Experience Detail")
+//    public ResponseEntity<ApiResponse<?>> getDetail(@PathVariable Long id) {
+//        ExperienceDetailResponseDto response = experienceService.getDetail(id);
+//        return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_FETCHED));
+//    }
 }

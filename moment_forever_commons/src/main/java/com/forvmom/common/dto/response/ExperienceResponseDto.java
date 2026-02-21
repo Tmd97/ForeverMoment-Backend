@@ -2,7 +2,14 @@ package com.forvmom.common.dto.response;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
+/**
+ * Full response DTO returned by GET /experiences/{id} and GET
+ * /experiences/slug/{slug}.
+ * Includes embedded ExperienceDetail, inclusions, and cancellation policies.
+ * NOT used on list endpoints — use ExperienceHighlightResponseDto for lists.
+ */
 public class ExperienceResponseDto {
 
     private Long id;
@@ -13,17 +20,22 @@ public class ExperienceResponseDto {
     private Integer displayOrder;
     private Boolean isFeatured;
     private Boolean isActive;
-    private Date createdOn;
-    private Date updatedOn;
 
-    // SubCategory info (denormalized for listing cards)
+    // Denormalized sub-category + category fields
     private Long subCategoryId;
     private String subCategoryName;
     private Long categoryId;
     private String categoryName;
 
-    // Embedded detail (null on list views, populated on getById/getBySlug)
+    // Embedded 1:1 detail — only populated on single-item fetch
     private ExperienceDetailResponseDto detail;
+
+    // M:M embedded lists — only populated on single-item fetch
+    private List<ExperienceInclusionResponseDto> inclusions;
+    private List<CancellationPolicyResponseDto> cancellationPolicies;
+
+    private Date createdOn;
+    private Date updatedOn;
 
     public Long getId() {
         return id;
@@ -89,22 +101,6 @@ public class ExperienceResponseDto {
         this.isActive = isActive;
     }
 
-    public Date getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    public Date getUpdatedOn() {
-        return updatedOn;
-    }
-
-    public void setUpdatedOn(Date updatedOn) {
-        this.updatedOn = updatedOn;
-    }
-
     public Long getSubCategoryId() {
         return subCategoryId;
     }
@@ -143,5 +139,37 @@ public class ExperienceResponseDto {
 
     public void setDetail(ExperienceDetailResponseDto detail) {
         this.detail = detail;
+    }
+
+    public List<ExperienceInclusionResponseDto> getInclusions() {
+        return inclusions;
+    }
+
+    public void setInclusions(List<ExperienceInclusionResponseDto> inclusions) {
+        this.inclusions = inclusions;
+    }
+
+    public List<CancellationPolicyResponseDto> getCancellationPolicies() {
+        return cancellationPolicies;
+    }
+
+    public void setCancellationPolicies(List<CancellationPolicyResponseDto> cancellationPolicies) {
+        this.cancellationPolicies = cancellationPolicies;
+    }
+
+    public Date getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(Date createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public Date getUpdatedOn() {
+        return updatedOn;
+    }
+
+    public void setUpdatedOn(Date updatedOn) {
+        this.updatedOn = updatedOn;
     }
 }

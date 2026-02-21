@@ -20,7 +20,6 @@ public abstract class GenericDaoImpl<T, ID> implements GenericDao<T, ID> {
         this.entityClass = entityClass;
     }
 
-
     @Override
     public T save(T entity) {
         em.persist(entity);
@@ -47,5 +46,23 @@ public abstract class GenericDaoImpl<T, ID> implements GenericDao<T, ID> {
     public List<T> findAll() {
         return em.createQuery("SELECT e FROM " + entityClass.getName() + " e", entityClass)
                 .getResultList();
+    }
+
+    /**
+     * Returns an EntityManager proxy — no SELECT is executed.
+     * Use when you only need to set a FK reference without loading the entity.
+     */
+    public <E> E getReference(Class<E> clazz, Object id) {
+        return em.getReference(clazz, id);
+    }
+
+    /**
+     * Convenience: soft-delete (or hard-delete) by ID without loading the entity
+     * first.
+     */
+    public void deleteById(ID id) {
+        T ref = em.find(entityClass, id);
+        if (ref != null)
+            delete(ref);
     }
 }

@@ -7,6 +7,7 @@ import com.forvmom.common.dto.response.ExperienceHighlightResponseDto;
 import com.forvmom.common.dto.response.ExperienceResponseDto;
 import com.forvmom.common.errorhandler.ResourceNotFoundException;
 import com.forvmom.core.mapper.ExperienceBeanMapper;
+import com.forvmom.core.mapper.InclusionPolicyBeanMapper;
 import com.forvmom.data.dao.ExperienceDao;
 import com.forvmom.data.dao.ExperienceDetailDao;
 import com.forvmom.data.dao.SubCategoryDao;
@@ -101,24 +102,49 @@ public class ExperienceServiceImpl implements ExperienceService {
         return ExperienceBeanMapper.mapEntityToDto(updated, true);
     }
 
+
+    /*
+Your current approach with 2 queries is actually quite good:
+Query 1: Fetches Experience + Detail + SubCategory + InclusionMappers (with JOIN FETCH)
+Query 2: Fetches PolicyMappers separately (avoids Cartesian product with inclusions)
+This avoids the multiplied result set problem that would occur if you joined both collections in one query.
+     */
     @Override
     @Transactional(readOnly = true)
     public ExperienceResponseDto getById(Long id) {
+        // Query 1: experience + detail + subCategory + inclusionMappers (JOIN FETCH)
         Experience experience = experienceDao.findByIdWithDetail(id);
         if (experience == null) {
             throw new ResourceNotFoundException("Experience not found with id " + id);
         }
-        return ExperienceBeanMapper.mapEntityToDto(experience, true);
+        // Query 2: policyMappers (Hibernate merges into same session entity)
+        experienceDao.findByIdWithPolicies(id);
+
+        ExperienceResponseDto dto = ExperienceBeanMapper.mapEntityToDto(experience, true);
+        dto.setInclusions(InclusionPolicyBeanMapper.mapInclusionMappers(
+                new ArrayList<>(experience.getInclusionMappers())));
+        dto.setCancellationPolicies(InclusionPolicyBeanMapper.mapPolicyMappers(
+                new ArrayList<>(experience.getPolicyMappers())));
+        return dto;
     }
 
     @Override
     @Transactional(readOnly = true)
     public ExperienceResponseDto getBySlug(String slug) {
+        // Query 1: experience + detail + subCategory + inclusionMappers (JOIN FETCH)
         Experience experience = experienceDao.findBySlugWithDetail(slug);
         if (experience == null) {
             throw new ResourceNotFoundException("Experience not found with slug '" + slug + "'");
         }
-        return ExperienceBeanMapper.mapEntityToDto(experience, true);
+        // Query 2: policyMappers
+        experienceDao.findBySlugWithPolicies(slug);
+
+        ExperienceResponseDto dto = ExperienceBeanMapper.mapEntityToDto(experience, true);
+        dto.setInclusions(InclusionPolicyBeanMapper.mapInclusionMappers(
+                new ArrayList<>(experience.getInclusionMappers())));
+        dto.setCancellationPolicies(InclusionPolicyBeanMapper.mapPolicyMappers(
+                new ArrayList<>(experience.getPolicyMappers())));
+        return dto;
     }
 
     @Override
@@ -173,6 +199,10 @@ public class ExperienceServiceImpl implements ExperienceService {
         if (existing == null) {
             throw new ResourceNotFoundException("Experience not found with id " + id);
         }
+        // Soft-delete the experience — @SQLDelete on Experience fires UPDATE; the
+        // @OneToMany(cascade=ALL, orphanRemoval=true) on inclusionMappers/policyMappers
+        // means Hibernate will also remove the junction rows within the same
+        // transaction.
         experienceDao.delete(existing);
         return true;
     }
