@@ -1,7 +1,6 @@
 package com.forvmom.common.dto.request;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.forvmom.common.dto.response.NamedEntityDto;
 import jakarta.validation.constraints.NotBlank;
 
 @JsonIgnoreProperties(ignoreUnknown = false)
