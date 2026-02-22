@@ -1,7 +1,9 @@
 package com.forvmom.core.services;
 
+import com.forvmom.common.dto.request.ExperienceLocationAttachRequestDto;
 import com.forvmom.common.dto.request.LocationRequestDto;
 import com.forvmom.common.dto.request.PincodeRequestDto;
+import com.forvmom.common.dto.response.ExperienceLocationResponseDto;
 import com.forvmom.common.dto.response.LocationResponseDto;
 import com.forvmom.common.dto.response.PincodeResponseDto;
 
@@ -35,4 +37,18 @@ public interface LocationService {
     PincodeResponseDto checkPincode(String pincodeCode);
 
     boolean deletePincode(Long pincodeId);
+
+    // ── Experience Association ────────────────────────────────────────────────
+
+    ExperienceLocationResponseDto attachToExperience(Long locationId, Long experienceId,
+            ExperienceLocationAttachRequestDto requestDto);
+
+    void detachFromExperience(Long locationId, Long experienceId);
+
+    List<ExperienceLocationResponseDto> getExperiencesForLocation(Long locationId);
+
+    ExperienceLocationResponseDto updateExperienceAttachment(Long locationId, Long experienceId,
+            ExperienceLocationAttachRequestDto requestDto);
+
+    void toggleExperienceAttachmentActive(Long mapperId);
 }

@@ -8,6 +8,8 @@ public interface ExperienceLocationMapperDao extends GenericDao<ExperienceLocati
 
     List<ExperienceLocationMapper> findByExperienceId(Long experienceId);
 
+    List<ExperienceLocationMapper> findByLocationId(Long locationId);
+
     boolean existsByExperienceIdAndLocationId(Long experienceId, Long locationId);
 
     ExperienceLocationMapper findByExperienceIdAndLocationId(Long experienceId, Long locationId);

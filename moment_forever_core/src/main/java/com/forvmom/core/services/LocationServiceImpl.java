@@ -1,13 +1,20 @@
 package com.forvmom.core.services;
 
+import com.forvmom.common.dto.request.ExperienceLocationAttachRequestDto;
 import com.forvmom.common.dto.request.LocationRequestDto;
 import com.forvmom.common.dto.request.PincodeRequestDto;
+import com.forvmom.common.dto.response.ExperienceLocationResponseDto;
 import com.forvmom.common.dto.response.LocationResponseDto;
 import com.forvmom.common.dto.response.PincodeResponseDto;
 import com.forvmom.common.errorhandler.ResourceNotFoundException;
+import com.forvmom.core.mapper.ExperienceBeanMapper;
 import com.forvmom.core.mapper.LocationBeanMapper;
+import com.forvmom.data.dao.ExperienceDao;
+import com.forvmom.data.dao.ExperienceLocationMapperDao;
 import com.forvmom.data.dao.LocationDao;
 import com.forvmom.data.dao.PincodeDao;
+import com.forvmom.data.entities.Experience;
+import com.forvmom.data.entities.ExperienceLocationMapper;
 import com.forvmom.data.entities.Location;
 import com.forvmom.data.entities.Pincode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +33,12 @@ public class LocationServiceImpl implements LocationService {
 
     @Autowired
     private PincodeDao pincodeDao;
+
+    @Autowired
+    private ExperienceLocationMapperDao locationMapperDao;
+
+    @Autowired
+    private ExperienceDao experienceDao;
 
     @Override
     @Transactional
@@ -206,5 +219,88 @@ public class LocationServiceImpl implements LocationService {
         }
         pincodeDao.delete(existing);
         return true;
+    }
+
+    // ── Experience Association ────────────────────────────────────────────────
+
+    @Override
+    @Transactional
+    public ExperienceLocationResponseDto attachToExperience(Long locationId, Long experienceId,
+            ExperienceLocationAttachRequestDto requestDto) {
+
+        if (locationMapperDao.existsByExperienceIdAndLocationId(experienceId, locationId)) {
+            throw new IllegalStateException(
+                    "Location " + locationId + " is already attached to experience " + experienceId);
+        }
+
+        Location location = locationDao.findById(locationId);
+        if (location == null)
+            throw new ResourceNotFoundException("Location not found: " + locationId);
+
+        Experience experience = experienceDao.findById(experienceId);
+        if (experience == null)
+            throw new ResourceNotFoundException("Experience not found: " + experienceId);
+
+        ExperienceLocationMapper mapper = new ExperienceLocationMapper();
+        mapper.setLocation(location);
+        mapper.setPriceOverride(requestDto.getPriceOverride());
+        mapper.setValidFrom(requestDto.getValidFrom());
+        mapper.setValidTo(requestDto.getValidTo());
+        mapper.setIsActive(requestDto.getIsActive() != null ? requestDto.getIsActive() : true);
+
+        // Bidirectional helper wires experience → mapper back-reference
+        experience.addLocationMapper(mapper);
+
+        return ExperienceBeanMapper.mapLocationMapperToDto(locationMapperDao.save(mapper));
+    }
+
+    @Override
+    @Transactional
+    public void detachFromExperience(Long locationId, Long experienceId) {
+        ExperienceLocationMapper mapper = locationMapperDao.findByExperienceIdAndLocationId(experienceId, locationId);
+        if (mapper == null) {
+            throw new ResourceNotFoundException(
+                    "Location " + locationId + " is not attached to experience " + experienceId);
+        }
+        locationMapperDao.delete(mapper);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ExperienceLocationResponseDto> getExperiencesForLocation(Long locationId) {
+        // Re-uses DAO query keyed by experienceId — but we want by locationId.
+        // The ExperienceLocationMapperDao.findByExperienceId covers experience-side
+        // listing.
+        // For location-side we query all mappers and filter; a dedicated DAO method can
+        // be added later.
+        List<ExperienceLocationMapper> mappers = locationMapperDao.findByLocationId(locationId);
+        return ExperienceBeanMapper.mapLocationMappers(new ArrayList<>(mappers));
+    }
+
+    @Override
+    @Transactional
+    public ExperienceLocationResponseDto updateExperienceAttachment(Long locationId, Long experienceId,
+            ExperienceLocationAttachRequestDto requestDto) {
+        ExperienceLocationMapper mapper = locationMapperDao.findByExperienceIdAndLocationId(experienceId, locationId);
+        if (mapper == null) {
+            throw new ResourceNotFoundException(
+                    "Location " + locationId + " is not attached to experience " + experienceId);
+        }
+        mapper.setPriceOverride(requestDto.getPriceOverride());
+        mapper.setValidFrom(requestDto.getValidFrom());
+        mapper.setValidTo(requestDto.getValidTo());
+        if (requestDto.getIsActive() != null)
+            mapper.setIsActive(requestDto.getIsActive());
+        return ExperienceBeanMapper.mapLocationMapperToDto(locationMapperDao.update(mapper));
+    }
+
+    @Override
+    @Transactional
+    public void toggleExperienceAttachmentActive(Long mapperId) {
+        ExperienceLocationMapper mapper = locationMapperDao.findById(mapperId);
+        if (mapper == null)
+            throw new ResourceNotFoundException("Location mapping not found: " + mapperId);
+        mapper.setIsActive(!Boolean.TRUE.equals(mapper.getIsActive()));
+        locationMapperDao.update(mapper);
     }
 }

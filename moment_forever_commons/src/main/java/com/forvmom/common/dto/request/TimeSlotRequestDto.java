@@ -19,7 +19,7 @@ public class TimeSlotRequestDto {
     @Pattern(regexp = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$", message = "End time must be in HH:mm format")
     private String endTime;
 
-    private Boolean isActive;
+    private Boolean isActive=true;
 
     public String getLabel() {
         return label;
