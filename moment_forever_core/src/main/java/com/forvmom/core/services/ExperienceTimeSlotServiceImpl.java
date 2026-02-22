@@ -37,7 +37,7 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
     @Transactional
     public TimeSlotResponseDto createTimeSlot(TimeSlotRequestDto requestDto) {
         TimeSlot existing = timeSlotDao.findByLabelAndTimeRange(
-                requestDto.getLabel(),
+                requestDto.getName(),
                 TimeSlotBeanMapper.parseTime(requestDto.getStartTime()),
                 TimeSlotBeanMapper.parseTime(requestDto.getEndTime()));
         if (existing != null) {
@@ -84,7 +84,7 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
         TimeSlot entity = findTimeSlotOrThrow(id);
 
         TimeSlot dupe = timeSlotDao.findByLabelAndTimeRange(
-                requestDto.getLabel(),
+                requestDto.getName(),
                 TimeSlotBeanMapper.parseTime(requestDto.getStartTime()),
                 TimeSlotBeanMapper.parseTime(requestDto.getEndTime()));
         if (dupe != null && !dupe.getId().equals(id)) {

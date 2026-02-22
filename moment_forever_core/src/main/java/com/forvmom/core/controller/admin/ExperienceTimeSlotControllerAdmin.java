@@ -1,6 +1,7 @@
 package com.forvmom.core.controller.admin;
 
 import com.forvmom.common.dto.request.ExperienceTimeSlotAttachRequestDto;
+import com.forvmom.common.dto.request.ReorderRequestDto;
 import com.forvmom.common.dto.request.TimeSlotRequestDto;
 import com.forvmom.common.dto.response.ExperienceTimeSlotResponseDto;
 import com.forvmom.common.dto.response.TimeSlotResponseDto;
@@ -8,6 +9,9 @@ import com.forvmom.common.response.ApiResponse;
 import com.forvmom.common.response.ResponseUtil;
 import com.forvmom.common.utils.AppConstants;
 import com.forvmom.core.services.ExperienceTimeSlotService;
+import com.forvmom.core.services.ReorderingService;
+import com.forvmom.data.entities.Experience;
+import com.forvmom.data.entities.TimeSlot;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -35,6 +39,9 @@ public class ExperienceTimeSlotControllerAdmin {
 
         @Autowired
         private ExperienceTimeSlotService timeSlotService;
+
+        @Autowired
+        private ReorderingService reorderingService;
 
         // ── Master TimeSlot CRUD ──────────────────────────────────────────────────
 
@@ -159,5 +166,13 @@ public class ExperienceTimeSlotControllerAdmin {
                 timeSlotService.toggleAttachmentActive(mapperId);
                 return ResponseEntity.ok(
                                 ResponseUtil.buildOkResponse(null, "TimeSlot mapping status toggled successfully"));
+        }
+
+        @PatchMapping("/reorder")
+        public ResponseEntity<ApiResponse<?>> reOrderTheItems(
+                @RequestBody ReorderRequestDto reorderRequestDto) {
+                reorderingService.reorderItems(reorderRequestDto.getId(), reorderRequestDto.getNewPosition(), TimeSlot.class);
+                return ResponseEntity.ok(
+                        ResponseUtil.buildOkResponse(null, AppConstants.MSG_UPDATED));
         }
 }

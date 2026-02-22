@@ -3,6 +3,7 @@ package com.forvmom.core.controller.admin;
 import com.forvmom.common.dto.request.ExperienceLocationAttachRequestDto;
 import com.forvmom.common.dto.request.LocationRequestDto;
 import com.forvmom.common.dto.request.PincodeRequestDto;
+import com.forvmom.common.dto.request.ReorderRequestDto;
 import com.forvmom.common.dto.response.ExperienceLocationResponseDto;
 import com.forvmom.common.dto.response.LocationResponseDto;
 import com.forvmom.common.dto.response.PincodeResponseDto;
@@ -10,6 +11,9 @@ import com.forvmom.common.response.ApiResponse;
 import com.forvmom.common.response.ResponseUtil;
 import com.forvmom.common.utils.AppConstants;
 import com.forvmom.core.services.LocationService;
+import com.forvmom.core.services.ReorderingService;
+import com.forvmom.data.entities.Location;
+import com.forvmom.data.entities.TimeSlot;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -24,6 +28,9 @@ import java.util.List;
 @RequestMapping("/admin/locations")
 @Tag(name = "Admin Location API", description = "Endpoints for managing locations and pincodes (Admin only)")
 public class LocationControllerAdmin {
+
+    @Autowired
+    private ReorderingService reorderingService;
 
     @Autowired
     private LocationService locationService;
@@ -163,5 +170,13 @@ public class LocationControllerAdmin {
         locationService.toggleExperienceAttachmentActive(mapperId);
         return ResponseEntity.ok(
                 ResponseUtil.buildOkResponse(null, "Location-Experience attachment status toggled"));
+    }
+
+    @PatchMapping("/reorder")
+    public ResponseEntity<ApiResponse<?>> reOrderTheItems(
+            @RequestBody ReorderRequestDto reorderRequestDto) {
+        reorderingService.reorderItems(reorderRequestDto.getId(), reorderRequestDto.getNewPosition(), Location.class);
+        return ResponseEntity.ok(
+                ResponseUtil.buildOkResponse(null, AppConstants.MSG_UPDATED));
     }
 }

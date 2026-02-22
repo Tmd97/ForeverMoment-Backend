@@ -13,7 +13,7 @@ public class ExperienceTimeSlotResponseDto {
 
     // TimeSlot master data
     private Long timeSlotId;
-    private String label;
+    private String name;
     private String startTime;
     private String endTime;
 
@@ -45,13 +45,6 @@ public class ExperienceTimeSlotResponseDto {
         this.timeSlotId = timeSlotId;
     }
 
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
 
     public String getStartTime() {
         return startTime;
@@ -123,5 +116,14 @@ public class ExperienceTimeSlotResponseDto {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

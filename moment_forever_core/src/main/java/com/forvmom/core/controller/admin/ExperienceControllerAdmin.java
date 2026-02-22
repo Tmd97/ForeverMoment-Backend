@@ -2,6 +2,7 @@ package com.forvmom.core.controller.admin;
 
 import com.forvmom.common.dto.request.ExperienceCreateRequestDto;
 import com.forvmom.common.dto.request.ExperienceDetailRequestDto;
+import com.forvmom.common.dto.request.ReorderRequestDto;
 import com.forvmom.common.dto.response.ExperienceDetailResponseDto;
 import com.forvmom.common.dto.response.ExperienceHighlightResponseDto;
 import com.forvmom.common.dto.response.ExperienceResponseDto;
@@ -9,6 +10,9 @@ import com.forvmom.common.response.ApiResponse;
 import com.forvmom.common.response.ResponseUtil;
 import com.forvmom.common.utils.AppConstants;
 import com.forvmom.core.services.ExperienceService;
+import com.forvmom.core.services.ReorderingService;
+import com.forvmom.data.entities.Category;
+import com.forvmom.data.entities.Experience;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +26,9 @@ import java.util.List;
 @RequestMapping("/admin/experiences")
 @Tag(name = "Admin Experience API", description = "Endpoints for managing experiences (Admin only)")
 public class ExperienceControllerAdmin {
+
+    @Autowired
+    private ReorderingService reorderingService;
 
     @Autowired
     private ExperienceService experienceService;
@@ -92,20 +99,11 @@ public class ExperienceControllerAdmin {
         return ResponseEntity.ok(ResponseUtil.buildOkResponse(null, "Experience featured status toggled"));
     }
 
-    // ─── ExperienceDetail ─────────────────────────────────────────────────────
-
-//    @PutMapping("/{id}/detail")
-//    @Operation(summary = "Upsert Experience Detail", description = "Creates or updates the detail for an experience")
-//    public ResponseEntity<ApiResponse<?>> upsertDetail(@PathVariable Long id,
-//            @RequestBody ExperienceDetailRequestDto requestDto) {
-//        ExperienceDetailResponseDto response = experienceService.upsertDetail(id, requestDto);
-//        return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_UPDATED));
-//    }
-
-//    @GetMapping("/{id}/detail")
-//    @Operation(summary = "Get Experience Detail")
-//    public ResponseEntity<ApiResponse<?>> getDetail(@PathVariable Long id) {
-//        ExperienceDetailResponseDto response = experienceService.getDetail(id);
-//        return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_FETCHED));
-//    }
+    @PatchMapping("/reorder")
+    public ResponseEntity<ApiResponse<?>> reOrderTheItems(
+            @RequestBody ReorderRequestDto reorderRequestDto) {
+        reorderingService.reorderItems(reorderRequestDto.getId(), reorderRequestDto.getNewPosition(), Experience.class);
+        return ResponseEntity.ok(
+                ResponseUtil.buildOkResponse(null, AppConstants.MSG_UPDATED));
+    }
 }

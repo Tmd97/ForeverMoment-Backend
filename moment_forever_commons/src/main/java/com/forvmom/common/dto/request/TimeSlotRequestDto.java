@@ -9,7 +9,7 @@ public class TimeSlotRequestDto {
 
     @NotBlank(message = "Label is required")
     @Size(max = 100, message = "Label must not exceed 100 characters")
-    private String label;
+    private String name;
 
     @NotBlank(message = "Start time is required")
     @Pattern(regexp = "^([01]?[0-9]|2[0-3]):[0-5][0-9]$", message = "Start time must be in HH:mm format")
@@ -21,12 +21,13 @@ public class TimeSlotRequestDto {
 
     private Boolean isActive=true;
 
-    public String getLabel() {
-        return label;
+
+    public String getName() {
+        return name;
     }
 
-    public void setLabel(String label) {
-        this.label = label;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getStartTime() {

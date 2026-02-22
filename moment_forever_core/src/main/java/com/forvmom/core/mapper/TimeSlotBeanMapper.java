@@ -50,6 +50,7 @@ public class TimeSlotBeanMapper {
         entity.setEndTime(parseTime(dto.getEndTime()));
         if (dto.getActive() != null)
             entity.setIsActive(dto.getActive());
+        entity.setName(dto.getName());
         return entity;
     }
 
