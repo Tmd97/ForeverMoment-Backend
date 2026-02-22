@@ -2,24 +2,13 @@ package com.forvmom.common.dto.response;
 
 import java.util.Date;
 
-public class CancellationPolicyResponseDto {
+public class CancellationPolicyResponseDto extends NamedEntityDto {
 
-    private Long id;
     private String description;
     /** true = favourable ✓, false = restrictive ✗ */
     private Boolean isIncluded;
     private Integer displayOrder;
     private Boolean isActive;
-    private Date createdOn;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -50,13 +39,5 @@ public class CancellationPolicyResponseDto {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
-    }
-
-    public Date getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
     }
 }

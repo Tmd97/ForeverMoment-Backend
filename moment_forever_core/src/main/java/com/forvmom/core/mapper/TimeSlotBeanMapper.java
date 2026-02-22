@@ -29,14 +29,11 @@ public class TimeSlotBeanMapper {
     private TimeSlotBeanMapper() {
     }
 
-    // ── TimeSlot master ───────────────────────────────────────────────────────
-
     public static TimeSlotResponseDto mapEntityToDto(TimeSlot entity) {
         if (entity == null)
             return null;
         TimeSlotResponseDto dto = new TimeSlotResponseDto();
         dto.setId(entity.getId());
-        dto.setLabel(entity.getLabel());
         dto.setStartTime(entity.getStartTime().format(TIME_FORMATTER));
         dto.setEndTime(entity.getEndTime().format(TIME_FORMATTER));
         dto.setIsActive(entity.getIsActive());
@@ -49,7 +46,6 @@ public class TimeSlotBeanMapper {
     }
 
     public static TimeSlot updateEntityFromDto(TimeSlot entity, TimeSlotRequestDto dto) {
-        entity.setLabel(dto.getLabel());
         entity.setStartTime(parseTime(dto.getStartTime()));
         entity.setEndTime(parseTime(dto.getEndTime()));
         if (dto.getActive() != null)
@@ -72,7 +68,6 @@ public class TimeSlotBeanMapper {
         TimeSlot ts = mapper.getTimeSlot();
         if (ts != null) {
             dto.setTimeSlotId(ts.getId());
-            dto.setLabel(ts.getLabel());
             dto.setStartTime(ts.getStartTime().format(TIME_FORMATTER));
             dto.setEndTime(ts.getEndTime().format(TIME_FORMATTER));
         }

@@ -92,7 +92,6 @@ public class InclusionPolicyBeanMapper {
         dto.setIsIncluded(entity.getIsIncluded());
         dto.setDisplayOrder(entity.getDisplayOrder());
         dto.setIsActive(entity.getIsActive());
-        dto.setCreatedOn(entity.getCreatedOn());
         return dto;
     }
 

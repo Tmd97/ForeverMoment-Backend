@@ -17,16 +17,7 @@ import java.util.Date;
 @Table(name = "time_slots")
 @SQLDelete(sql = "UPDATE time_slots SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
-public class TimeSlot {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
-
-    /** Human-readable label, e.g. "Morning", "Evening" */
-    @Column(name = "label", nullable = false, length = 100)
-    private String label;
+public class TimeSlot extends NamedEntity {
 
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
@@ -43,24 +34,6 @@ public class TimeSlot {
     @CreationTimestamp
     @Column(name = "created_on", updatable = false)
     private Date createdOn;
-
-    // ── Getters & Setters ─────────────────────────────────────────────────────
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getLabel() {
-        return label;
-    }
-
-    public void setLabel(String label) {
-        this.label = label;
-    }
 
     public LocalTime getStartTime() {
         return startTime;
