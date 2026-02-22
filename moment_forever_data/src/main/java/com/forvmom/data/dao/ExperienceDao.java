@@ -18,6 +18,14 @@ public interface ExperienceDao extends GenericDao<Experience, Long> {
 
     Experience findBySlugWithPolicies(String slug);
 
+    /**
+     * Query 3 of 3: loads locationMappers + their timeslot mappers (separate to
+     * avoid Cartesian product)
+     */
+    Experience findByIdWithLocations(Long id);
+
+    Experience findBySlugWithLocations(String slug);
+
     List<Experience> findAllWithDetail();
 
     List<Experience> findBySubCategoryId(Long subCategoryId);

@@ -1,0 +1,127 @@
+package com.forvmom.common.dto.response;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+/**
+ * Response DTO for an ExperienceTimeSlotMapper record.
+ * Combines TimeSlot master data with per-location pricing and availability.
+ */
+public class ExperienceTimeSlotResponseDto {
+
+    private Long mapperId;
+
+    // TimeSlot master data
+    private Long timeSlotId;
+    private String label;
+    private String startTime;
+    private String endTime;
+
+    // Per-location-experience overrides (Level 3 pricing)
+    private BigDecimal priceOverride;
+    private Integer maxCapacity;
+    private Integer currentBookings;
+    private Integer availableCapacity;
+
+    private LocalDate validFrom;
+    private LocalDate validTo;
+    private Boolean isActive;
+
+    // ── Getters & Setters ─────────────────────────────────────────────────────
+
+    public Long getMapperId() {
+        return mapperId;
+    }
+
+    public void setMapperId(Long mapperId) {
+        this.mapperId = mapperId;
+    }
+
+    public Long getTimeSlotId() {
+        return timeSlotId;
+    }
+
+    public void setTimeSlotId(Long timeSlotId) {
+        this.timeSlotId = timeSlotId;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public BigDecimal getPriceOverride() {
+        return priceOverride;
+    }
+
+    public void setPriceOverride(BigDecimal priceOverride) {
+        this.priceOverride = priceOverride;
+    }
+
+    public Integer getMaxCapacity() {
+        return maxCapacity;
+    }
+
+    public void setMaxCapacity(Integer maxCapacity) {
+        this.maxCapacity = maxCapacity;
+    }
+
+    public Integer getCurrentBookings() {
+        return currentBookings;
+    }
+
+    public void setCurrentBookings(Integer currentBookings) {
+        this.currentBookings = currentBookings;
+    }
+
+    public Integer getAvailableCapacity() {
+        return availableCapacity;
+    }
+
+    public void setAvailableCapacity(Integer availableCapacity) {
+        this.availableCapacity = availableCapacity;
+    }
+
+    public LocalDate getValidFrom() {
+        return validFrom;
+    }
+
+    public void setValidFrom(LocalDate validFrom) {
+        this.validFrom = validFrom;
+    }
+
+    public LocalDate getValidTo() {
+        return validTo;
+    }
+
+    public void setValidTo(LocalDate validTo) {
+        this.validTo = validTo;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+}

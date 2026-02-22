@@ -57,6 +57,14 @@ public class Experience extends NamedEntity {
     @OneToMany(mappedBy = "experience", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ExperienceAddonMapper> addonMappers = new HashSet<>();
 
+    /**
+     * Junction rows linking this experience to locations (each with optional price
+     * override).
+     * LAZY — only JOIN FETCHed on the detail endpoint (Query 3 of 3).
+     */
+    @OneToMany(mappedBy = "experience", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ExperienceLocationMapper> locationMappers = new HashSet<>();
+
     public String getSlug() {
         return slug;
     }
@@ -159,5 +167,22 @@ public class Experience extends NamedEntity {
 
     public void setAddonMappers(Set<ExperienceAddonMapper> addonMappers) {
         this.addonMappers = addonMappers;
+    }
+
+    public Set<ExperienceLocationMapper> getLocationMappers() {
+        return locationMappers;
+    }
+
+    public void setLocationMappers(Set<ExperienceLocationMapper> locationMappers) {
+        this.locationMappers = locationMappers;
+    }
+
+    /**
+     * Adds a location mapper and wires both sides of the bidirectional
+     * relationship.
+     */
+    public void addLocationMapper(ExperienceLocationMapper mapper) {
+        locationMappers.add(mapper);
+        mapper.setExperience(this);
     }
 }

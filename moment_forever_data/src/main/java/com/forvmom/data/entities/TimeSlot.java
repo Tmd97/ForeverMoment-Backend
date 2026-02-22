@@ -1,20 +1,30 @@
 package com.forvmom.data.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import java.time.LocalTime;
 
+import java.time.LocalTime;
+import java.util.Date;
+
+/**
+ * Master time slot record (e.g. "Morning 09:00–11:00").
+ * Reusable — one TimeSlot can be linked to multiple experiences/locations
+ * via ExperienceTimeSlotMapper.
+ */
 @Entity
-@Table(name = "time_slot")
-@SQLDelete(sql = "UPDATE time_slot SET deleted = true WHERE id = ?")
+@Table(name = "time_slots")
+@SQLDelete(sql = "UPDATE time_slots SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
-public class TimeSlot extends NamedEntity {
+public class TimeSlot {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
+    /** Human-readable label, e.g. "Morning", "Evening" */
     @Column(name = "label", nullable = false, length = 100)
     private String label;
 
@@ -25,13 +35,16 @@ public class TimeSlot extends NamedEntity {
     private LocalTime endTime;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive;
+    private Boolean isActive = true;
 
-    @Column(name = "deleted", nullable = false)
-    private Boolean deleted = false;
+    @Column(name = "deleted", nullable = false, columnDefinition = "boolean default false")
+    private boolean deleted = false;
 
-    public TimeSlot() {
-    }
+    @CreationTimestamp
+    @Column(name = "created_on", updatable = false)
+    private Date createdOn;
+
+    // ── Getters & Setters ─────────────────────────────────────────────────────
 
     public Long getId() {
         return id;
@@ -73,11 +86,15 @@ public class TimeSlot extends NamedEntity {
         this.isActive = isActive;
     }
 
-    public Boolean getDeleted() {
+    public boolean isDeleted() {
         return deleted;
     }
 
-    public void setDeleted(Boolean deleted) {
+    public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public Date getCreatedOn() {
+        return createdOn;
     }
 }

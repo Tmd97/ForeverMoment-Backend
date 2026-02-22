@@ -94,7 +94,7 @@ public class AdminUserService {
 
     @Transactional
     public AdminAppUserResponseDto updateAppUser(Long userId,
-            UserProfileRequestDto userDto) {
+                                                 UserProfileRequestDto userDto) {
         ApplicationUser existing = applicationUserDao.findById(userId);
         if (existing == null) {
             throw new ResourceNotFoundException("No such user for given Id exist " + userId);
@@ -172,8 +172,10 @@ public class AdminUserService {
             logger.warn("Delete Account failed: AppUser not found - {}", userId);
             throw new CustomAuthException("AppUser not found for id: " + userId);
         }
+        AuthUser authUser = userProfile.getAuthUser();
         // Soft delete the application user profile
         applicationUserDao.delete(userProfile);
+        authUserDao.delete(authUser);
 
         // Note: AuthUser remains active but unlinked from profile (unless cascaded).
         // If AuthUser should be disabled or deleted, logic should be added here.

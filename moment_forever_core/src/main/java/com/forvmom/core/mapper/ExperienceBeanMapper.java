@@ -5,9 +5,18 @@ import com.forvmom.common.dto.request.ExperienceDetailRequestDto;
 import com.forvmom.common.dto.request.ExperienceRequestDto;
 import com.forvmom.common.dto.response.ExperienceDetailResponseDto;
 import com.forvmom.common.dto.response.ExperienceHighlightResponseDto;
+import com.forvmom.common.dto.response.ExperienceLocationResponseDto;
 import com.forvmom.common.dto.response.ExperienceResponseDto;
+import com.forvmom.common.dto.response.ExperienceTimeSlotResponseDto;
+import com.forvmom.core.mapper.TimeSlotBeanMapper;
 import com.forvmom.data.entities.Experience;
 import com.forvmom.data.entities.ExperienceDetail;
+import com.forvmom.data.entities.ExperienceLocationMapper;
+import com.forvmom.data.entities.Location;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ExperienceBeanMapper {
 
@@ -175,5 +184,55 @@ public class ExperienceBeanMapper {
         dto.setCreatedOn(entity.getCreatedOn());
         dto.setUpdatedOn(entity.getUpdatedOn());
         return dto;
+    }
+
+    // ─── Location + TimeSlot Mapping ─────────────────────────────────────────
+
+    /**
+     * Maps a single ExperienceLocationMapper junction row →
+     * ExperienceLocationResponseDto
+     * with nested timeslots.
+     * Pattern mirrors InclusionPolicyBeanMapper.mapInclusionToDto.
+     */
+    public static ExperienceLocationResponseDto mapLocationMapperToDto(ExperienceLocationMapper mapper) {
+        if (mapper == null)
+            return null;
+        ExperienceLocationResponseDto dto = new ExperienceLocationResponseDto();
+        dto.setMapperId(mapper.getId());
+        dto.setPriceOverride(mapper.getPriceOverride());
+        dto.setValidFrom(mapper.getValidFrom());
+        dto.setValidTo(mapper.getValidTo());
+        dto.setIsActive(mapper.getIsActive());
+
+        Location loc = mapper.getLocation();
+        if (loc != null) {
+            dto.setLocationId(loc.getId());
+            dto.setLocationName(loc.getName());
+            dto.setCity(loc.getCity());
+            dto.setState(loc.getState());
+            dto.setCountry(loc.getCountry());
+            dto.setAddress(loc.getAddress());
+            dto.setLatitude(loc.getLatitude());
+            dto.setLongitude(loc.getLongitude());
+        }
+
+        // Nested timeslots — delegated to TimeSlotBeanMapper
+        if (mapper.getTimeSlotMappers() != null && !mapper.getTimeSlotMappers().isEmpty()) {
+            List<ExperienceTimeSlotResponseDto> timeslots = TimeSlotBeanMapper.mapMapperEntitiesToDto(
+                    new java.util.ArrayList<>(mapper.getTimeSlotMappers()));
+            dto.setTimeslots(timeslots);
+        } else {
+            dto.setTimeslots(Collections.emptyList());
+        }
+        return dto;
+    }
+
+    public static List<ExperienceLocationResponseDto> mapLocationMappers(
+            List<ExperienceLocationMapper> mappers) {
+        if (mappers == null || mappers.isEmpty())
+            return Collections.emptyList();
+        return mappers.stream()
+                .map(ExperienceBeanMapper::mapLocationMapperToDto)
+                .collect(Collectors.toList());
     }
 }

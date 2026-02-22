@@ -105,12 +105,13 @@ public class AuthService {
 
     @Transactional
     public AuthResponse login(@Valid LoginRequest request) {
-        Optional<AuthUser> authUserOptional = authUserDao.findByUsernameWithRoles(request.getEmail());
-        if (authUserOptional.isEmpty()) {
+//        Optional<AuthUser> authUserOptional = authUserDao.findByUsernameWithRoles(request.getEmail());
+        Optional<ApplicationUser> applicationUser = applicationUserDao.findByEmailIgnoreCase(request.getEmail());
+        if (applicationUser.isEmpty()) {
             logger.warn("Login failed: User not found - {}", request.getEmail());
             throw new CustomAuthException("Please register before logging in. User not found: " + request.getEmail());
         }
-        AuthUser authUser = authUserOptional.get();
+        AuthUser authUser = applicationUser.get().getAuthUser();
 
         if (!authUser.isAccountNonLocked()) {
             logger.warn("Login failed: Account is locked for user - {}", request.getEmail());

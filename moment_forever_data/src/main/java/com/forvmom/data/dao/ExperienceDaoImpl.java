@@ -110,6 +110,48 @@ public class ExperienceDaoImpl extends GenericDaoImpl<Experience, Long> implemen
         }
     }
 
+    /**
+     * Query 3 of 3 for the detail fetch.
+     * Loads locationMappers + location master data + timeslot mappers + timeslot
+     * master.
+     * Kept separate from queries 1 & 2 to avoid Cartesian product explosion.
+     */
+    @Override
+    public Experience findByIdWithLocations(Long id) {
+        try {
+            return em.createQuery(
+                    "SELECT DISTINCT e FROM Experience e " +
+                            "LEFT JOIN FETCH e.locationMappers lm " +
+                            "LEFT JOIN FETCH lm.location l " +
+                            "LEFT JOIN FETCH lm.timeSlotMappers tsm " +
+                            "LEFT JOIN FETCH tsm.timeSlot ts " +
+                            "WHERE e.id = :id",
+                    Experience.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    @Override
+    public Experience findBySlugWithLocations(String slug) {
+        try {
+            return em.createQuery(
+                    "SELECT DISTINCT e FROM Experience e " +
+                            "LEFT JOIN FETCH e.locationMappers lm " +
+                            "LEFT JOIN FETCH lm.location l " +
+                            "LEFT JOIN FETCH lm.timeSlotMappers tsm " +
+                            "LEFT JOIN FETCH tsm.timeSlot ts " +
+                            "WHERE e.slug = :slug",
+                    Experience.class)
+                    .setParameter("slug", slug)
+                    .getSingleResult();
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
     @Override
     public List<Experience> findAllWithDetail() {
         return em.createQuery(

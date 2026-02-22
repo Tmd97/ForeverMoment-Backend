@@ -102,12 +102,14 @@ public class ExperienceServiceImpl implements ExperienceService {
         return ExperienceBeanMapper.mapEntityToDto(updated, true);
     }
 
-
     /*
-Your current approach with 2 queries is actually quite good:
-Query 1: Fetches Experience + Detail + SubCategory + InclusionMappers (with JOIN FETCH)
-Query 2: Fetches PolicyMappers separately (avoids Cartesian product with inclusions)
-This avoids the multiplied result set problem that would occur if you joined both collections in one query.
+     * Your current approach with 2 queries is actually quite good:
+     * Query 1: Fetches Experience + Detail + SubCategory + InclusionMappers (with
+     * JOIN FETCH)
+     * Query 2: Fetches PolicyMappers separately (avoids Cartesian product with
+     * inclusions)
+     * This avoids the multiplied result set problem that would occur if you joined
+     * both collections in one query.
      */
     @Override
     @Transactional(readOnly = true)
@@ -119,12 +121,16 @@ This avoids the multiplied result set problem that would occur if you joined bot
         }
         // Query 2: policyMappers (Hibernate merges into same session entity)
         experienceDao.findByIdWithPolicies(id);
+        // Query 3: locationMappers + location + timeslotMappers + timeSlot
+        experienceDao.findByIdWithLocations(id);
 
         ExperienceResponseDto dto = ExperienceBeanMapper.mapEntityToDto(experience, true);
         dto.setInclusions(InclusionPolicyBeanMapper.mapInclusionMappers(
                 new ArrayList<>(experience.getInclusionMappers())));
         dto.setCancellationPolicies(InclusionPolicyBeanMapper.mapPolicyMappers(
                 new ArrayList<>(experience.getPolicyMappers())));
+        dto.setLocations(ExperienceBeanMapper.mapLocationMappers(
+                new ArrayList<>(experience.getLocationMappers())));
         return dto;
     }
 
@@ -138,12 +144,16 @@ This avoids the multiplied result set problem that would occur if you joined bot
         }
         // Query 2: policyMappers
         experienceDao.findBySlugWithPolicies(slug);
+        // Query 3: locationMappers + location + timeslotMappers + timeSlot
+        experienceDao.findBySlugWithLocations(slug);
 
         ExperienceResponseDto dto = ExperienceBeanMapper.mapEntityToDto(experience, true);
         dto.setInclusions(InclusionPolicyBeanMapper.mapInclusionMappers(
                 new ArrayList<>(experience.getInclusionMappers())));
         dto.setCancellationPolicies(InclusionPolicyBeanMapper.mapPolicyMappers(
                 new ArrayList<>(experience.getPolicyMappers())));
+        dto.setLocations(ExperienceBeanMapper.mapLocationMappers(
+                new ArrayList<>(experience.getLocationMappers())));
         return dto;
     }
 
