@@ -3,6 +3,7 @@ package com.forvmom.core.services;
 import com.forvmom.common.errorhandler.CustomAuthException;
 import com.forvmom.common.dto.response.AppUserResponseDto;
 import com.forvmom.common.dto.request.UserProfileRequestDto;
+import com.forvmom.common.errorhandler.ResourceNotFoundException;
 import com.forvmom.core.mapper.ApplicationUserBeanMapper;
 import com.forvmom.data.dao.ApplicationUserDao;
 import com.forvmom.data.dao.auth.AuthUserDao;
@@ -23,7 +24,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserProfileService {
@@ -50,29 +53,33 @@ public class UserProfileService {
         Object o = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (o instanceof UserDetails) {
             JwtUserDetails jwtUserDetails = (JwtUserDetails) o;
-            ApplicationUser applicationUser = applicationUserDao.findById(jwtUserDetails.getId());
+            Optional<ApplicationUser> applicationUser = applicationUserDao.findByAuthUserId(jwtUserDetails.getId());
+            if (applicationUser.isEmpty()) {
+                throw new ResourceNotFoundException("User doesn't exist in System");
+            }
+
 
             // Update fields
-            applicationUser.setFullName(userProfileRequestDto.getFullName());
+            applicationUser.get().setFullName(userProfileRequestDto.getFullName());
 
             // Sync email change with AuthUser
-            if (!applicationUser.getEmail().equalsIgnoreCase(userProfileRequestDto.getEmail())) {
+            if (!applicationUser.get().getEmail().equalsIgnoreCase(userProfileRequestDto.getEmail())) {
                 if (authUserDao.existsByUsername(userProfileRequestDto.getEmail())) {
                     throw new CustomAuthException("Email already in use: " + userProfileRequestDto.getEmail());
                 }
-                AuthUser authUser = applicationUser.getAuthUser();
+                AuthUser authUser = applicationUser.get().getAuthUser();
                 authUser.setUsername(userProfileRequestDto.getEmail());
                 authUserDao.save(authUser);
-                applicationUser.setEmail(userProfileRequestDto.getEmail());
+                applicationUser.get().setEmail(userProfileRequestDto.getEmail());
             }
 
-            applicationUser.setPhoneNumber(userProfileRequestDto.getPhoneNumber());
-            applicationUser.setProfilePictureUrl(userProfileRequestDto.getProfilePictureUrl());
-            applicationUser.setDateOfBirth(userProfileRequestDto.getDateOfBirth());
-            applicationUser.setPreferredCity(userProfileRequestDto.getPreferredCity());
+            applicationUser.get().setPhoneNumber(userProfileRequestDto.getPhoneNumber());
+            applicationUser.get().setProfilePictureUrl(userProfileRequestDto.getProfilePictureUrl());
+            applicationUser.get().setDateOfBirth(userProfileRequestDto.getDateOfBirth());
+            applicationUser.get().setPreferredCity(userProfileRequestDto.getPreferredCity());
 
             // Save updated user
-            ApplicationUser updatedUser = applicationUserDao.update(applicationUser);
+            ApplicationUser updatedUser = applicationUserDao.update(applicationUser.get());
             return ApplicationUserBeanMapper.mapEntityToDto(updatedUser);
         }
         throw new RuntimeException("User not authenticated");
@@ -91,8 +98,11 @@ public class UserProfileService {
         }
 
         JwtUserDetails jwtUserDetails = (JwtUserDetails) o;
-        ApplicationUser applicationUser = applicationUserDao.findById(jwtUserDetails.getId());
-        return ApplicationUserBeanMapper.mapEntityToDto(applicationUser);
+        Optional<ApplicationUser> applicationUser = applicationUserDao.findByAuthUserId(jwtUserDetails.getId());
+        if (applicationUser.isEmpty()) {
+            throw new ResourceNotFoundException("User doesn't exist in System");
+        }
+        return ApplicationUserBeanMapper.mapEntityToDto(applicationUser.get());
     }
 
     // delete the user profile of the currently authenticated user, this will delete
@@ -109,13 +119,16 @@ public class UserProfileService {
         }
 
         JwtUserDetails jwtUserDetails = (JwtUserDetails) o;
-        ApplicationUser applicationUser = applicationUserDao.findById(jwtUserDetails.getId());
+        Optional<ApplicationUser> applicationUser = applicationUserDao.findByAuthUserId(jwtUserDetails.getId());
 
+        if (applicationUser.isEmpty()) {
+            throw new ResourceNotFoundException("User doesn't exist in System");
+        }
         // Verify password before deletion
         if (!passwordEncoder.passwordEncoder().matches(password, jwtUserDetails.getPassword())) {
             throw new CustomAuthException("Invalid password");
         }
-        authUserDao.delete(applicationUser.getAuthUser());
+        authUserDao.delete(applicationUser.get().getAuthUser());
     }
 
     @Transactional
@@ -127,8 +140,11 @@ public class UserProfileService {
             throw new CustomAuthException("Invalid principal type");
         }
         JwtUserDetails jwtUserDetails = (JwtUserDetails) o;
-        ApplicationUser applicationUser = applicationUserDao.findById(jwtUserDetails.getId());
-        AuthUser authUser = applicationUser.getAuthUser();
+        Optional<ApplicationUser> applicationUser = applicationUserDao.findByAuthUserId(jwtUserDetails.getId());
+        if (applicationUser.isEmpty()) {
+            throw new ResourceNotFoundException("User doesn't exist in System");
+        }
+        AuthUser authUser = applicationUser.get().getAuthUser();
         authUser.setAccountNonLocked(false);
         authUserDao.update(authUser);
 

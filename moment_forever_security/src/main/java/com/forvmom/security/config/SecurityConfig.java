@@ -83,7 +83,7 @@ public class SecurityConfig {
                                                                 "/user/**",
                                                                 "/booking/**",
                                                                 "/review/**")
-                                                .hasAnyRole("USER", "ADMIN")
+                                                .hasAnyRole("USER", "ADMIN","SUPER_ADMIN")
                                                 .anyRequest().authenticated())
 
                                 .sessionManagement(session -> session

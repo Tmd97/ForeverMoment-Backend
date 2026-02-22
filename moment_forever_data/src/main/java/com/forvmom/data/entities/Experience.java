@@ -50,6 +50,13 @@ public class Experience extends NamedEntity {
     @OneToMany(mappedBy = "experience", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ExperienceCancellationPolicyMapper> policyMappers = new HashSet<>();
 
+    /**
+     * Junction rows linking this experience to reusable add-on items.
+     * LAZY — not loaded on list endpoints.
+     */
+    @OneToMany(mappedBy = "experience", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ExperienceAddonMapper> addonMappers = new HashSet<>();
+
     public String getSlug() {
         return slug;
     }
@@ -129,8 +136,28 @@ public class Experience extends NamedEntity {
         mapper.setExperience(this);
     }
 
+    /**
+     * Adds a policy mapper and wires both sides of the relationship.
+     * Call this instead of manually setting experience on the mapper.
+     */
     public void addPolicyMapper(ExperienceCancellationPolicyMapper mapper) {
         policyMappers.add(mapper);
         mapper.setExperience(this);
+    }
+
+    /**
+     * Adds an addon mapper and wires both sides of the relationship.
+     */
+    public void addAddonMapper(ExperienceAddonMapper mapper) {
+        addonMappers.add(mapper);
+        mapper.setExperience(this);
+    }
+
+    public Set<ExperienceAddonMapper> getAddonMappers() {
+        return addonMappers;
+    }
+
+    public void setAddonMappers(Set<ExperienceAddonMapper> addonMappers) {
+        this.addonMappers = addonMappers;
     }
 }
