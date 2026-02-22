@@ -181,8 +181,6 @@ public class ExperienceBeanMapper {
         dto.setTermsConditions(entity.getTermsConditions());
         dto.setWhatToBring(entity.getWhatToBring());
         dto.setIsActive(entity.getIsActive());
-        dto.setCreatedOn(entity.getCreatedOn());
-        dto.setUpdatedOn(entity.getUpdatedOn());
         return dto;
     }
 

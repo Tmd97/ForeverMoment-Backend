@@ -17,8 +17,6 @@ public class ExperienceDetailResponseDto {
     private String termsConditions;
     private String whatToBring;
     private Boolean isActive;
-    private Date createdOn;
-    private Date updatedOn;
 
     public Long getId() {
         return id;
@@ -106,21 +104,5 @@ public class ExperienceDetailResponseDto {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
-    }
-
-    public Date getCreatedOn() {
-        return createdOn;
-    }
-
-    public void setCreatedOn(Date createdOn) {
-        this.createdOn = createdOn;
-    }
-
-    public Date getUpdatedOn() {
-        return updatedOn;
-    }
-
-    public void setUpdatedOn(Date updatedOn) {
-        this.updatedOn = updatedOn;
     }
 }
