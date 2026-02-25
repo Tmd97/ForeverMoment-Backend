@@ -23,7 +23,7 @@ import java.util.List;
  */
 //TODO Image upload, Every Addon has its own image to display with its details
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/admin")
 @Tag(name = "Admin Addon API", description = "Master CRUD for addons and per-experience attachment with price override (Admin only)")
 public class AddonControllerAdmin {
 
