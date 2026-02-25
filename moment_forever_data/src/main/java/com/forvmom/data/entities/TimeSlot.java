@@ -17,7 +17,15 @@ import java.util.Date;
 @Table(name = "time_slots")
 @SQLDelete(sql = "UPDATE time_slots SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
-public class TimeSlot extends NamedEntity {
+public class TimeSlot {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "label")
+    private String label;
 
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
@@ -69,5 +77,21 @@ public class TimeSlot extends NamedEntity {
 
     public Date getCreatedOn() {
         return createdOn;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
     }
 }

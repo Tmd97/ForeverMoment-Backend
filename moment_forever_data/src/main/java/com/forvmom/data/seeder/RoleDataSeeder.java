@@ -5,6 +5,8 @@ import com.forvmom.data.entities.auth.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -19,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
  * - Runs before other seeders (user seeders, etc.)
  * - Roles must exist before we can assign them to users
  */
-// @Component
-// @Order(1) // Run first
+ @Component
+ @Order(1) // Run first
 public class RoleDataSeeder implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(RoleDataSeeder.class);

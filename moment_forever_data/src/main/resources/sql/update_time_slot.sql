@@ -1,0 +1,2 @@
+ALTER TABLE time_slots
+ALTER COLUMN label DROP NOT NULL;

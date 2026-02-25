@@ -2,6 +2,7 @@ package com.forvmom.data.entities.auth;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +12,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "auth_users")
+@SQLDelete(sql = "UPDATE application_users SET deleted = true WHERE id = ?")
 public class AuthUser implements UserDetails {
 
     @Id
