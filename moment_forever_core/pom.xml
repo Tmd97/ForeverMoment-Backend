@@ -73,6 +73,12 @@
             <artifactId>HikariCP</artifactId>
         </dependency>
 
+<!--        kafka dependency-->
+        <dependency>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+        </dependency>
+
         <!-- Utilities -->
         <dependency>
             <groupId>org.apache.commons</groupId>

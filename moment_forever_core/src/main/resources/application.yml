@@ -19,6 +19,9 @@ spring:
   application:
     name: moment-forever-platform
 
+  kafka:
+    bootstrap-servers: localhost:9092
+
 
   datasource:
     url: jdbc:postgresql://localhost:5432/moment_forever_db
