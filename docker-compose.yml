@@ -12,10 +12,13 @@ services:
       - SPRING_DATASOURCE_PASSWORD=momentforever
       - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/moment_forever
     depends_on:
-      - postgres
-      - mongo
+      postgres:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
     networks:
       - moment-forever-net
+    restart: on-failure
 
   postgres:
     image: postgres:15
@@ -30,6 +33,12 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - moment-forever-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d moment_forever_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   mongo:
     image: mongo:6
@@ -40,6 +49,12 @@ services:
       - mongo_data:/data/db
     networks:
       - moment-forever-net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
 networks:
   moment-forever-net:
