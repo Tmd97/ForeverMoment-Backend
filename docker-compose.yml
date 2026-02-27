@@ -2,15 +2,17 @@ version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
+      platform: linux/amd64   # ✅ FORCE AMD64
     container_name: moment-forever-app
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/moment_forever_db
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=momentforever
-      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/moment_forever
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/moment_forever_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: momentforever
+      SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/moment_forever
     depends_on:
       postgres:
         condition: service_healthy
@@ -22,13 +24,14 @@ services:
 
   postgres:
     image: postgres:15
+    platform: linux/amd64   # ✅ FORCE AMD64
     container_name: moment-forever-postgres
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=moment_forever_db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=momentforever
+      POSTGRES_DB: moment_forever_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: momentforever
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -42,6 +45,7 @@ services:
 
   mongo:
     image: mongo:6
+    platform: linux/amd64   # ✅ FORCE AMD64
     container_name: moment-forever-mongo
     ports:
       - "27017:27017"
