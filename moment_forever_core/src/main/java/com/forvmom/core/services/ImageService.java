@@ -1,6 +1,7 @@
 package com.forvmom.core.services;
 
 import com.forvmom.common.dto.response.MediaResponseDto;
+import com.forvmom.common.utils.FileExtension;
 import com.forvmom.core.mapper.MediaBeanMapper;
 import com.forvmom.store.api.ObjectStorageService;
 import com.forvmom.store.dto.ImageMetadataResponse;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import java.io.IOException;
 import java.util.*;
@@ -48,10 +50,13 @@ public class ImageService {
                     finalMetadata
             );
 
+            String originalName = file.getOriginalFilename();
+
+            String newFileName = FileExtension.generateTimestampName(originalName);
             // Save metadata to SQL database (use unique name with timestamp help in bust cache)
             ImageResponse mediaResponse = mediaService.saveMediaMetadata(
                     file.getOriginalFilename(),
-                    file.getOriginalFilename() + "_" + System.currentTimeMillis(),
+                    newFileName,
                     id,
                     file.getContentType(),
                     file.getSize()

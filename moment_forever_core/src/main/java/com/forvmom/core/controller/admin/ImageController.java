@@ -21,9 +21,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * Admin controller for image upload and management.
@@ -47,7 +52,7 @@ public class ImageController {
     @Autowired
     private MediaService mediaService;
 
-    // ── Upload ────────────────────────────────────────────────────────────────
+    // ── Upload (single) ───────────────────────────────────────────────────────
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload Image", description = "Uploads to GridFS and creates a Media SQL record. "
@@ -59,6 +64,25 @@ public class ImageController {
         ImageResponse response = imageService.uploadImage(file, metadata);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ResponseUtil.buildCreatedResponse(response, "Image uploaded successfully"));
+    }
+
+    // ── Upload (batch) ────────────────────────────────────────────────────────
+
+    @PostMapping(value = "/batch", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Batch Upload Images", description = "Uploads multiple files in one request. Each file is stored in GridFS "
+            + "and gets its own Media SQL record. Returns the list of created records.")
+    public ResponseEntity<ApiResponse<List<ImageResponse>>> batchUploadImages(
+            @RequestPart("files") List<MultipartFile> files,
+
+            @RequestParam Map<String, Object> metadata) {
+
+        List<ImageResponse> results = new ArrayList<>();
+        for (MultipartFile file : files) {
+            results.add(imageService.uploadImage(file, metadata));
+        }
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ResponseUtil.buildCreatedResponse(results,
+                        files.size() + " image(s) uploaded successfully"));
     }
 
     // ── Read ──────────────────────────────────────────────────────────────────
@@ -77,6 +101,8 @@ public class ImageController {
         return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_FETCHED));
     }
 
+    // ── Download (single) ─────────────────────────────────────────────────────
+
     @GetMapping("/{id}/download")
     @Operation(summary = "Download Image by SQL ID", description = "Looks up the GridFS filePath from the Media SQL record and streams the file")
     public ResponseEntity<Resource> downloadImage(@PathVariable Long id) throws IOException {
@@ -93,6 +119,44 @@ public class ImageController {
                 .contentType(MediaType.parseMediaType(contentType))
                 .contentLength(resource.contentLength())
                 .body(resource);
+    }
+
+    // ── Download (batch) ──────────────────────────────────────────────────────
+
+    @PostMapping("/batch/download")
+    @Operation(summary = "Batch Download Images as ZIP", description = "Accepts a list of Media SQL IDs and returns a ZIP archive "
+            + "containing all the requested images. Each file is named by its storageFileName. "
+            + "Unavailable files are skipped with an error_id_<id>.txt marker in the ZIP.")
+    public ResponseEntity<byte[]> batchDownloadImages(@RequestBody List<Long> ids) throws IOException {
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ZipOutputStream zip = new ZipOutputStream(baos)) {
+            for (Long id : ids) {
+                try {
+                    ImageResponse media = mediaService.getMediaById(id);
+                    Resource resource = imageService.downloadImage(media.getFilePath());
+
+                    zip.putNextEntry(new ZipEntry(media.getStorageFileName()));
+                    try (InputStream in = resource.getInputStream()) {
+                        in.transferTo(zip);
+                    }
+                    zip.closeEntry();
+                } catch (Exception e) {
+                    // Skip unavailable files — add an error marker entry so caller knows
+                    zip.putNextEntry(new ZipEntry("error_id_" + id + ".txt"));
+                    zip.write(("Could not download id=" + id + ": " + e.getMessage()).getBytes());
+                    zip.closeEntry();
+                }
+            }
+        }
+
+        byte[] zipBytes = baos.toByteArray();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"images_batch.zip\"")
+                .contentType(MediaType.parseMediaType("application/zip"))
+                .contentLength(zipBytes.length)
+                .body(zipBytes);
     }
 
     // ── Update ────────────────────────────────────────────────────────────────
