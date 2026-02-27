@@ -65,6 +65,13 @@ public class Experience extends NamedEntity {
     @OneToMany(mappedBy = "experience", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ExperienceLocationMapper> locationMappers = new HashSet<>();
 
+    /**
+     * Junction rows linking this experience to Media (images/videos).
+     * LAZY — only JOIN FETCHed on the detail/gallery endpoint.
+     */
+    @OneToMany(mappedBy = "experience", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ExperienceMediaMapper> mediaMappers = new HashSet<>();
+
     public String getSlug() {
         return slug;
     }
@@ -183,6 +190,22 @@ public class Experience extends NamedEntity {
      */
     public void addLocationMapper(ExperienceLocationMapper mapper) {
         locationMappers.add(mapper);
+        mapper.setExperience(this);
+    }
+
+    public Set<ExperienceMediaMapper> getMediaMappers() {
+        return mediaMappers;
+    }
+
+    public void setMediaMappers(Set<ExperienceMediaMapper> mediaMappers) {
+        this.mediaMappers = mediaMappers;
+    }
+
+    /**
+     * Adds a media mapper and wires both sides of the bidirectional relationship.
+     */
+    public void addMediaMapper(ExperienceMediaMapper mapper) {
+        mediaMappers.add(mapper);
         mapper.setExperience(this);
     }
 }

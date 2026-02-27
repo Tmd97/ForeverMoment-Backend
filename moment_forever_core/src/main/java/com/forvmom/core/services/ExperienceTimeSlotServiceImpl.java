@@ -1,7 +1,12 @@
 package com.forvmom.core.services;
 
+import com.forvmom.common.dto.request.BulkAttachTimeSlotsRequestDto;
+import com.forvmom.common.dto.request.BulkAttachTimeSlotsRequestDto.TimeSlotAttachItem;
 import com.forvmom.common.dto.request.ExperienceTimeSlotAttachRequestDto;
 import com.forvmom.common.dto.request.TimeSlotRequestDto;
+import com.forvmom.common.dto.response.BulkAttachTimeSlotsResultDto;
+import com.forvmom.common.dto.response.BulkAttachTimeSlotsResultDto.SkippedTimeSlotDto;
+import com.forvmom.common.dto.response.BulkAttachTimeSlotsResultDto.SkippedTimeSlotDto.Reason;
 import com.forvmom.common.dto.response.ExperienceTimeSlotResponseDto;
 import com.forvmom.common.dto.response.TimeSlotResponseDto;
 import com.forvmom.common.errorhandler.ResourceNotFoundException;
@@ -16,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -131,6 +137,30 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
         expLocation.addTimeSlotMapper(mapper); // bidirectional helper
 
         return TimeSlotBeanMapper.mapMapperEntityToDto(timeSlotMapperDao.save(mapper));
+    }
+
+    @Override
+    @Transactional
+    public BulkAttachTimeSlotsResultDto attachTimeSlots(Long experienceId, Long locationId,
+            BulkAttachTimeSlotsRequestDto requestDto) {
+
+        List<ExperienceTimeSlotResponseDto> attached = new ArrayList<>();
+        List<SkippedTimeSlotDto> skipped = new ArrayList<>();
+
+        for (TimeSlotAttachItem item : requestDto.getItems()) {
+            Long tsId = item.getTimeSlotId();
+            try {
+                attached.add(attachTimeSlot(experienceId, locationId, tsId, item));
+            } catch (IllegalStateException e) {
+                // already attached
+                skipped.add(new SkippedTimeSlotDto(tsId, Reason.DUPLICATE, e.getMessage()));
+            } catch (ResourceNotFoundException e) {
+                // master TimeSlot or experience-location not found
+                skipped.add(new SkippedTimeSlotDto(tsId, Reason.NOT_FOUND, e.getMessage()));
+            }
+        }
+
+        return new BulkAttachTimeSlotsResultDto(attached, skipped);
     }
 
     @Override

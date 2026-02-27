@@ -1,11 +1,14 @@
 package com.forvmom.core.services;
 
+import com.forvmom.common.dto.response.MediaResponseDto;
+import com.forvmom.core.mapper.MediaBeanMapper;
 import com.forvmom.store.api.ObjectStorageService;
 import com.forvmom.store.dto.ImageMetadataResponse;
 import com.forvmom.store.dto.ImageResponse;
 import com.forvmom.store.dto.ObjectMetadata;
 import com.forvmom.store.exception.ImageNotFoundException;
 import com.forvmom.store.exception.ImageStorageException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +19,9 @@ import java.util.stream.Collectors;
 
 @Service
 public class ImageService {
+
+    @Autowired
+    private MediaService mediaService;
 
     private final ObjectStorageService storageService;
 
@@ -42,15 +48,15 @@ public class ImageService {
                     finalMetadata
             );
 
-            // Return response
-            ImageResponse response = new ImageResponse();
-            response.setId(id);
-            response.setFileName(file.getOriginalFilename());
-            response.setContentType(file.getContentType());
-            response.setSize(file.getSize());
-            response.setUploadDate(new Date());
-
-            return response;
+            // Save metadata to SQL database (use unique name with timestamp help in bust cache)
+            ImageResponse mediaResponse = mediaService.saveMediaMetadata(
+                    file.getOriginalFilename(),
+                    file.getOriginalFilename() + "_" + System.currentTimeMillis(),
+                    id,
+                    file.getContentType(),
+                    file.getSize()
+            );
+            return mediaResponse;
 
         } catch (IOException e) {
             throw new ImageStorageException("Failed to upload image", e);

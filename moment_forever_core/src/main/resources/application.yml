@@ -217,3 +217,23 @@ object:
 #    s3-access-key: ${AWS_ACCESS_KEY}
 #    s3-secret-key: ${AWS_SECRET_KEY}
     # s3-endpoint: http://localhost:4566  # For LocalStack
+
+
+app:
+  base-url: http://localhost:8080
+  file:
+    upload-dir: ./uploads/
+    max-size: 5242880  # 5MB
+    allowed-extensions: jpg,jpeg,png,gif,webp
+    serve-path: /uploads/**
+
+  # Image URL Configuration
+  image:
+    public-base-url: /images
+    admin-base-url: /admin/images
+    cdn-base-url: https://cdn.momentforever.com/images
+    cache-max-age: 31536000  # 1 year in seconds
+    use-cdn: false  # Set to true in production with CDN
+    thumbnail-size: 150x150
+    medium-size: 600x400
+    large-size: 1200x800

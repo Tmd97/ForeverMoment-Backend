@@ -1,11 +1,12 @@
-package com.forvmom.store.dto;
-
+package com.forvmom.common.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Date;
 
-public class ImageResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class MediaResponseDto {
 
     private Long id;
 
@@ -13,13 +14,11 @@ public class ImageResponse {
 
     private String storageFileName;
 
-    private String filePath; // storage Id
+    private String filePath;
 
     private String mediaType;
 
     private String mimeType;
-    private String mediaUrl;
-    private String thumbnailUrl;
 
     private Long fileSizeBytes;
 
@@ -53,6 +52,8 @@ public class ImageResponse {
     private Date updatedOn;
 
     private String url;
+
+    private String thumbnailUrl;
 
     private String mediumUrl;
 
@@ -94,14 +95,6 @@ public class ImageResponse {
 
     public void setMediaType(String mediaType) {
         this.mediaType = mediaType;
-    }
-
-    public String getMediaUrl() {
-        return mediaUrl;
-    }
-
-    public void setMediaUrl(String mediaUrl) {
-        this.mediaUrl = mediaUrl;
     }
 
     public String getMimeType() {
@@ -238,5 +231,13 @@ public class ImageResponse {
 
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public String getMediumUrl() {
+        return mediumUrl;
+    }
+
+    public void setMediumUrl(String mediumUrl) {
+        this.mediumUrl = mediumUrl;
     }
 }

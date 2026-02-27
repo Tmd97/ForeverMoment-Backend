@@ -1,8 +1,10 @@
 package com.forvmom.core.controller.admin;
 
+import com.forvmom.common.dto.request.BulkAttachTimeSlotsRequestDto;
 import com.forvmom.common.dto.request.ExperienceTimeSlotAttachRequestDto;
 import com.forvmom.common.dto.request.ReorderRequestDto;
 import com.forvmom.common.dto.request.TimeSlotRequestDto;
+import com.forvmom.common.dto.response.BulkAttachTimeSlotsResultDto;
 import com.forvmom.common.dto.response.ExperienceTimeSlotResponseDto;
 import com.forvmom.common.dto.response.TimeSlotResponseDto;
 import com.forvmom.common.response.ApiResponse;
@@ -135,6 +137,20 @@ public class ExperienceTimeSlotControllerAdmin {
                                 .body(ResponseUtil.buildCreatedResponse(response, AppConstants.MSG_CREATED));
         }
 
+        @PostMapping("/experiences/{experienceId}/locations/{locationId}/timeslots/bulk-attach")
+        @Operation(summary = "Bulk Attach TimeSlots to Experience-Location", description = "Links multiple master TimeSlots to an experience-location pair in one request. "
+                        + "Already-attached or missing timeSlotIds are reported in the 'skipped' list "
+                        + "rather than failing the whole operation.")
+        public ResponseEntity<ApiResponse<?>> attachTimeSlots(
+                        @PathVariable Long experienceId,
+                        @PathVariable Long locationId,
+                        @Valid @RequestBody BulkAttachTimeSlotsRequestDto requestDto) {
+                BulkAttachTimeSlotsResultDto response = timeSlotService.attachTimeSlots(experienceId, locationId,
+                                requestDto);
+                return ResponseEntity.status(HttpStatus.CREATED)
+                                .body(ResponseUtil.buildCreatedResponse(response, AppConstants.MSG_CREATED));
+        }
+
         @PutMapping("/experiences/{experienceId}/locations/{locationId}/timeslots/{timeSlotId}")
         @Operation(summary = "Update TimeSlot Attachment", description = "Updates priceOverride, maxCapacity, or validity dates for an existing attachment")
         public ResponseEntity<ApiResponse<?>> updateAttachment(
@@ -170,9 +186,10 @@ public class ExperienceTimeSlotControllerAdmin {
 
         @PatchMapping("/reorder")
         public ResponseEntity<ApiResponse<?>> reOrderTheItems(
-                @RequestBody ReorderRequestDto reorderRequestDto) {
-                reorderingService.reorderItems(reorderRequestDto.getId(), reorderRequestDto.getNewPosition(), TimeSlot.class);
+                        @RequestBody ReorderRequestDto reorderRequestDto) {
+                reorderingService.reorderItems(reorderRequestDto.getId(), reorderRequestDto.getNewPosition(),
+                                TimeSlot.class);
                 return ResponseEntity.ok(
-                        ResponseUtil.buildOkResponse(null, AppConstants.MSG_UPDATED));
+                                ResponseUtil.buildOkResponse(null, AppConstants.MSG_UPDATED));
         }
 }

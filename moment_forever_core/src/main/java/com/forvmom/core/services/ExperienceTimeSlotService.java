@@ -1,7 +1,9 @@
 package com.forvmom.core.services;
 
+import com.forvmom.common.dto.request.BulkAttachTimeSlotsRequestDto;
 import com.forvmom.common.dto.request.ExperienceTimeSlotAttachRequestDto;
 import com.forvmom.common.dto.request.TimeSlotRequestDto;
+import com.forvmom.common.dto.response.BulkAttachTimeSlotsResultDto;
 import com.forvmom.common.dto.response.ExperienceTimeSlotResponseDto;
 import com.forvmom.common.dto.response.TimeSlotResponseDto;
 
@@ -17,40 +19,49 @@ import java.util.List;
  */
 public interface ExperienceTimeSlotService {
 
-    // ── Master TimeSlot CRUD ──────────────────────────────────────────────────
+        // ── Master TimeSlot CRUD ──────────────────────────────────────────────────
 
-    TimeSlotResponseDto createTimeSlot(TimeSlotRequestDto requestDto);
+        TimeSlotResponseDto createTimeSlot(TimeSlotRequestDto requestDto);
 
-    List<TimeSlotResponseDto> getAllTimeSlots();
+        List<TimeSlotResponseDto> getAllTimeSlots();
 
-    TimeSlotResponseDto getTimeSlotById(Long id);
+        TimeSlotResponseDto getTimeSlotById(Long id);
 
-    List<TimeSlotResponseDto> getTimeSlotsByLabel(String label);
+        List<TimeSlotResponseDto> getTimeSlotsByLabel(String label);
 
-    List<TimeSlotResponseDto> getTimeSlotsByTimeRange(String startTime, String endTime);
+        List<TimeSlotResponseDto> getTimeSlotsByTimeRange(String startTime, String endTime);
 
-    TimeSlotResponseDto updateTimeSlot(Long id, TimeSlotRequestDto requestDto);
+        TimeSlotResponseDto updateTimeSlot(Long id, TimeSlotRequestDto requestDto);
 
-    void deleteTimeSlot(Long id);
+        void deleteTimeSlot(Long id);
 
-    void toggleTimeSlotActive(Long id);
+        void toggleTimeSlotActive(Long id);
 
-    // ── Experience-Location Attachment ────────────────────────────────────────
+        // ── Experience-Location Attachment ────────────────────────────────────────
 
-    /**
-     * Attaches a TimeSlot to an experience-location pair.
-     * (experienceId + locationId) → service resolves ExperienceLocationMapper
-     * internally.
-     */
-    ExperienceTimeSlotResponseDto attachTimeSlot(Long experienceId, Long locationId, Long timeSlotId,
-            ExperienceTimeSlotAttachRequestDto requestDto);
+        /**
+         * Attaches a TimeSlot to an experience-location pair.
+         * (experienceId + locationId) → service resolves ExperienceLocationMapper
+         * internally.
+         */
+        ExperienceTimeSlotResponseDto attachTimeSlot(Long experienceId, Long locationId, Long timeSlotId,
+                        ExperienceTimeSlotAttachRequestDto requestDto);
 
-    void detachTimeSlot(Long experienceId, Long locationId, Long timeSlotId);
+        /**
+         * Attaches multiple TimeSlots to an experience-location pair in a single
+         * request.
+         * Already-attached or missing timeSlotIds are reported in the "skipped" list
+         * rather than causing the whole request to fail.
+         */
+        BulkAttachTimeSlotsResultDto attachTimeSlots(Long experienceId, Long locationId,
+                        BulkAttachTimeSlotsRequestDto requestDto);
 
-    List<ExperienceTimeSlotResponseDto> getTimeSlotsForExperienceLocation(Long experienceId, Long locationId);
+        void detachTimeSlot(Long experienceId, Long locationId, Long timeSlotId);
 
-    ExperienceTimeSlotResponseDto updateAttachment(Long experienceId, Long locationId, Long timeSlotId,
-            ExperienceTimeSlotAttachRequestDto requestDto);
+        List<ExperienceTimeSlotResponseDto> getTimeSlotsForExperienceLocation(Long experienceId, Long locationId);
 
-    void toggleAttachmentActive(Long mapperId);
+        ExperienceTimeSlotResponseDto updateAttachment(Long experienceId, Long locationId, Long timeSlotId,
+                        ExperienceTimeSlotAttachRequestDto requestDto);
+
+        void toggleAttachmentActive(Long mapperId);
 }
