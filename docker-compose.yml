@@ -2,9 +2,8 @@ version: '3.8'
 
 services:
   app:
-    build:
-      context: .
-      platform: linux/amd64   # ✅ FORCE AMD64
+    platform: linux/amd64     # ✅ move here
+    build: .
     container_name: moment-forever-app
     ports:
       - "8080:8080"
@@ -24,7 +23,7 @@ services:
 
   postgres:
     image: postgres:15
-    platform: linux/amd64   # ✅ FORCE AMD64
+    platform: linux/amd64      # ✅ keep here
     container_name: moment-forever-postgres
     ports:
       - "5432:5432"
@@ -45,7 +44,7 @@ services:
 
   mongo:
     image: mongo:6
-    platform: linux/amd64   # ✅ FORCE AMD64
+    platform: linux/amd64      # ✅ keep here
     container_name: moment-forever-mongo
     ports:
       - "27017:27017"
