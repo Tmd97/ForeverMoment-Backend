@@ -21,9 +21,9 @@ spring:
 
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/moment_forever_db
-    username: postgres
-    password: groote
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/moment_forever_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:groote}
     driver-class-name: org.postgresql.Driver
 
     # Database Configuration - Postgres SQL
@@ -36,7 +36,7 @@ spring:
   # MongoDB Configuration - For GridFS File Storage (Images)
   data:
     mongodb:
-      uri: mongodb://localhost:27017
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://localhost:27017}
       database: moment_forever
       # For cloud MongoDB like Atlas:
       # uri: mongodb+srv://username:password@cluster.mongodb.net/moment_forever_files
