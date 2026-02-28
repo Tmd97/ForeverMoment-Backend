@@ -31,7 +31,7 @@ import java.util.List;
  * details.
  */
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/admin")
 @Tag(name = "Admin Addon API", description = "Master CRUD for addons and per-experience attachment with price override (Admin only)")
 public class AddonControllerAdmin {
 
