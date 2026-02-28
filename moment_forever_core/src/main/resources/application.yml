@@ -1,4 +1,6 @@
-# Server Configuration
+# ============================================
+# SERVER CONFIGURATION
+# ============================================
 server:
   port: 8080
   servlet:
@@ -14,45 +16,27 @@ server:
       max: 50
       min-spare: 5
 
-# Spring Boot Configuration
+# ============================================
+# SPRING CONFIGURATION
+# ============================================
 spring:
   application:
     name: moment-forever-platform
 
-  kafka:
-    # Resolved from env var SPRING_KAFKA_BOOTSTRAP_SERVERS in Docker (→ kafka:9092)
-    # Falls back to localhost:9092 for local development
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
-
-kafka:
-  topics:
-    booking-requested: topic_booking_requested
-    booking-confirmed: topic_booking_confirmed
-    booking-failed: topic_booking_failed
-
-
+  # ================= DATABASE =================
   datasource:
     url: jdbc:postgresql://localhost:5432/moment_forever_db
     username: postgres
     password: groote
     driver-class-name: org.postgresql.Driver
 
-    # Database Configuration - Postgres SQL
-  #  datasource:
-  #     url: jdbc:postgresql://ep-morning-king-ahlsqkrx-pooler.c-3.us-east-1.aws.neon.tech/moment_forever_db?sslmode=require&channel_binding=require
-  #     username: neondb_owner
-  #     password: npg_2reOZYBAa8Xb
-  #     driver-class-name: org.postgresql.Driver
-
-  # MongoDB Configuration - For GridFS File Storage (Images)
+  # ================= MONGODB =================
   data:
     mongodb:
       uri: mongodb://localhost:27017
       database: moment_forever
-      # For cloud MongoDB like Atlas:
-      # uri: mongodb+srv://username:password@cluster.mongodb.net/moment_forever_files
 
-  # HikariCP Connection Pool Configuration
+  # ================= HIKARI =================
   hikari:
     pool-name: MomentForever-HikariPool
     connection-timeout: 30000
@@ -63,14 +47,13 @@ kafka:
     connection-test-query: SELECT 1
     auto-commit: false
 
-  # JPA/Hibernate Configuration
+  # ================= JPA =================
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: update  # Options: validate | update | create | create-drop
+      ddl-auto: update
     properties:
       hibernate:
-        #        dialect: org.hibernate.dialect.MySQL8Dialect
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         jdbc:
@@ -84,7 +67,7 @@ kafka:
     show-sql: true
     open-in-view: false
 
-  # File Upload Configuration
+  # ================= FILE UPLOAD =================
   servlet:
     multipart:
       enabled: true
@@ -92,7 +75,7 @@ kafka:
       max-request-size: 10MB
       file-size-threshold: 2KB
 
-  # Jackson Configuration
+  # ================= JACKSON =================
   jackson:
     serialization:
       write-dates-as-timestamps: false
@@ -103,57 +86,67 @@ kafka:
     time-zone: UTC
     default-property-inclusion: non_null
 
-# Application Custom Configuration
+  # ================= KAFKA =================
+  kafka:
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+# ============================================
+# KAFKA TOPICS
+# ============================================
+kafka:
+  topics:
+    booking-requested: topic_booking_requested
+    booking-confirmed: topic_booking_confirmed
+    booking-failed: topic_booking_failed
+
+# ============================================
+# APPLICATION CUSTOM CONFIG
+# ============================================
 app:
   base-url: http://localhost:8080
   file:
     upload-dir: ./uploads/
-    max-size: 5242880  # 5MB
+    max-size: 5242880
     allowed-extensions: jpg,jpeg,png,gif,webp
-    serve-path: /uploads/**
+    serve-path: /uploads/
 
-# Slug Configuration
+  image:
+    public-base-url: /images
+    admin-base-url: /admin/images
+    cdn-base-url: https://cdn.momentforever.com/images
+    cache-max-age: 31536000
+    use-cdn: false
+    thumbnail-size: 150x150
+    medium-size: 600x400
+    large-size: 1200x800
+
+# ============================================
+# SLUG CONFIG
+# ============================================
 slug:
   separator: "-"
   max-length: 100
 
-# Logging Configuration
-# MOVED TO LOGBACK FILE
-
 # ============================================
-# JWT SECURITY CONFIGURATION
+# JWT SECURITY
 # ============================================
 jwt:
-  # Secret key for signing JWT tokens
-  # MUST be at least 256 bits (32 characters)
-  # In production, use environment variable: ${JWT_SECRET:default-secret-key}
   secret: "your-256-bit-secret-key-must-be-at-least-32-characters-long-here"
-
-  # Token expiration times (in milliseconds)
-  expiration: 86400000    # 24 hours = 24 * 60 * 60 * 1000
-  refresh-expiration: 604800000  # 7 days = 7 * 24 * 60 * 60 * 1000
-
-  # Token issuer (optional)
+  expiration: 86400000
+  refresh-expiration: 604800000
   issuer: "cherishx.com"
-
-  # Token audience (optional)
   audience: "cherishx-web-app"
 
-  # Cookie settings (if using cookie-based token storage)
   cookie:
     name: "auth_token"
-    secure: true    # Send only over HTTPS in production
-    http-only: true # Prevent XSS attacks
-    max-age: 86400  # 24 hours in seconds
+    secure: true
+    http-only: true
+    max-age: 86400
 
-  # ============================================
-  # APPLICATION SPECIFIC CONFIGURATION
-  # ============================================
-  # CORS Configuration
   cors:
     allowed-origins:
-      - "http://localhost:3000"  # React frontend
-      - "http://localhost:4200"  # Angular frontend
+      - "http://localhost:3000"
+      - "http://localhost:4200"
     allowed-methods:
       - "GET"
       - "POST"
@@ -166,7 +159,6 @@ jwt:
       - "X-Requested-With"
     allow-credentials: true
 
-  # Password Policy
   security:
     password:
       min-length: 8
@@ -174,9 +166,8 @@ jwt:
       require-lowercase: true
       require-digits: true
       require-special-chars: true
-      max-age-days: 90  # Force password change after 90 days
+      max-age-days: 90
 
-  # Rate Limiting (for production)
   rate-limit:
     login:
       max-attempts: 5
@@ -185,66 +176,34 @@ jwt:
       max-per-hour: 10
       max-per-ip: 50
 
-
-# Actuator Endpoints
+# ============================================
+# ACTUATOR
+# ============================================
 management:
   endpoints:
     web:
       exposure:
         include: health,info,metrics
-    endpoint:
-      health:
-        show-details: always
-    probes:
-      enabled: true
-############## Swagger ########################
+  endpoint:
+    health:
+      show-details: always
+  probes:
+    enabled: true
+
+# ============================================
+# SWAGGER
+# ============================================
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
-    url: /v3/api-docs  # Explicitly tell Swagger UI where the JSON is
+    url: /v3/api-docs
   api-docs:
     path: /v3/api-docs
-    #http://localhost:8080/api/swagger-ui/index.html
 
-
-
-
-
-# For GridFS bucket is here just a prefix for collection (table)
-# it create two collection for files . one is [bucketname].files and [bucketname].chunks
-# fs is the default bucket name, can give any one if use - in name have to use [] for getting documents
+# ============================================
+# OBJECT STORAGE (GRIDFS)
+# ============================================
 object:
   store:
     provider: gridfs
     gridfs-bucket: fs
-
----
-# For S3
-#object:
-#  store:
-#    provider: s3
-#    s3-region: us-east-1
-#    s3-bucket: my-app-images
-#    s3-access-key: ${AWS_ACCESS_KEY}
-#    s3-secret-key: ${AWS_SECRET_KEY}
-# s3-endpoint: http://localhost:4566  # For LocalStack
-
-
-app:
-  base-url: http://localhost:8080
-  file:
-    upload-dir: ./uploads/
-    max-size: 5242880  # 5MB
-    allowed-extensions: jpg,jpeg,png,gif,webp
-    serve-path: /uploads/**
-
-  # Image URL Configuration
-  image:
-    public-base-url: /images
-    admin-base-url: /admin/images
-    cdn-base-url: https://cdn.momentforever.com/images
-    cache-max-age: 31536000  # 1 year in seconds
-    use-cdn: false  # Set to true in production with CDN
-    thumbnail-size: 150x150
-    medium-size: 600x400
-    large-size: 1200x800
