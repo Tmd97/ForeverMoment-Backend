@@ -20,11 +20,15 @@ spring:
     name: moment-forever-platform
 
   kafka:
-    bootstrap-servers: localhost:9092
-    topics:
-      booking-requested: topic_booking_requested
-      booking-confirmed: topic_booking_confirmed
-      booking-failed: topic_booking_failed
+    # Resolved from env var SPRING_KAFKA_BOOTSTRAP_SERVERS in Docker (→ kafka:9092)
+    # Falls back to localhost:9092 for local development
+    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+kafka:
+  topics:
+    booking-requested: topic_booking_requested
+    booking-confirmed: topic_booking_confirmed
+    booking-failed: topic_booking_failed
 
 
   datasource:
