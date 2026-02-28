@@ -1,7 +1,13 @@
 package com.forvmom.core.services;
 
 import com.forvmom.common.dto.request.AddonRequestDto;
+import com.forvmom.common.dto.request.BulkAttachAddonRequestDto;
+import com.forvmom.common.dto.request.BulkAttachAddonRequestDto.AddonAttachItem;
 import com.forvmom.common.dto.response.AddonResponseDto;
+import com.forvmom.common.dto.response.BulkAttachAddonResultDto;
+import com.forvmom.common.dto.response.BulkAttachAddonResultDto.SkippedAddonDto;
+import com.forvmom.common.dto.response.BulkAttachAddonResultDto.SkippedAddonDto.Reason;
+import com.forvmom.common.dto.response.ExperienceAddonResponseDto;
 import com.forvmom.common.errorhandler.ResourceNotFoundException;
 import com.forvmom.core.mapper.AddonBeanMapper;
 import com.forvmom.data.dao.AddonDao;
@@ -15,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,12 +37,13 @@ public class AddonServiceImpl implements AddonService {
     @Autowired
     private ExperienceDao experienceDao;
 
+    // ── Master Addon CRUD ─────────────────────────────────────────────────────
+
     @Override
     @Transactional
     public AddonResponseDto createAddon(AddonRequestDto requestDto) {
         Addon addon = AddonBeanMapper.mapRequestToAddon(requestDto);
-        Addon saved = addonDao.save(addon);
-        return AddonBeanMapper.mapAddonToDto(saved);
+        return AddonBeanMapper.mapAddonToDto(addonDao.save(addon));
     }
 
     @Override
@@ -62,7 +70,6 @@ public class AddonServiceImpl implements AddonService {
         Addon existing = addonDao.findById(id);
         if (existing == null)
             throw new ResourceNotFoundException("Addon not found: " + id);
-        // Soft-delete all junction rows first (removes it from all experiences)
         addonMapperDao.deleteAllByAddonId(id);
         addonDao.delete(existing);
         return true;
@@ -72,11 +79,13 @@ public class AddonServiceImpl implements AddonService {
 
     @Override
     @Transactional
-    public void attachToExperience(Long experienceId, Long addonId, BigDecimal priceOverride, Boolean isFree) {
+    public ExperienceAddonResponseDto attachToExperience(Long experienceId, Long addonId,
+            BigDecimal priceOverride, Boolean isFree) {
         if (addonMapperDao.existsByExperienceIdAndAddonId(experienceId, addonId)) {
             throw new IllegalStateException(
                     "Addon " + addonId + " is already attached to experience " + experienceId);
         }
+
         Experience experience = experienceDao.findById(experienceId);
         if (experience == null)
             throw new ResourceNotFoundException("Experience not found: " + experienceId);
@@ -89,9 +98,42 @@ public class AddonServiceImpl implements AddonService {
         mapper.setAddon(addon);
         mapper.setPriceOverride(priceOverride);
         mapper.setIsFree(Boolean.TRUE.equals(isFree));
-        // Bidirectional helper — sets experience on mapper and adds to experience Set
+        // Bidirectional helper — sets experience on mapper and adds to experience's set
         experience.addAddonMapper(mapper);
-        addonMapperDao.save(mapper);
+
+        return AddonBeanMapper.mapAddonMapperToDto(addonMapperDao.save(mapper));
+    }
+
+    /**
+     * Bulk-attach addons to an experience. Skips (does not fail for) items that are
+     * already attached or whose addon ID does not exist.
+     */
+    @Override
+    @Transactional
+    public BulkAttachAddonResultDto attachAddons(Long experienceId,
+            BulkAttachAddonRequestDto requestDto) {
+        List<ExperienceAddonResponseDto> attached = new ArrayList<>();
+        List<SkippedAddonDto> skipped = new ArrayList<>();
+
+        for (AddonAttachItem item : requestDto.getItems()) {
+            Long addonId = item.getAddonId();
+            try {
+                ExperienceAddonResponseDto result = attachToExperience(
+                        experienceId,
+                        addonId,
+                        item.getPriceOverride(),
+                        item.getIsFree());
+                attached.add(result);
+            } catch (IllegalStateException e) {
+                // Already attached
+                skipped.add(new SkippedAddonDto(addonId, Reason.DUPLICATE, e.getMessage()));
+            } catch (ResourceNotFoundException e) {
+                // Addon or experience not found
+                skipped.add(new SkippedAddonDto(addonId, Reason.NOT_FOUND, e.getMessage()));
+            }
+        }
+
+        return new BulkAttachAddonResultDto(attached, skipped);
     }
 
     @Override
@@ -107,7 +149,7 @@ public class AddonServiceImpl implements AddonService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AddonResponseDto> getAddonsForExperience(Long experienceId) {
+    public List<ExperienceAddonResponseDto> getAddonsForExperience(Long experienceId) {
         List<ExperienceAddonMapper> mappers = addonMapperDao.findByExperienceId(experienceId);
         return AddonBeanMapper.mapAddonMappers(mappers);
     }

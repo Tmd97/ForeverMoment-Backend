@@ -67,8 +67,8 @@ public class KafkaConfig {
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class);
 
-        // Trust our events package
-        config.put(JsonDeserializer.TRUSTED_PACKAGES, "com.forvmom.core.events");
+        // Trust our events package (BookingRequestEvent and inner classes)
+        config.put(JsonDeserializer.TRUSTED_PACKAGES, "com.forvmom.common.dto.events");
 
         // Useful consumer settings
         config.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
@@ -82,8 +82,7 @@ public class KafkaConfig {
             ConsumerFactory<String, Object> consumerFactory,
             KafkaTemplate<String, Object> kafkaTemplate) {
 
-        ConcurrentKafkaListenerContainerFactory<String, Object> factory =
-                new ConcurrentKafkaListenerContainerFactory<>();
+        ConcurrentKafkaListenerContainerFactory<String, Object> factory = new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(consumerFactory);
         factory.setConcurrency(1); // Start with 1, increase later if needed
@@ -93,12 +92,10 @@ public class KafkaConfig {
                 ContainerProperties.AckMode.MANUAL_IMMEDIATE);
 
         // Simple error handler with retry and DLQ
-        DeadLetterPublishingRecoverer recoverer =
-                new DeadLetterPublishingRecoverer(kafkaTemplate);
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(kafkaTemplate);
 
         // Retry 3 times with 1 second delay
-        DefaultErrorHandler errorHandler =
-                new DefaultErrorHandler(recoverer, new FixedBackOff(1000L, 3));
+        DefaultErrorHandler errorHandler = new DefaultErrorHandler(recoverer, new FixedBackOff(1000L, 3));
 
         factory.setCommonErrorHandler(errorHandler);
 

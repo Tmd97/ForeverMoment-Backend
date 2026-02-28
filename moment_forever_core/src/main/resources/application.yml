@@ -21,6 +21,10 @@ spring:
 
   kafka:
     bootstrap-servers: localhost:9092
+    topics:
+      booking-requested: topic_booking_requested
+      booking-confirmed: topic_booking_confirmed
+      booking-failed: topic_booking_failed
 
 
   datasource:
@@ -30,11 +34,11 @@ spring:
     driver-class-name: org.postgresql.Driver
 
     # Database Configuration - Postgres SQL
-#  datasource:
-#     url: jdbc:postgresql://ep-morning-king-ahlsqkrx-pooler.c-3.us-east-1.aws.neon.tech/moment_forever_db?sslmode=require&channel_binding=require
-#     username: neondb_owner
-#     password: npg_2reOZYBAa8Xb
-#     driver-class-name: org.postgresql.Driver
+  #  datasource:
+  #     url: jdbc:postgresql://ep-morning-king-ahlsqkrx-pooler.c-3.us-east-1.aws.neon.tech/moment_forever_db?sslmode=require&channel_binding=require
+  #     username: neondb_owner
+  #     password: npg_2reOZYBAa8Xb
+  #     driver-class-name: org.postgresql.Driver
 
   # MongoDB Configuration - For GridFS File Storage (Images)
   data:
@@ -62,7 +66,7 @@ spring:
       ddl-auto: update  # Options: validate | update | create | create-drop
     properties:
       hibernate:
-#        dialect: org.hibernate.dialect.MySQL8Dialect
+        #        dialect: org.hibernate.dialect.MySQL8Dialect
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
         jdbc:
@@ -138,9 +142,9 @@ jwt:
     http-only: true # Prevent XSS attacks
     max-age: 86400  # 24 hours in seconds
 
-# ============================================
-# APPLICATION SPECIFIC CONFIGURATION
-# ============================================
+  # ============================================
+  # APPLICATION SPECIFIC CONFIGURATION
+  # ============================================
   # CORS Configuration
   cors:
     allowed-origins:
@@ -219,7 +223,7 @@ object:
 #    s3-bucket: my-app-images
 #    s3-access-key: ${AWS_ACCESS_KEY}
 #    s3-secret-key: ${AWS_SECRET_KEY}
-    # s3-endpoint: http://localhost:4566  # For LocalStack
+# s3-endpoint: http://localhost:4566  # For LocalStack
 
 
 app:
