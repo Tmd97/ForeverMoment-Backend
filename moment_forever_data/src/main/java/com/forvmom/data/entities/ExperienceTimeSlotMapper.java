@@ -11,8 +11,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "experience_time_slot_mapper")
-@SQLDelete(sql = "UPDATE experience_time_slot_mapper SET deleted = true WHERE id = ?")
+@Table(name = "experience_time_slot_mappers")
+@SQLDelete(sql = "UPDATE experience_time_slot_mappers SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
 public class ExperienceTimeSlotMapper {
 

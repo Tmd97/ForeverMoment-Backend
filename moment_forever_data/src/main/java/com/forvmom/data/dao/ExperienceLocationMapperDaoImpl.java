@@ -1,6 +1,8 @@
 package com.forvmom.data.dao;
 
 import com.forvmom.data.entities.ExperienceLocationMapper;
+import com.forvmom.data.entities.Experience;
+import com.forvmom.data.entities.Location;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,4 +71,30 @@ public class ExperienceLocationMapperDaoImpl extends GenericDaoImpl<ExperienceLo
                                 .setParameter("expId", experienceId)
                                 .executeUpdate();
         }
+
+        /**
+         * Finds the existing ExperienceLocationMapper for (experience, location),
+         * or creates and persists a new one if none exists.
+         *
+         * Calls {@code em.flush()} after persist so the DB-generated ID is
+         * immediately available for FK references in the same transaction.
+         */
+        @Override
+        public ExperienceLocationMapper findOrCreate(Experience experience, Location location) {
+                ExperienceLocationMapper existing = findByExperienceIdAndLocationId(
+                                experience.getId(), location.getId());
+                if (existing != null) {
+                        return existing;
+                }
+                ExperienceLocationMapper mapper = new ExperienceLocationMapper();
+                mapper.setExperience(experience);
+                mapper.setLocation(location);
+                // saveAndFlush: persist + immediate flush so the DB-generated ID is
+                // available before ExperienceTimeSlotMapper is inserted in the same tx.
+                // NOTE: do NOT call experience.addLocationMapper(mapper) here —
+                // Experience.locationMappers has cascade=ALL + orphanRemoval=true,
+                // which causes Hibernate to reorder the flush queue and break the FK.
+                return saveAndFlush(mapper);
+        }
+
 }

@@ -26,6 +26,18 @@ public abstract class GenericDaoImpl<T, ID> implements GenericDao<T, ID> {
         return entity;
     }
 
+    /**
+     * Persist the entity and immediately flush to the DB.
+     * Use when the generated ID is needed within the same transaction
+     * before another entity references it via FK.
+     * Mirrors Spring Data JPA's {@code saveAndFlush()}.
+     */
+    public T saveAndFlush(T entity) {
+        em.persist(entity);
+        em.flush();
+        return entity;
+    }
+
     @Override
     public T update(T entity) {
         em.merge(entity);

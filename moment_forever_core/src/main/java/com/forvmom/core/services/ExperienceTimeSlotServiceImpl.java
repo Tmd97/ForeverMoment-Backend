@@ -11,12 +11,9 @@ import com.forvmom.common.dto.response.ExperienceTimeSlotResponseDto;
 import com.forvmom.common.dto.response.TimeSlotResponseDto;
 import com.forvmom.common.errorhandler.ResourceNotFoundException;
 import com.forvmom.core.mapper.TimeSlotBeanMapper;
-import com.forvmom.data.dao.ExperienceLocationMapperDao;
-import com.forvmom.data.dao.ExperienceTimeSlotMapperDao;
-import com.forvmom.data.dao.TimeSlotDao;
-import com.forvmom.data.entities.ExperienceLocationMapper;
-import com.forvmom.data.entities.ExperienceTimeSlotMapper;
-import com.forvmom.data.entities.TimeSlot;
+import com.forvmom.data.dao.*;
+
+import com.forvmom.data.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +27,12 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
 
     @Autowired
     private TimeSlotDao timeSlotDao;
+
+    @Autowired
+    private LocationDao locationDao;
+
+    @Autowired
+    private ExperienceDao experienceDao;
 
     @Autowired
     private ExperienceTimeSlotMapperDao timeSlotMapperDao;
@@ -123,7 +126,19 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
     public ExperienceTimeSlotResponseDto attachTimeSlot(Long experienceId, Long locationId, Long timeSlotId,
             ExperienceTimeSlotAttachRequestDto requestDto) {
 
-        ExperienceLocationMapper expLocation = resolveExpLocation(experienceId, locationId);
+        // Load experience and location entities (needed by findOrCreate)
+        Experience experience = experienceDao.findById(experienceId);
+        if (experience == null)
+            throw new ResourceNotFoundException("Experience not found: " + experienceId);
+
+        Location location = locationDao.findById(locationId);
+        if (location == null)
+            throw new ResourceNotFoundException("Location not found: " + locationId);
+  //TODO: not a good design (have to think later and fix it)
+        // Get or create the ExperienceLocationMapper — safe to call even if the
+        // location was never attached before. The DAO flushes immediately after
+        // creating a new row, so its ID is available for FK use in this transaction.
+        ExperienceLocationMapper expLocation = expLocationMapperDao.findOrCreate(experience, location);
 
         if (timeSlotMapperDao.existsByExperienceLocationIdAndTimeSlotId(expLocation.getId(), timeSlotId)) {
             throw new IllegalStateException(
@@ -134,7 +149,7 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
 
         ExperienceTimeSlotMapper mapper = TimeSlotBeanMapper.mapDtoToMapperEntity(requestDto);
         mapper.setTimeSlot(timeSlot);
-        expLocation.addTimeSlotMapper(mapper); // bidirectional helper
+        mapper.setExperienceLocation(expLocation);
 
         return TimeSlotBeanMapper.mapMapperEntityToDto(timeSlotMapperDao.save(mapper));
     }
