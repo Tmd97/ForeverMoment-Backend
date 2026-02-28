@@ -29,7 +29,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * <p>
  * All business validation and price resolution are done upstream in
- * {@code BookingPublisherService} before this class is called.
+ * {@code BookingOrchestrationService} before this class is called.
  */
 @Service
 public class BookingEventProducer {

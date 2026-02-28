@@ -69,6 +69,14 @@ public abstract class GenericDaoImpl<T, ID> implements GenericDao<T, ID> {
     }
 
     /**
+     * Exposes the EntityManager for raw JPQL UPDATE/DELETE operations
+     * (e.g., atomic capacity increment in booking flow).
+     */
+    public EntityManager getEntityManager() {
+        return em;
+    }
+
+    /**
      * Convenience: soft-delete (or hard-delete) by ID without loading the entity
      * first.
      */
