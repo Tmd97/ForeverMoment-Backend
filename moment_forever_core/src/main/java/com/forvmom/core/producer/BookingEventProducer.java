@@ -68,6 +68,11 @@ public class BookingEventProducer {
                 event.getGuestCount(),
                 event.getGrandTotal());
 
+        /*
+        1. Order Guarantees for the Same Booking
+        All events for a specific booking (e.g., booking-requested, payment-processed, booking-confirmed) will
+        go to the same partition. This ensures they are processed in order by consumers.
+         */
         CompletableFuture<SendResult<String, Object>> future = kafkaTemplate.send(bookingRequestedTopic, bookingId,
                 event);
 
