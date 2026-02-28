@@ -34,6 +34,9 @@ public class ExperienceServiceImpl implements ExperienceService {
     @Autowired
     private SubCategoryDao subCategoryDao;
 
+    @Autowired
+    private CatalogCacheService catalogCacheService;
+
     @Override
     @Transactional
     public ExperienceResponseDto createExperience(ExperienceCreateRequestDto requestDto) {
@@ -98,6 +101,8 @@ public class ExperienceServiceImpl implements ExperienceService {
                 ? experienceDetailDao.save(detail)
                 : experienceDetailDao.update(detail);
         updated.setDetail(savedDetail);
+
+        catalogCacheService.warmExperienceCache(updated);
 
         return ExperienceBeanMapper.mapEntityToDto(updated, true);
     }
@@ -214,6 +219,10 @@ public class ExperienceServiceImpl implements ExperienceService {
         // means Hibernate will also remove the junction rows within the same
         // transaction.
         experienceDao.delete(existing);
+
+        // Evict from cache
+        catalogCacheService.evictExperience(id);
+
         return true;
     }
 
@@ -225,7 +234,8 @@ public class ExperienceServiceImpl implements ExperienceService {
             throw new ResourceNotFoundException("Experience not found with id " + id);
         }
         existing.setActive(!existing.isActive());
-        experienceDao.update(existing);
+        Experience updated = experienceDao.update(existing);
+        catalogCacheService.warmExperienceCache(updated);
     }
 
     @Override
@@ -236,7 +246,8 @@ public class ExperienceServiceImpl implements ExperienceService {
             throw new ResourceNotFoundException("Experience not found with id " + id);
         }
         existing.setIsFeatured(!existing.getIsFeatured());
-        experienceDao.update(existing);
+        Experience updated = experienceDao.update(existing);
+        catalogCacheService.warmExperienceCache(updated);
     }
 
     @Override

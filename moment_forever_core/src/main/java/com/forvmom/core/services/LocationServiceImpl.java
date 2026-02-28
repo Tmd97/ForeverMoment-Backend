@@ -40,6 +40,9 @@ public class LocationServiceImpl implements LocationService {
     @Autowired
     private ExperienceDao experienceDao;
 
+    @Autowired
+    private CatalogCacheService catalogCacheService;
+
     @Override
     @Transactional
     public LocationResponseDto createLocation(LocationRequestDto requestDto) {
@@ -251,7 +254,10 @@ public class LocationServiceImpl implements LocationService {
         // Bidirectional helper wires experience → mapper back-reference
         experience.addLocationMapper(mapper);
 
-        return ExperienceBeanMapper.mapLocationMapperToDto(locationMapperDao.save(mapper));
+        ExperienceLocationMapper savedMapper = locationMapperDao.save(mapper);
+        catalogCacheService.warmLocationCache(savedMapper);
+
+        return ExperienceBeanMapper.mapLocationMapperToDto(savedMapper);
     }
 
     @Override
@@ -263,6 +269,7 @@ public class LocationServiceImpl implements LocationService {
                     "Location " + locationId + " is not attached to experience " + experienceId);
         }
         locationMapperDao.delete(mapper);
+        catalogCacheService.evictLocation(experienceId, locationId);
     }
 
     @Override
@@ -291,7 +298,11 @@ public class LocationServiceImpl implements LocationService {
         mapper.setValidTo(requestDto.getValidTo());
         if (requestDto.getIsActive() != null)
             mapper.setIsActive(requestDto.getIsActive());
-        return ExperienceBeanMapper.mapLocationMapperToDto(locationMapperDao.update(mapper));
+
+        ExperienceLocationMapper updated = locationMapperDao.update(mapper);
+        catalogCacheService.warmLocationCache(updated);
+
+        return ExperienceBeanMapper.mapLocationMapperToDto(updated);
     }
 
     @Override
@@ -301,6 +312,7 @@ public class LocationServiceImpl implements LocationService {
         if (mapper == null)
             throw new ResourceNotFoundException("Location mapping not found: " + mapperId);
         mapper.setIsActive(!Boolean.TRUE.equals(mapper.getIsActive()));
-        locationMapperDao.update(mapper);
+        ExperienceLocationMapper updated = locationMapperDao.update(mapper);
+        catalogCacheService.warmLocationCache(updated);
     }
 }

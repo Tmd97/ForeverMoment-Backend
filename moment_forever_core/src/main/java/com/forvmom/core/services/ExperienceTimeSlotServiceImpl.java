@@ -40,6 +40,9 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
     @Autowired
     private ExperienceLocationMapperDao expLocationMapperDao;
 
+    @Autowired
+    private CatalogCacheService catalogCacheService;
+
     // ── Master TimeSlot CRUD ──────────────────────────────────────────────────
 
     @Override
@@ -134,7 +137,7 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
         Location location = locationDao.findById(locationId);
         if (location == null)
             throw new ResourceNotFoundException("Location not found: " + locationId);
-  //TODO: not a good design (have to think later and fix it)
+        // TODO: not a good design (have to think later and fix it)
         // Get or create the ExperienceLocationMapper — safe to call even if the
         // location was never attached before. The DAO flushes immediately after
         // creating a new row, so its ID is available for FK use in this transaction.
@@ -151,7 +154,10 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
         mapper.setTimeSlot(timeSlot);
         mapper.setExperienceLocation(expLocation);
 
-        return TimeSlotBeanMapper.mapMapperEntityToDto(timeSlotMapperDao.save(mapper));
+        ExperienceTimeSlotMapper savedMapper = timeSlotMapperDao.save(mapper);
+        catalogCacheService.warmSlotCache(savedMapper);
+
+        return TimeSlotBeanMapper.mapMapperEntityToDto(savedMapper);
     }
 
     @Override
@@ -189,7 +195,9 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
             throw new ResourceNotFoundException(
                     "TimeSlot " + timeSlotId + " is not attached to this experience-location.");
         }
+        Long mapperId = mapper.getId();
         timeSlotMapperDao.delete(mapper);
+        catalogCacheService.evictSlot(mapperId);
     }
 
     @Override
@@ -214,7 +222,9 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
                     "TimeSlot " + timeSlotId + " is not attached to this experience-location.");
         }
         TimeSlotBeanMapper.updateMapperEntityFromDto(mapper, requestDto);
-        return TimeSlotBeanMapper.mapMapperEntityToDto(timeSlotMapperDao.update(mapper));
+        ExperienceTimeSlotMapper updated = timeSlotMapperDao.update(mapper);
+        catalogCacheService.warmSlotCache(updated);
+        return TimeSlotBeanMapper.mapMapperEntityToDto(updated);
     }
 
     @Override
@@ -224,7 +234,8 @@ public class ExperienceTimeSlotServiceImpl implements ExperienceTimeSlotService 
         if (mapper == null)
             throw new ResourceNotFoundException("TimeSlot mapping not found: " + mapperId);
         mapper.setIsActive(!Boolean.TRUE.equals(mapper.getIsActive()));
-        timeSlotMapperDao.update(mapper);
+        ExperienceTimeSlotMapper updated = timeSlotMapperDao.update(mapper);
+        catalogCacheService.warmSlotCache(updated);
     }
 
     // ── Private helpers ───────────────────────────────────────────────────────

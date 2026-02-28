@@ -4,8 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.forvmom.common.dto.events.BookingRequestEvent;
 import com.forvmom.common.dto.events.BookingRequestEvent.BookedAddonSnapshot;
+import com.forvmom.core.scheduler.BookingOutboxPoller;
 import com.forvmom.core.services.CatalogCacheService;
-import com.forvmom.core.services.CatalogCacheService.*;
+import com.forvmom.core.dto.snapshot.*;
 import com.forvmom.core.producer.BookingEventProducer;
 import com.forvmom.data.dao.*;
 import com.forvmom.data.entities.*;
@@ -108,37 +109,64 @@ public class BookingEnrichmentTask {
                     ? toListLong((List<?>) payload.get("addonMapperIds"))
                     : Collections.emptyList();
 
-            // ── 2. Load slot mapper from DB (always needed for relationships) ─
-            ExperienceTimeSlotMapper slotMapper = slotMapperDao.findById(slotMapperId);
-            if (slotMapper == null) {
-                throw new IllegalStateException("SlotMapper not found: " + slotMapperId);
-            }
-            ExperienceLocationMapper expLocation = slotMapper.getExperienceLocation();
-            Experience experience = expLocation.getExperience();
-            Location location = expLocation.getLocation();
-            TimeSlot timeSlot = slotMapper.getTimeSlot();
-
-            // ── 3. Fetch snapshots from Redis (with DB fallback + re-warm) ────
+            // ── 2 & 3. Fetch snapshots from Redis (with DB fallback + re-warm) ────
             UserSnapshot userSnap = getOrWarmUser(userId);
-            ExperienceSnapshot expSnap = catalogCache.getExperienceSnapshot(experience.getId());
-            if (expSnap == null) {
-                catalogCache.warmExperienceCache(experience);
-                expSnap = new ExperienceSnapshot(experience.getId(), experience.getName(),
-                        experience.getSlug(), experience.getBasePrice());
-            }
 
+            // Fetch slot snapshot first (we have its ID)
             SlotSnapshot slotSnap = catalogCache.getSlotSnapshot(slotMapperId);
+
+            ExperienceTimeSlotMapper slotMapper = null; // Lazy load if needed
+            ExperienceLocationMapper expLocation = null;
+            Experience experience = null;
+            Location location = null;
+            TimeSlot timeSlot = null;
+
             if (slotSnap == null) {
+                // Cache miss -> fallback to DB
+                slotMapper = slotMapperDao.findById(slotMapperId);
+                if (slotMapper == null) {
+                    throw new IllegalStateException("SlotMapper not found: " + slotMapperId);
+                }
+                expLocation = slotMapper.getExperienceLocation();
+                experience = expLocation.getExperience();
+                location = expLocation.getLocation();
+                timeSlot = slotMapper.getTimeSlot();
+
                 catalogCache.warmSlotCache(slotMapper);
-                slotSnap = new SlotSnapshot(slotMapper.getId(), timeSlot.getId(),
+                slotSnap = new SlotSnapshot(slotMapper.getId(),
+                        experience.getId(), location.getId(), timeSlot.getId(),
                         timeSlot.getLabel(),
                         timeSlot.getStartTime() != null ? timeSlot.getStartTime().toString() : null,
                         timeSlot.getEndTime() != null ? timeSlot.getEndTime().toString() : null,
                         slotMapper.getPriceOverride(), slotMapper.getMaxCapacity());
             }
 
-            LocationSnapshot locSnap = catalogCache.getLocationSnapshot(experience.getId(), location.getId());
+            ExperienceSnapshot expSnap = catalogCache.getExperienceSnapshot(slotSnap.getExperienceId());
+            if (expSnap == null) {
+                // Should be very rare if cached property, but if so we must hit the DB
+                if (experience == null) {
+                    ExperienceTimeSlotMapper tempMapper = slotMapperDao.findById(slotMapperId);
+                    if (tempMapper == null)
+                        throw new IllegalStateException("SlotMapper not found: " + slotMapperId);
+                    experience = tempMapper.getExperienceLocation().getExperience();
+                }
+                catalogCache.warmExperienceCache(experience);
+                expSnap = new ExperienceSnapshot(experience.getId(), experience.getName(),
+                        experience.getSlug(), experience.getBasePrice());
+            }
+
+            LocationSnapshot locSnap = catalogCache.getLocationSnapshot(slotSnap.getExperienceId(),
+                    slotSnap.getLocationId());
             if (locSnap == null) {
+                // Again, rare but we need the DB if so
+                if (expLocation == null) {
+                    ExperienceTimeSlotMapper tempMapper = slotMapperDao.findById(slotMapperId);
+                    if (tempMapper == null)
+                        throw new IllegalStateException("SlotMapper not found: " + slotMapperId);
+                    expLocation = tempMapper.getExperienceLocation();
+                    experience = expLocation.getExperience();
+                    location = expLocation.getLocation();
+                }
                 catalogCache.warmLocationCache(expLocation);
                 locSnap = new LocationSnapshot(location.getId(), location.getName(), expLocation.getPriceOverride());
             }
