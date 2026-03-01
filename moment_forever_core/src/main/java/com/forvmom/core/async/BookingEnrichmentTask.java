@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.forvmom.common.dto.events.BookingRequestEvent;
 import com.forvmom.common.dto.events.BookingRequestEvent.BookedAddonSnapshot;
-import com.forvmom.core.scheduler.BookingOutboxPoller;
 import com.forvmom.core.services.CatalogCacheService;
 import com.forvmom.core.dto.snapshot.*;
 import com.forvmom.core.producer.BookingEventProducer;
@@ -35,7 +34,7 @@ import java.util.Map;
  * <li>Resolve pricing chain (BASE → LOCATION → SLOT).</li>
  * <li>Build fully enriched {@link BookingRequestEvent}.</li>
  * <li>Publish to Kafka and mark the outbox record as PUBLISHED.</li>
- * <li>On any failure → mark FAILED so the {@link BookingOutboxPoller}
+ * <li>On any failure → mark FAILED so the {@link com.forvmom.core.services.OutboxCleanupService}
  * retries.</li>
  * </ol>
  */
@@ -73,7 +72,7 @@ public class BookingEnrichmentTask {
     /**
      * Entry point — called by
      * {@link com.forvmom.core.services.BookingOrchestrationService}
-     * post-commit and by {@link BookingOutboxPoller} for retries.
+     * post-commit and by {@link com.forvmom.core.services.OutboxCleanupService} for retries.
      *
      * <p>
      * Runs on the {@code bookingTaskExecutor} thread pool.
