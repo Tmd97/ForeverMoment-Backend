@@ -20,4 +20,18 @@ public interface BookingOutboxDao extends GenericDao<BookingOutbox, Long> {
      * Clean up published messages that are older than a cutoff time.
      */
     int deletePublishedOlderThan(LocalDateTime cutoff);
+
+    /**
+     * Atomically locks the record by setting status to PROCESSING if it is
+     * currently PENDING or FAILED.
+     * Returns the number of rows updated (0 if already processing/published, 1 if
+     * claimed).
+     */
+    int markAsProcessing(String bookingReferenceId);
+
+    /**
+     * Resets records stuck in PROCESSING state back to FAILED so they can be
+     * retried.
+     */
+    int resetStuckProcessing(LocalDateTime cutoff);
 }

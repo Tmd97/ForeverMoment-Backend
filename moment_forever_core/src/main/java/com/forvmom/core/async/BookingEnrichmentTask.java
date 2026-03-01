@@ -94,6 +94,17 @@ public class BookingEnrichmentTask {
             return;
         }
 
+        // --- Concurrency Control: Atomic Claim ---
+        // Attempt to atomically set the status to PROCESSING.
+        // If this returns 0, another thread or poller already claimed it, or it was
+        // just published.
+        int updated = outboxDao.markAsProcessing(bookingReferenceId);
+        if (updated == 0) {
+            logger.info("Could not claim outbox record (already processing/published): bookingReferenceId={}",
+                    bookingReferenceId);
+            return;
+        }
+
         try {
             // ── 1. Parse minimal payload ─────────────────────────────────────
             Map<String, Object> payload = objectMapper.readValue(
@@ -251,6 +262,8 @@ public class BookingEnrichmentTask {
         } catch (Exception e) {
             logger.error("Enrichment failed for bookingReferenceId={}: {}", bookingReferenceId, e.getMessage(), e);
             if (outbox != null) {
+                // If we grabbed the PROCESSING lock, we must revert it to FAILED so it can be
+                // retried
                 outbox.markFailed();
                 outboxDao.update(outbox);
             }

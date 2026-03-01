@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 public class BookingOutbox {
 
     public static final String STATUS_PENDING = "PENDING";
+    public static final String STATUS_PROCESSING = "PROCESSING";
     public static final String STATUS_PUBLISHED = "PUBLISHED";
     public static final String STATUS_FAILED = "FAILED";
 

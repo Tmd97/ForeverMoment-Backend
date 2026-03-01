@@ -44,6 +44,14 @@ public class BookingOutboxPoller {
      */
     @Scheduled(fixedDelay = 60_000)
     public void pollAndRetry() {
+        // 1. Reset any records stuck in PROCESSING for more than 5 minutes
+        LocalDateTime stuckCutoff = LocalDateTime.now().minusMinutes(5);
+        int resetCount = outboxDao.resetStuckProcessing(stuckCutoff);
+        if (resetCount > 0) {
+            logger.warn("Reset {} stuck outbox record(s) from PROCESSING back to FAILED", resetCount);
+        }
+
+        // 2. Fetch unpublished outbox records older than the grace period and retry
         LocalDateTime cutoff = LocalDateTime.now().minusMinutes(GRACE_PERIOD_MINUTES);
         List<BookingOutbox> retryable = outboxDao.findRetryable(cutoff, MAX_RETRIES);
 
