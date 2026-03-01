@@ -2,13 +2,12 @@ package com.forvmom.core.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.forvmom.common.dto.snapshot.*;
 import com.forvmom.data.entities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-
-import com.forvmom.core.dto.snapshot.*;
 
 import java.util.concurrent.TimeUnit;
 

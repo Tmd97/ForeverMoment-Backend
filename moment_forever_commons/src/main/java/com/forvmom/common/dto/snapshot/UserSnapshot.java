@@ -1,4 +1,4 @@
-package com.forvmom.core.dto.snapshot;
+package com.forvmom.common.dto.snapshot;
 
 public class UserSnapshot {
     private Long userId;

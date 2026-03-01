@@ -5,7 +5,8 @@ import com.forvmom.core.scheduler.OutboxRetriesJob;
 import org.quartz.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
+// we are using fire now policy, so even if many missed fires, we fire only once when server
+// heal back, as once fire only is actually trigger all missed enrich process. so good for me
 @Configuration
 public class QuartzConfig {
 
