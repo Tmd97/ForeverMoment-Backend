@@ -28,6 +28,15 @@ public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
+    @Value("${kafka.topics.booking-requested}")
+    private String bookingRequestedTopic;
+
+    @Value("${kafka.topics.booking-confirmed}")
+    private String bookingConfirmedTopic;
+
+    @Value("${kafka.topics.booking-failed}")
+    private String bookingFailedTopic;
+
     // ==================== PRODUCER CONFIG ====================
 
     @Bean
@@ -106,7 +115,7 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic bookingRequestedTopic() {
-        return TopicBuilder.name("booking-requested")
+        return TopicBuilder.name(bookingRequestedTopic)
                 .partitions(1)
                 .replicas(1)
                 .build();
@@ -114,7 +123,7 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic bookingConfirmedTopic() {
-        return TopicBuilder.name("booking-confirmed")
+        return TopicBuilder.name(bookingConfirmedTopic)
                 .partitions(1)
                 .replicas(1)
                 .build();
@@ -122,7 +131,7 @@ public class KafkaConfig {
 
     @Bean
     public NewTopic bookingFailedTopic() {
-        return TopicBuilder.name("booking-failed")
+        return TopicBuilder.name(bookingFailedTopic)
                 .partitions(1)
                 .replicas(1)
                 .build();

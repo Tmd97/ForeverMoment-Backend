@@ -205,7 +205,7 @@ public class BookingEnrichmentTask {
                 if (addonSnap == null) {
                     ExperienceAddonMapper addonMapper = addonMapperDao.findById(addonMapperId);
                     if (addonMapper == null) {
-                      //  throw new IllegalStateException("AddonMapper not found: " + addonMapperId);
+                        throw new IllegalStateException("AddonMapper not found: " + addonMapperId);
                     }
                     catalogCache.warmAddonCache(addonMapper);
                     addonSnap = new AddonSnapshot(addonMapperId, addonMapper.getAddon().getName(),
