@@ -15,6 +15,7 @@ public interface BookingOutboxDao extends GenericDao<BookingOutbox, Long> {
      * and have not yet exceeded {@code maxRetries}.
      */
     List<BookingOutbox> findRetryable(LocalDateTime olderThan, int maxRetries);
+    List<BookingOutbox> findUnresolved(LocalDateTime olderThan);
 
     /**
      * Clean up published messages that are older than a cutoff time.

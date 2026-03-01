@@ -22,7 +22,7 @@ import java.util.Map;
  * dashboard). All business logic lives in {@link BookingOrchestrationService}.
  */
 @RestController
-@RequestMapping("/api/admin/bookings")
+@RequestMapping("/admin/bookings")
 @Tag(name = "Admin Booking API", description = "Admin endpoints for initiating and managing booking requests")
 public class BookingController {
 

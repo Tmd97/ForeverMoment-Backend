@@ -59,6 +59,12 @@ public class BookingOutbox {
     @Column(name = "published_at")
     private LocalDateTime publishedAt;
 
+    @Column(name = "compensated_at")
+    private LocalDateTime compensatedAt;
+
+    @Column(name = "failure_reason")
+    private String failureReason;
+
     public BookingOutbox() {
     }
 
@@ -119,6 +125,23 @@ public class BookingOutbox {
     public void setPublishedAt(LocalDateTime publishedAt) {
         this.publishedAt = publishedAt;
     }
+
+    public LocalDateTime getCompensatedAt() {
+        return compensatedAt;
+    }
+
+    public void setCompensatedAt(LocalDateTime compensatedAt) {
+        this.compensatedAt = compensatedAt;
+    }
+
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public void setFailureReason(String failureReason) {
+        this.failureReason = failureReason;
+    }
+
 
     // ── Business helpers ───────────────────────────────────────────────────────
 

@@ -1,0 +1,2 @@
+ALTER TABLE booking_outbox
+ALTER COLUMN status TYPE VARCHAR(50);

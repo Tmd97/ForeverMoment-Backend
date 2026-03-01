@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 public class QuartzConfig {
 
     private static final int CLEANUP_INTERVAL_HOURS = 24;
-    private static final int RETRY_INTERVAL_MINUTES = 5;
+    private static final int RETRY_INTERVAL_MINUTES = 1;
 
     @Bean
     public JobDetail outboxCleanupJobDetail() {
