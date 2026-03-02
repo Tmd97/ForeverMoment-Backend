@@ -37,7 +37,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
         private final CustomUserDetailsService userDetailsService;
-        private final JwtAuthenticationFilter jwtAuthenticationFilter;
+        // private final JwtAuthenticationFilter jwtAuthenticationFilter;
         private final PasswordEncoder passwordEncoder;
         private final JwtAuthenticationEntryPoint authenticationEntryPoint;
         private final JwtAccessDeniedHandler accessDeniedHandler;
@@ -45,12 +45,12 @@ public class SecurityConfig {
         @Autowired
         public SecurityConfig(
                         CustomUserDetailsService userDetailsService,
-                        JwtAuthenticationFilter jwtAuthenticationFilter,
+                        // JwtAuthenticationFilter jwtAuthenticationFilter,
                         PasswordEncoder passwordEncoder,
                         JwtAuthenticationEntryPoint authenticationEntryPoint,
                         JwtAccessDeniedHandler accessDeniedHandler) {
                 this.userDetailsService = userDetailsService;
-                this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+                // this.jwtAuthenticationFilter = jwtAuthenticationFilter;
                 this.passwordEncoder = passwordEncoder;
                 this.authenticationEntryPoint = authenticationEntryPoint;
                 this.accessDeniedHandler = accessDeniedHandler;
@@ -76,20 +76,29 @@ public class SecurityConfig {
                                                                 "/swagger-ui/**",
                                                                 "/swagger-ui.html",
                                                                 "/swagger-resources/**",
-                                                                "/webjars/**" // for Swagger UI assets)
+                                                                "/webjars/**", // for Swagger UI assets)
+                                                                "/actuator/**", // Allow Consul health checks
+                                                                "/platform/actuator/**" // Allow Consul health checks
+                                                                                        // with context path
                                                 ).permitAll()
                                                 .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                                                 .requestMatchers(
                                                                 "/user/**",
                                                                 "/booking/**",
                                                                 "/review/**")
-                                                .hasAnyRole("USER", "ADMIN","SUPER_ADMIN")
+                                                .hasAnyRole("USER", "ADMIN", "SUPER_ADMIN")
                                                 .anyRequest().authenticated())
 
                                 .sessionManagement(session -> session
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                                // NEW: Add gateway header authentication filter
+                                .addFilterBefore(new GatewayHeaderAuthenticationFilter(),
+                                                UsernamePasswordAuthenticationFilter.class);
+                // REMOVED: jwtAuthenticationFilter as it is now on API gateway
+                // TODO: to inform ankit to use extra headers now
+                // .addFilterBefore(jwtAuthenticationFilter,
+                // UsernamePasswordAuthenticationFilter.class);
 
                 return http.build();
         }

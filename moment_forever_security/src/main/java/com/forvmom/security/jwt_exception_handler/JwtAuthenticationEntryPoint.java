@@ -1,7 +1,6 @@
 package com.forvmom.security.jwt_exception_handler;
 
 import com.forvmom.common.response.ResponseUtil;
-import com.forvmom.security.config.JwtAuthenticationFilter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +16,7 @@ import java.io.IOException;
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
-    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationEntryPoint.class);
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
