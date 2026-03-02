@@ -221,6 +221,9 @@ management:
   endpoint:
     health:
       show-details: always
+  health:
+    discovery:
+      enabled: true
   probes:
     enabled: true
 
