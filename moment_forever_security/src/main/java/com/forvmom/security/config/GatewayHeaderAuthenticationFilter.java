@@ -24,6 +24,7 @@ public class GatewayHeaderAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String userId = request.getHeader("X-User-Id");
         String roles = request.getHeader("X-User-Roles");
+        String username=request.getHeader("X-User-Name");
 
         if (userId != null && roles != null) {
             List<GrantedAuthority> authorities = Arrays.stream(roles.split(","))
