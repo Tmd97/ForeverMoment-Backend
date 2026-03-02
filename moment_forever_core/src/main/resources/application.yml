@@ -39,7 +39,7 @@ spring:
 
   # ================= DATABASE =================
   datasource:
-    url: jdbc:postgresql://localhost:5432/moment_forever_db
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/moment_forever_db
     username: postgres
     password: groote
     driver-class-name: org.postgresql.Driver
