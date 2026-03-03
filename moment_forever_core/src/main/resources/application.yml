@@ -27,7 +27,7 @@ spring:
 ###=============SERVICE DISCOVERY WITH CONSUL================
   cloud:
     consul:
-      host: localhost               # Consul server host (default localhost)
+      host: ${CONSUL_HOST:localhost}               # Consul server host (default localhost)
       port: 8500                    # Consul server port
       discovery:
         enabled: true
@@ -47,7 +47,7 @@ spring:
   # ================= MONGODB =================
   data:
     mongodb:
-      uri: mongodb://localhost:27017
+      uri: mongodb://${MONGO_HOST:localhost}:27017
       database: moment_forever
 
   # ================= HIKARI =================
@@ -121,13 +121,15 @@ spring:
     time-zone: UTC
     default-property-inclusion: non_null
 
-  # ================= KAFKA =================
+# ================= KAFKA =================
+
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 
 # ============================================
 # KAFKA TOPICS
 # ============================================
+
 kafka:
   topics:
     booking-requested: topic_booking_requested

@@ -38,7 +38,7 @@ public class BookingEventProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    @Value("${kafka.topics.booking-requested:booking-requested}")
+    @Value("${kafka.topics.booking-requested}")
     private String bookingRequestedTopic;
 
     public BookingEventProducer(KafkaTemplate<String, Object> kafkaTemplate) {
