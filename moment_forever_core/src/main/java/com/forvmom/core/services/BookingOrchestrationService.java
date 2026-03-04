@@ -43,7 +43,7 @@ import java.util.UUID;
  * <p>
  * Full enrichment (fetching names, resolving prices, publishing Kafka) happens
  * asynchronously in {@link BookingEnrichmentTask}. A scheduled poller
- * ({@link com.forvmom.core.scheduler.BookingOutboxPoller}) retries any failed
+ * ({@link com.forvmom.core.config.QuartzConfig}) retries any failed
  * records.
  */
 @Service
@@ -76,22 +76,23 @@ public class BookingOrchestrationService {
      * @param dto inbound booking request
      * @return generated booking reference ID (e.g. {@code MFB-1735000-A3F2})
      */
-    public String initiateBooking(BookingRequestDto dto) {
+    public String initiateBooking(BookingRequestDto dto,Long userId) {
 
+        //TODO: in case of public booking that need to be taken care
         // ── 1. Resolve authenticated user ────────────────────────────────────
-        AppUserResponseDto user = userProfileService.getCurrentUserProfile();
+        //AppUserResponseDto user = userProfileService.getCurrentUserProfile();
 
         // ── 2. Generate bookingId BEFORE the transaction ──────────────────────
         String bookingId = generateBookingId();
 
         // ── 3. Run transactional block ────────────────────────────────────────
-        executeTransaction(bookingId, dto, user.getId());
+        executeTransaction(bookingId, dto, userId);
 
         // ── 4. Post-commit: fire async enrichment (does not block) ─────────────
         enrichmentTask.enrich(bookingId);
 
         logger.info("Booking initiated: bookingId={}, userId={}, slotMapperId={}",
-                bookingId, user.getId(), dto.getTimeSlotMapperId());
+                bookingId, userId, dto.getTimeSlotMapperId());
 
         return bookingId;
     }

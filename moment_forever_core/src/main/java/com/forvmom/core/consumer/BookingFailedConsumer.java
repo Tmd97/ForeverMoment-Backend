@@ -37,7 +37,7 @@ public class BookingFailedConsumer {
         this.slotMapperDao = slotMapperDao;
     }
 
-    @KafkaListener(topics = "${kafka.topics.booking-failed:booking-failed}", groupId = "core-booking-failed-group", containerFactory = "kafkaListenerContainerFactory")
+    @KafkaListener(topics = "${kafka.topics.booking-failed}", groupId = "core-booking-failed-group", containerFactory = "kafkaListenerContainerFactory")
     @Transactional
     public void onBookingFailed(@Payload BookingFailedEvent event, Acknowledgment ack) {
         logger.info("Received booking-failed: bookingId={}, slotMapperId={}, guestCount={}",
