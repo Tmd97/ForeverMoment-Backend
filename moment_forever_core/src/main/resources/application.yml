@@ -24,16 +24,16 @@ spring:
   application:
     name: moment-forever-platform
 
-###=============SERVICE DISCOVERY WITH CONSUL================
+  # ================= SERVICE DISCOVERY WITH CONSUL =================
   cloud:
     consul:
-      host: ${CONSUL_HOST:localhost}               # Consul server host (default localhost)
-      port: 8500                    # Consul server port
+      host: ${CONSUL_HOST:localhost}
+      port: 8500
       discovery:
         enabled: true
         register: true
         service-name: ${spring.application.name}
-        health-check-path: /platform/actuator/health   # if you have actuator
+        health-check-path: /platform/actuator/health
         health-check-interval: 10s
         instance-id: ${spring.application.name}:${random.value}
 
@@ -43,12 +43,6 @@ spring:
     username: postgres
     password: groote
     driver-class-name: org.postgresql.Driver
-
-  # ================= MONGODB =================
-  data:
-    mongodb:
-      uri: mongodb://${MONGO_HOST:localhost}:27017
-      database: moment_forever
 
   # ================= HIKARI =================
   hikari:
@@ -61,11 +55,19 @@ spring:
     connection-test-query: SELECT 1
     auto-commit: false
 
+  # ================= MONGODB =================
+  data:
+    mongodb:
+      uri: mongodb://${MONGO_HOST:localhost}:27017
+      database: moment_forever
+
   # ================= JPA =================
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
+    show-sql: true
+    open-in-view: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -78,9 +80,8 @@ spring:
           in_clause_parameter_padding: true
         id:
           new_generator_mappings: true
-    show-sql: true
-    open-in-view: false
-    # ================== QUARTZ CONFIG======================
+
+  # ================= QUARTZ CONFIG =================
   quartz:
     job-store-type: jdbc
     jdbc:
@@ -121,15 +122,26 @@ spring:
     time-zone: UTC
     default-property-inclusion: non_null
 
-# ================= KAFKA =================
-
+  # ================= KAFKA =================
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
 
-# ============================================
-# KAFKA TOPICS
-# ============================================
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
 
+    consumer:
+      group-id: platform-service-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+
+# ============================================
+# KAFKA TOPICS (CUSTOM CONFIG)
+# ============================================
 kafka:
   topics:
     booking-requested: topic_booking_requested
