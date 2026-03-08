@@ -34,6 +34,7 @@ public class ImageService {
     /**
      * Upload an image to storage
      */
+    //TODO: currently, we are creating the new record in sql when the file comes for upload, but same file with changed content will come up, instead of new record, we can update the existing record with new content and metadata, this will help us to avoid duplicate records in sql and also help us to bust cache when same file with changed content comes up.
     public ImageResponse uploadImage(MultipartFile file, Map<String, Object> metadata) {
         try {
             // Prepare metadata
