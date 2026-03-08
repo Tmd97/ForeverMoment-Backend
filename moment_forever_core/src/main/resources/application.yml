@@ -2,7 +2,7 @@
 # SERVER CONFIGURATION
 # ============================================
 server:
-  port: 8080
+  port: 8081
   forward-headers-strategy: framework
   servlet:
     context-path: /platform
@@ -80,6 +80,18 @@ spring:
           in_clause_parameter_padding: true
         id:
           new_generator_mappings: true
+
+
+  #=================REDIS  CONFIG=================
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: 6379
+    timeout: 2000
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
 
   # ================= QUARTZ CONFIG =================
   quartz:
