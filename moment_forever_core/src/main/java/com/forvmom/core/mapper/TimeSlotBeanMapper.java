@@ -2,8 +2,11 @@ package com.forvmom.core.mapper;
 
 import com.forvmom.common.dto.request.ExperienceTimeSlotAttachRequestDto;
 import com.forvmom.common.dto.request.TimeSlotRequestDto;
+import com.forvmom.common.dto.response.ExperienceLocationMapperDto;
+import com.forvmom.common.dto.response.ExperienceLocationResponseDto;
 import com.forvmom.common.dto.response.ExperienceTimeSlotResponseDto;
 import com.forvmom.common.dto.response.TimeSlotResponseDto;
+import com.forvmom.data.entities.ExperienceLocationMapper;
 import com.forvmom.data.entities.ExperienceTimeSlotMapper;
 import com.forvmom.data.entities.TimeSlot;
 
@@ -16,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * Stateless mapper for TimeSlot entity ↔ DTOs.
  * Follows the same pattern as SubCategoryBeanMapper / AddonBeanMapper.
- *
+ * <p>
  * Naming convention:
  * mapEntityToDto — entity → response DTO
  * mapDtoToEntity — request DTO → new entity
@@ -74,6 +77,9 @@ public class TimeSlotBeanMapper {
             dto.setEndTime(ts.getEndTime().format(TIME_FORMATTER));
         }
 
+//        ExperienceLocationMapperDto experienceLocationMapperDto = ExperienceLocationBeanMapper.mapEntityToDto(mapper.getExperienceLocation());
+//        dto.setExperienceLocationMapperDto(experienceLocationMapperDto);
+
         dto.setPriceOverride(mapper.getPriceOverride());
         dto.setMaxCapacity(mapper.getMaxCapacity());
         dto.setCurrentBookings(mapper.getCurrentBookings());
@@ -98,7 +104,7 @@ public class TimeSlotBeanMapper {
     }
 
     public static ExperienceTimeSlotMapper updateMapperEntityFromDto(ExperienceTimeSlotMapper mapper,
-            ExperienceTimeSlotAttachRequestDto dto) {
+                                                                     ExperienceTimeSlotAttachRequestDto dto) {
         mapper.setPriceOverride(dto.getPriceOverride());
         mapper.setMaxCapacity(dto.getMaxCapacity());
         mapper.setValidFrom(dto.getValidFrom());

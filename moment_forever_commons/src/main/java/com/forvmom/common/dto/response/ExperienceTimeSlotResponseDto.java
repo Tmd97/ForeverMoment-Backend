@@ -17,6 +17,8 @@ public class ExperienceTimeSlotResponseDto {
     private String startTime;
     private String endTime;
 
+    private ExperienceLocationMapperDto experienceLocationMapperDto;
+
     // Per-location-experience overrides (Level 3 pricing)
     private BigDecimal priceOverride;
     private Integer maxCapacity;
@@ -125,5 +127,13 @@ public class ExperienceTimeSlotResponseDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public ExperienceLocationMapperDto getExperienceLocationMapperDto() {
+        return experienceLocationMapperDto;
+    }
+
+    public void setExperienceLocationMapperDto(ExperienceLocationMapperDto experienceLocationMapperDto) {
+        this.experienceLocationMapperDto = experienceLocationMapperDto;
     }
 }
