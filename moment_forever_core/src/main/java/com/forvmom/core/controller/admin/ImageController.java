@@ -121,8 +121,8 @@ public class ImageController {
                 .body(resource);
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Download Image by storageFileName", description = "Looks up the GridFS filePath from the Media SQL record and streams the file")
+    @GetMapping("/fetch/{storageFileName}")
+    @Operation(summary = "Fetch Image by storageFileName", description = "Looks up the GridFS filePath from the Media SQL record and streams the file based on cache busted storageFileName")
     public ResponseEntity<Resource> downloadImageWithCacheBust(@PathVariable String storageFileName) throws IOException {
         String gridFsId = mediaService.getMediaByStorageFileName(storageFileName);
         Resource resource = imageService.downloadImage(gridFsId);

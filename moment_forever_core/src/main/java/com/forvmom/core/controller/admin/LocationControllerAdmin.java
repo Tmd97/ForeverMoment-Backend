@@ -1,9 +1,7 @@
 package com.forvmom.core.controller.admin;
 
-import com.forvmom.common.dto.request.ExperienceLocationAttachRequestDto;
-import com.forvmom.common.dto.request.LocationRequestDto;
-import com.forvmom.common.dto.request.PincodeRequestDto;
-import com.forvmom.common.dto.request.ReorderRequestDto;
+import com.forvmom.common.dto.request.*;
+import com.forvmom.common.dto.response.CategoryLocationResponseDto;
 import com.forvmom.common.dto.response.ExperienceLocationResponseDto;
 import com.forvmom.common.dto.response.LocationResponseDto;
 import com.forvmom.common.dto.response.PincodeResponseDto;
@@ -178,5 +176,56 @@ public class LocationControllerAdmin {
         reorderingService.reorderItems(reorderRequestDto.getId(), reorderRequestDto.getNewPosition(), Location.class);
         return ResponseEntity.ok(
                 ResponseUtil.buildOkResponse(null, AppConstants.MSG_UPDATED));
+    }
+
+    // ── Category Association ───────────────────────────────────────────────
+
+    @GetMapping("/{locationId}/categories")
+    @Operation(summary = "Get Categories for Location", description = "Lists all categories this location is attached to")
+    public ResponseEntity<ApiResponse<?>> getCategoriesForLocation(
+            @PathVariable Long locationId) {
+        List<CategoryLocationResponseDto> response = locationService.getCategoriesForLocation(locationId);
+        return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_FETCHED));
+    }
+
+    @PostMapping("/{locationId}/categories/{categoryId}")
+    @Operation(summary = "Attach Category to Location", description = "Creates a CategoryLocationMapper row. Optional body: displayOrder, isActive")
+    public ResponseEntity<ApiResponse<?>> attachCategoryToLocation(
+            @PathVariable Long locationId,
+            @PathVariable Long categoryId,
+            @RequestBody(required = false) @Valid CategoryLocationAttachRequestDto requestDto) {
+        if (requestDto == null) requestDto = new CategoryLocationAttachRequestDto();
+        CategoryLocationResponseDto response = locationService.attachCategoryToLocation(locationId, categoryId, requestDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ResponseUtil.buildCreatedResponse(response, AppConstants.MSG_CREATED));
+    }
+
+    @PutMapping("/{locationId}/categories/{categoryId}")
+    @Operation(summary = "Update Category Attachment", description = "Updates displayOrder or isActive for an existing attachment")
+    public ResponseEntity<ApiResponse<?>> updateCategoryAttachment(
+            @PathVariable Long locationId,
+            @PathVariable Long categoryId,
+            @Valid @RequestBody CategoryLocationAttachRequestDto requestDto) {
+        CategoryLocationResponseDto response = locationService.updateCategoryAttachment(locationId, categoryId, requestDto);
+        return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_UPDATED));
+    }
+
+    @DeleteMapping("/{locationId}/categories/{categoryId}")
+    @Operation(summary = "Detach Category from Location", description = "Soft-deletes the junction row")
+    public ResponseEntity<ApiResponse<?>> detachCategoryFromLocation(
+            @PathVariable Long locationId,
+            @PathVariable Long categoryId) {
+        locationService.detachCategoryFromLocation(locationId, categoryId);
+        return ResponseEntity.ok(ResponseUtil.buildOkResponse(null, AppConstants.MSG_DELETED));
+    }
+
+    @PatchMapping("/{locationId}/categories/{mapperId}/toggle")
+    @Operation(summary = "Toggle Category Attachment Active", description = "Toggles is_active on the CategoryLocationMapper row by its mapperId")
+    public ResponseEntity<ApiResponse<?>> toggleCategoryAttachmentActive(
+            @PathVariable Long locationId,
+            @PathVariable Long mapperId) {
+        locationService.toggleCategoryAttachmentActive(mapperId);
+        return ResponseEntity.ok(
+                ResponseUtil.buildOkResponse(null, "Location-Category attachment status toggled"));
     }
 }

@@ -33,10 +33,10 @@ public class MediaService {
      */
     @Transactional
     public ImageResponse saveMediaMetadata(String fileName,
-            String storageFileName,
-            String filePath,
-            String contentType,
-            long fileSize) {
+                                           String storageFileName,
+                                           String filePath,
+                                           String contentType,
+                                           long fileSize) {
         Media media = new Media();
         media.setFileName(fileName);
         media.setStorageFileName(storageFileName);
@@ -63,7 +63,11 @@ public class MediaService {
 
     @Transactional(readOnly = true)
     public String getMediaByStorageFileName(String storageFileName) {
-        return mediaDao.findGridFsIdByStorageFileName(storageFileName);
+        try {
+            return mediaDao.findGridFsIdByStorageFileName(storageFileName);
+        } catch (Exception e) {
+            throw new ResourceNotFoundException("Media not found with storage file name: " + storageFileName);
+        }
     }
 
     @Transactional(readOnly = true)

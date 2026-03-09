@@ -1,8 +1,7 @@
 package com.forvmom.core.services;
 
-import com.forvmom.common.dto.request.ExperienceLocationAttachRequestDto;
-import com.forvmom.common.dto.request.LocationRequestDto;
-import com.forvmom.common.dto.request.PincodeRequestDto;
+import com.forvmom.common.dto.request.*;
+import com.forvmom.common.dto.response.CategoryLocationResponseDto;
 import com.forvmom.common.dto.response.ExperienceLocationResponseDto;
 import com.forvmom.common.dto.response.LocationResponseDto;
 import com.forvmom.common.dto.response.PincodeResponseDto;
@@ -51,4 +50,11 @@ public interface LocationService {
             ExperienceLocationAttachRequestDto requestDto);
 
     void toggleExperienceAttachmentActive(Long mapperId);
+
+    CategoryLocationResponseDto attachCategoryToLocation(Long locationId, Long categoryId, CategoryLocationAttachRequestDto requestDto);
+    void detachCategoryFromLocation(Long locationId, Long categoryId);
+    List<CategoryLocationResponseDto> getCategoriesForLocation(Long locationId);
+    CategoryLocationResponseDto updateCategoryAttachment(Long locationId, Long categoryId, CategoryLocationAttachRequestDto requestDto);
+    void toggleCategoryAttachmentActive(Long mapperId);
+    List<CategoryByLocationDto> getActiveCategoriesByLocation(Long locationId); // public
 }
