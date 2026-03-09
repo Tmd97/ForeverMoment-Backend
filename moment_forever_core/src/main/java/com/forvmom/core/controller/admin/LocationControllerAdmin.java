@@ -1,10 +1,7 @@
 package com.forvmom.core.controller.admin;
 
 import com.forvmom.common.dto.request.*;
-import com.forvmom.common.dto.response.CategoryLocationResponseDto;
-import com.forvmom.common.dto.response.ExperienceLocationResponseDto;
-import com.forvmom.common.dto.response.LocationResponseDto;
-import com.forvmom.common.dto.response.PincodeResponseDto;
+import com.forvmom.common.dto.response.*;
 import com.forvmom.common.response.ApiResponse;
 import com.forvmom.common.response.ResponseUtil;
 import com.forvmom.common.utils.AppConstants;
@@ -227,5 +224,56 @@ public class LocationControllerAdmin {
         locationService.toggleCategoryAttachmentActive(mapperId);
         return ResponseEntity.ok(
                 ResponseUtil.buildOkResponse(null, "Location-Category attachment status toggled"));
+    }
+
+    // ── SubCategory Association ───────────────────────────────────────────
+
+    @GetMapping("/{locationId}/subcategories")
+    @Operation(summary = "Get SubCategories for Location", description = "Lists all subcategories this location is attached to")
+    public ResponseEntity<ApiResponse<?>> getSubCategoriesForLocation(
+            @PathVariable Long locationId) {
+        List<SubCategoryLocationResponseDto> response = locationService.getSubCategoriesForLocation(locationId);
+        return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_FETCHED));
+    }
+
+    @PostMapping("/{locationId}/subcategories/{subCategoryId}")
+    @Operation(summary = "Attach SubCategory to Location", description = "Creates a SubCategoryLocationMapper row. Optional body: displayOrder, isActive")
+    public ResponseEntity<ApiResponse<?>> attachSubCategoryToLocation(
+            @PathVariable Long locationId,
+            @PathVariable Long subCategoryId,
+            @RequestBody(required = false) @Valid SubCategoryLocationAttachRequestDto requestDto) {
+        if (requestDto == null) requestDto = new SubCategoryLocationAttachRequestDto();
+        SubCategoryLocationResponseDto response = locationService.attachSubCategoryToLocation(locationId, subCategoryId, requestDto);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ResponseUtil.buildCreatedResponse(response, AppConstants.MSG_CREATED));
+    }
+
+    @PutMapping("/{locationId}/subcategories/{subCategoryId}")
+    @Operation(summary = "Update SubCategory Attachment", description = "Updates displayOrder or isActive for an existing attachment")
+    public ResponseEntity<ApiResponse<?>> updateSubCategoryAttachment(
+            @PathVariable Long locationId,
+            @PathVariable Long subCategoryId,
+            @Valid @RequestBody SubCategoryLocationAttachRequestDto requestDto) {
+        SubCategoryLocationResponseDto response = locationService.updateSubCategoryAttachment(locationId, subCategoryId, requestDto);
+        return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_UPDATED));
+    }
+
+    @DeleteMapping("/{locationId}/subcategories/{subCategoryId}")
+    @Operation(summary = "Detach SubCategory from Location", description = "Soft-deletes the junction row")
+    public ResponseEntity<ApiResponse<?>> detachSubCategoryFromLocation(
+            @PathVariable Long locationId,
+            @PathVariable Long subCategoryId) {
+        locationService.detachSubCategoryFromLocation(locationId, subCategoryId);
+        return ResponseEntity.ok(ResponseUtil.buildOkResponse(null, AppConstants.MSG_DELETED));
+    }
+
+    @PatchMapping("/{locationId}/subcategories/{mapperId}/toggle")
+    @Operation(summary = "Toggle SubCategory Attachment Active", description = "Toggles is_active on the SubCategoryLocationMapper row by its mapperId")
+    public ResponseEntity<ApiResponse<?>> toggleSubCategoryAttachmentActive(
+            @PathVariable Long locationId,
+            @PathVariable Long mapperId) {
+        locationService.toggleSubCategoryAttachmentActive(mapperId);
+        return ResponseEntity.ok(
+                ResponseUtil.buildOkResponse(null, "Location-SubCategory attachment status toggled"));
     }
 }

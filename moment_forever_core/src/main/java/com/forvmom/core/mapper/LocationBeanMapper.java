@@ -1,10 +1,14 @@
 package com.forvmom.core.mapper;
 
 import com.forvmom.common.dto.request.LocationRequestDto;
+import com.forvmom.common.dto.response.CategoryLocationResponseDto;
 import com.forvmom.common.dto.response.LocationResponseDto;
 import com.forvmom.common.dto.response.PincodeResponseDto;
+import com.forvmom.common.dto.response.SubCategoryLocationResponseDto;
+import com.forvmom.data.entities.CategoryLocationMapper;
 import com.forvmom.data.entities.Location;
 import com.forvmom.data.entities.Pincode;
+import com.forvmom.data.entities.SubCategoryLocationMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -76,6 +80,34 @@ public class LocationBeanMapper {
             dto.setLocationCity(pincode.getLocation().getCity());
         }
 
+        return dto;
+    }
+
+    public static CategoryLocationResponseDto mapCategoryLocationToDto(CategoryLocationMapper entity) {
+        CategoryLocationResponseDto dto = new CategoryLocationResponseDto();
+        dto.setId(entity.getId());
+        dto.setCategoryId(entity.getCategory().getId());
+        dto.setCategoryName(entity.getCategory().getName());
+        dto.setCategorySlug(entity.getCategory().getSlug());
+        dto.setLocationId(entity.getLocation().getId());
+        dto.setLocationName(entity.getLocation().getName());
+        dto.setDisplayOrder(entity.getDisplayOrder());
+        dto.setActive(entity.getActive());
+        return dto;
+    }
+
+    public static SubCategoryLocationResponseDto mapSubCategoryLocationToDto(SubCategoryLocationMapper entity) {
+        SubCategoryLocationResponseDto dto = new SubCategoryLocationResponseDto();
+        dto.setId(entity.getId());
+        dto.setSubCategoryId(entity.getSubCategory().getId());
+        dto.setSubCategoryName(entity.getSubCategory().getName());
+        dto.setSubCategorySlug(entity.getSubCategory().getSlug());
+        dto.setCategoryId(entity.getSubCategory().getCategory().getId());
+        dto.setCategoryName(entity.getSubCategory().getCategory().getName());
+        dto.setLocationId(entity.getLocation().getId());
+        dto.setLocationName(entity.getLocation().getName());
+        dto.setDisplayOrder(entity.getDisplayOrder());
+        dto.setActive(entity.getActive());
         return dto;
     }
 }

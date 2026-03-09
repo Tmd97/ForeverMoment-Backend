@@ -1,10 +1,7 @@
 package com.forvmom.core.services;
 
 import com.forvmom.common.dto.request.*;
-import com.forvmom.common.dto.response.CategoryLocationResponseDto;
-import com.forvmom.common.dto.response.ExperienceLocationResponseDto;
-import com.forvmom.common.dto.response.LocationResponseDto;
-import com.forvmom.common.dto.response.PincodeResponseDto;
+import com.forvmom.common.dto.response.*;
 import com.forvmom.common.errorhandler.ResourceNotFoundException;
 import com.forvmom.core.mapper.ExperienceBeanMapper;
 import com.forvmom.core.mapper.LocationBeanMapper;
@@ -41,6 +38,12 @@ public class LocationServiceImpl implements LocationService {
 
     @Autowired
     private CategoryLocationMapperDao categoryLocationMapperDao;
+
+    @Autowired
+    private SubCategoryDao subCategoryDao;
+
+    @Autowired
+    private SubCategoryLocationMapperDao subCategoryLocationMapperDao;
 
     @Override
     @Transactional
@@ -336,7 +339,7 @@ public class LocationServiceImpl implements LocationService {
         mapper.setActive(requestDto.getActive() != null ? requestDto.getActive() : true);
 
         CategoryLocationMapper saved = categoryLocationMapperDao.save(mapper);
-        return mapCategoryLocationToDto(saved);
+        return LocationBeanMapper.mapCategoryLocationToDto(saved);
     }
 
     @Override
@@ -353,7 +356,7 @@ public class LocationServiceImpl implements LocationService {
     @Transactional(readOnly = true)
     public List<CategoryLocationResponseDto> getCategoriesForLocation(Long locationId) {
         List<CategoryLocationMapper> mappers = categoryLocationMapperDao.findByLocationId(locationId);
-        return mappers.stream().map(this::mapCategoryLocationToDto).collect(Collectors.toList());
+        return mappers.stream().map(LocationBeanMapper::mapCategoryLocationToDto).collect(Collectors.toList());
     }
 
     @Override
@@ -371,7 +374,7 @@ public class LocationServiceImpl implements LocationService {
             mapper.setActive(requestDto.getActive());
         }
         CategoryLocationMapper updated = categoryLocationMapperDao.update(mapper);
-        return mapCategoryLocationToDto(updated);
+        return LocationBeanMapper.mapCategoryLocationToDto(updated);
     }
 
     @Override
@@ -396,16 +399,102 @@ public class LocationServiceImpl implements LocationService {
                 .collect(Collectors.toList());
     }
 
-    private CategoryLocationResponseDto mapCategoryLocationToDto(CategoryLocationMapper entity) {
-        CategoryLocationResponseDto dto = new CategoryLocationResponseDto();
-        dto.setId(entity.getId());
-        dto.setCategoryId(entity.getCategory().getId());
-        dto.setCategoryName(entity.getCategory().getName());
-        dto.setCategorySlug(entity.getCategory().getSlug());
-        dto.setLocationId(entity.getLocation().getId());
-        dto.setLocationName(entity.getLocation().getName());
-        dto.setDisplayOrder(entity.getDisplayOrder());
-        dto.setActive(entity.getActive());
-        return dto;
+    @Override
+    @Transactional
+    public SubCategoryLocationResponseDto attachSubCategoryToLocation(Long locationId, Long subCategoryId,
+                                                                      SubCategoryLocationAttachRequestDto requestDto) {
+        if (subCategoryLocationMapperDao.existsBySubCategoryIdAndLocationId(subCategoryId, locationId)) {
+            throw new IllegalStateException("SubCategory " + subCategoryId + " is already attached to location " + locationId);
+        }
+
+        Location location = locationDao.findById(locationId);
+        if (location == null) throw new ResourceNotFoundException("Location not found: " + locationId);
+
+        SubCategory subCategory = subCategoryDao.findById(subCategoryId);
+        if (subCategory == null) throw new ResourceNotFoundException("SubCategory not found: " + subCategoryId);
+
+        SubCategoryLocationMapper mapper = new SubCategoryLocationMapper();
+        mapper.setLocation(location);
+        mapper.setSubCategory(subCategory);
+        mapper.setDisplayOrder(requestDto.getDisplayOrder() != null ? requestDto.getDisplayOrder() : 0);
+        mapper.setActive(requestDto.getActive() != null ? requestDto.getActive() : true);
+
+        SubCategoryLocationMapper saved = subCategoryLocationMapperDao.save(mapper);
+        return LocationBeanMapper.mapSubCategoryLocationToDto(saved);
     }
+
+    @Override
+    @Transactional
+    public void detachSubCategoryFromLocation(Long locationId, Long subCategoryId) {
+        SubCategoryLocationMapper mapper = subCategoryLocationMapperDao.findBySubCategoryIdAndLocationId(subCategoryId, locationId);
+        if (mapper == null) {
+            throw new ResourceNotFoundException("SubCategory " + subCategoryId + " is not attached to location " + locationId);
+        }
+        subCategoryLocationMapperDao.delete(mapper);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubCategoryLocationResponseDto> getSubCategoriesForLocation(Long locationId) {
+        List<SubCategoryLocationMapper> mappers = subCategoryLocationMapperDao.findByLocationId(locationId);
+        return mappers.stream().map(LocationBeanMapper::mapSubCategoryLocationToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public SubCategoryLocationResponseDto updateSubCategoryAttachment(Long locationId, Long subCategoryId,
+                                                                      SubCategoryLocationAttachRequestDto requestDto) {
+        SubCategoryLocationMapper mapper = subCategoryLocationMapperDao.findBySubCategoryIdAndLocationId(subCategoryId, locationId);
+        if (mapper == null) {
+            throw new ResourceNotFoundException("SubCategory " + subCategoryId + " is not attached to location " + locationId);
+        }
+        if (requestDto.getDisplayOrder() != null) {
+            mapper.setDisplayOrder(requestDto.getDisplayOrder());
+        }
+        if (requestDto.getActive() != null) {
+            mapper.setActive(requestDto.getActive());
+        }
+        SubCategoryLocationMapper updated = subCategoryLocationMapperDao.update(mapper);
+        return LocationBeanMapper.mapSubCategoryLocationToDto(updated);
+    }
+
+    @Override
+    @Transactional
+    public void toggleSubCategoryAttachmentActive(Long mapperId) {
+        SubCategoryLocationMapper mapper = subCategoryLocationMapperDao.findById(mapperId);
+        if (mapper == null) throw new ResourceNotFoundException("SubCategory-Location mapping not found: " + mapperId);
+        mapper.setActive(!Boolean.TRUE.equals(mapper.getActive()));
+        subCategoryLocationMapperDao.update(mapper);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubCategoryByLocationDto> getActiveSubCategoriesByLocation(Long locationId) {
+        List<SubCategoryLocationMapper> mappers = subCategoryLocationMapperDao.findActiveByLocationId(locationId);
+        return mappers.stream()
+                .map(m -> new SubCategoryByLocationDto(
+                        m.getSubCategory().getId(),
+                        m.getSubCategory().getName(),
+                        m.getSubCategory().getSlug(),
+                        m.getSubCategory().getCategory().getId(),
+                        m.getSubCategory().getCategory().getName(),
+                        m.getDisplayOrder()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SubCategoryByLocationDto> getActiveSubCategoriesByLocationAndCategory(Long locationId, Long categoryId) {
+        List<SubCategoryLocationMapper> mappers = subCategoryLocationMapperDao.findActiveByLocationIdAndCategoryId(locationId, categoryId);
+        return mappers.stream()
+                .map(m -> new SubCategoryByLocationDto(
+                        m.getSubCategory().getId(),
+                        m.getSubCategory().getName(),
+                        m.getSubCategory().getSlug(),
+                        m.getSubCategory().getCategory().getId(),
+                        m.getSubCategory().getCategory().getName(),
+                        m.getDisplayOrder()))
+                .collect(Collectors.toList());
+    }
+
 }

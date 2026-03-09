@@ -1,7 +1,9 @@
 package com.forvmom.core.controller.pub;
 
+import com.forvmom.common.dto.request.CategoryByLocationDto;
 import com.forvmom.common.dto.response.LocationResponseDto;
 import com.forvmom.common.dto.response.PincodeResponseDto;
+import com.forvmom.common.dto.response.SubCategoryByLocationDto;
 import com.forvmom.common.response.ApiResponse;
 import com.forvmom.common.response.ResponseUtil;
 import com.forvmom.common.utils.AppConstants;
@@ -48,5 +50,27 @@ public class LocationController {
     public ResponseEntity<ApiResponse<?>> checkPincode(@RequestParam String pincode) {
         PincodeResponseDto response = locationService.checkPincode(pincode);
         return ResponseEntity.ok(ResponseUtil.buildOkResponse(response, AppConstants.MSG_FETCHED));
+    }
+
+    @GetMapping("/{locationId}/subcategories")
+    @Operation(summary = "Get active subcategories for a location", description = "Optionally filter by categoryId")
+    public ResponseEntity<ApiResponse<List<SubCategoryByLocationDto>>> getSubCategoriesByLocation(
+            @PathVariable Long locationId,
+            @RequestParam(required = false) Long categoryId) {
+        List<SubCategoryByLocationDto> list;
+        if (categoryId != null) {
+            list = locationService.getActiveSubCategoriesByLocationAndCategory(locationId, categoryId);
+        } else {
+            list = locationService.getActiveSubCategoriesByLocation(locationId);
+        }
+        return ResponseEntity.ok(ResponseUtil.buildOkResponse(list, AppConstants.MSG_FETCHED));
+    }
+
+    @GetMapping("/{locationId}/categories")
+    @Operation(summary = "Get active categories for a location")
+    public ResponseEntity<ApiResponse<List<CategoryByLocationDto>>> getCategoriesByLocation(
+            @PathVariable Long locationId) {
+        List<CategoryByLocationDto> list = locationService.getActiveCategoriesByLocation(locationId);
+        return ResponseEntity.ok(ResponseUtil.buildOkResponse(list, AppConstants.MSG_FETCHED));
     }
 }

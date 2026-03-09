@@ -1,10 +1,7 @@
 package com.forvmom.core.services;
 
 import com.forvmom.common.dto.request.*;
-import com.forvmom.common.dto.response.CategoryLocationResponseDto;
-import com.forvmom.common.dto.response.ExperienceLocationResponseDto;
-import com.forvmom.common.dto.response.LocationResponseDto;
-import com.forvmom.common.dto.response.PincodeResponseDto;
+import com.forvmom.common.dto.response.*;
 
 import java.util.List;
 
@@ -51,10 +48,20 @@ public interface LocationService {
 
     void toggleExperienceAttachmentActive(Long mapperId);
 
+    /// /////////category association with location
     CategoryLocationResponseDto attachCategoryToLocation(Long locationId, Long categoryId, CategoryLocationAttachRequestDto requestDto);
     void detachCategoryFromLocation(Long locationId, Long categoryId);
     List<CategoryLocationResponseDto> getCategoriesForLocation(Long locationId);
     CategoryLocationResponseDto updateCategoryAttachment(Long locationId, Long categoryId, CategoryLocationAttachRequestDto requestDto);
     void toggleCategoryAttachmentActive(Long mapperId);
     List<CategoryByLocationDto> getActiveCategoriesByLocation(Long locationId); // public
+
+    /// //////////sub-category association with location
+    SubCategoryLocationResponseDto attachSubCategoryToLocation(Long locationId, Long subCategoryId, SubCategoryLocationAttachRequestDto requestDto);
+    void detachSubCategoryFromLocation(Long locationId, Long subCategoryId);
+    List<SubCategoryLocationResponseDto> getSubCategoriesForLocation(Long locationId);
+    SubCategoryLocationResponseDto updateSubCategoryAttachment(Long locationId, Long subCategoryId, SubCategoryLocationAttachRequestDto requestDto);
+    void toggleSubCategoryAttachmentActive(Long mapperId);
+    List<SubCategoryByLocationDto> getActiveSubCategoriesByLocation(Long locationId);
+    List<SubCategoryByLocationDto> getActiveSubCategoriesByLocationAndCategory(Long locationId, Long categoryId);
 }
