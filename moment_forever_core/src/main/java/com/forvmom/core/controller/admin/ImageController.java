@@ -32,12 +32,12 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * Admin controller for image upload and management.
- *
+ * <p>
  * All read / update / delete operations address images by their SQL Media.id
  * (Long).
  * The download endpoint resolves the GridFS filePath from SQL and streams the
  * file.
- *
+ * <p>
  * Public download URL (cache-busted):
  * GET /images/{storageFileName} — exposed by the public controller (not here)
  */
@@ -121,6 +121,20 @@ public class ImageController {
                 .body(resource);
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Download Image by storageFileName", description = "Looks up the GridFS filePath from the Media SQL record and streams the file")
+    public ResponseEntity<Resource> downloadImageWithCacheBust(@PathVariable String storageFileName) throws IOException {
+        String gridFsId = mediaService.getMediaByStorageFileName(storageFileName);
+        Resource resource = imageService.downloadImage(gridFsId);
+        String contentType = imageService.getContentType(gridFsId)
+                .orElse(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "inline; filename=\"" + resource.getFilename() + "\"")
+                .contentType(MediaType.parseMediaType(contentType))
+                .contentLength(resource.contentLength())
+                .body(resource);
+    }
     // ── Download (batch) ──────────────────────────────────────────────────────
 
     @PostMapping("/batch/download")

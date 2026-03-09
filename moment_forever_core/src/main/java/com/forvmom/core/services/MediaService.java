@@ -62,6 +62,11 @@ public class MediaService {
     }
 
     @Transactional(readOnly = true)
+    public String getMediaByStorageFileName(String storageFileName) {
+        return mediaDao.findGridFsIdByStorageFileName(storageFileName);
+    }
+
+    @Transactional(readOnly = true)
     public List<ImageResponse> getAllMedia() {
         return mediaDao.findAllActive().stream()
                 .map(m -> MediaBeanMapper.mapEntityToDto(m, imageUrlConfig))
