@@ -7,7 +7,10 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "app.image")
 public class ImageUrlConfig {
 
-    private String publicBaseUrl = "/images";
+    //TODO: think how it can be improved, multiple instances? port dynamic?
+    //sometime docker service, some time localhost, maybe some env variable?
+    private String baseUrl = "http://localhost:8081/api/platform";
+    private String publicBaseUrl = "/public/images";
     private String adminBaseUrl = "/admin/images";
     private String cdnBaseUrl;
     private int cacheMaxAge = 31536000; // 1 year in seconds
@@ -57,9 +60,9 @@ public class ImageUrlConfig {
     // Helper methods to build URLs
     public String buildPublicUrl(String storageFileName) {
         if (useCdn && cdnBaseUrl != null) {
-            return cdnBaseUrl + "/" + storageFileName;
+            return cdnBaseUrl + "/fetch/" + storageFileName;
         }
-        return publicBaseUrl + "/" + storageFileName;
+        return publicBaseUrl + "/fetch/" + storageFileName;
     }
 
     public String buildAdminUrl(Long mediaId) {
@@ -68,8 +71,8 @@ public class ImageUrlConfig {
 
     public String buildThumbnailUrl(String storageFileName) {
         if (useCdn && cdnBaseUrl != null) {
-            return cdnBaseUrl + "/thumb/" + storageFileName;
+            return cdnBaseUrl + "/fetch/" + storageFileName;
         }
-        return publicBaseUrl + "/thumb/" + storageFileName;
+        return publicBaseUrl + "/fetch/" + storageFileName;
     }
 }

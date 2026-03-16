@@ -32,9 +32,11 @@ spring:
       discovery:
         enabled: true
         register: true
+        prefer-ip-address: true
         service-name: ${spring.application.name}
         health-check-path: /platform/actuator/health
         health-check-interval: 10s
+        deregister-after: 1m
         instance-id: ${spring.application.name}:${random.value}
 
   # ================= DATABASE =================
@@ -173,6 +175,7 @@ app:
     serve-path: /uploads/
 
   image:
+    base-url: http://localhost:8081/api/platform
     public-base-url: /images
     admin-base-url: /admin/images
     cdn-base-url: https://cdn.momentforever.com/images

@@ -73,7 +73,7 @@ public class GridFsObjectStorageService implements ObjectStorageService {
 
             };
         } catch (Exception e) {
-            throw new ObjectStorageException("Failed to retrieve file: " + id, e);
+            throw new ObjectStorageException("Failed to retrieve file: " + id);
         }
     }
 

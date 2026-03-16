@@ -1,11 +1,7 @@
 package com.forvmom.common.dto.request;
 
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PositiveOrZero;
-
 public class CategoryLocationAttachRequestDto {
 
-    @PositiveOrZero
     private Integer displayOrder; // optional
 
     private Boolean isActive; // optional, defaults to true

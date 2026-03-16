@@ -44,7 +44,7 @@ import java.util.zip.ZipOutputStream;
 @RestController
 @RequestMapping("/admin/images")
 @Tag(name = "Admin Image API", description = "Upload and manage images (Admin only)")
-public class ImageController {
+public class ImageControllerAdmin {
 
     @Autowired
     private ImageService imageService;
