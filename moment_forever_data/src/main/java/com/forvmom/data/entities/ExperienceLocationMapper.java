@@ -23,8 +23,7 @@ import java.util.Set;
  * null price_override = fall back to Experience.base_price.
  */
 @Entity
-@Table(name = "experience_location_mappers", uniqueConstraints = @UniqueConstraint(columnNames = { "experience_id",
-        "location_id" }))
+@Table(name = "experience_location_mappers")
 @SQLDelete(sql = "UPDATE experience_location_mappers SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
 public class ExperienceLocationMapper {

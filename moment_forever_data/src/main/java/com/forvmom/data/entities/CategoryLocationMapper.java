@@ -7,8 +7,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.util.Date;
 
 @Entity
-@Table(name = "category_location_mappers",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"category_id", "location_id"}))
+@Table(name = "category_location_mappers")
 public class CategoryLocationMapper {
 
     @Id

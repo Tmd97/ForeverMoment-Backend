@@ -14,8 +14,7 @@ import java.util.Date;
  * is_free — overrides both basePrice and price_override to make it free.
  */
 @Entity
-@Table(name = "experience_addon_mappers", uniqueConstraints = @UniqueConstraint(columnNames = { "experience_id",
-        "addon_id" }))
+@Table(name = "experience_addon_mappers")
 @SQLDelete(sql = "UPDATE experience_addon_mappers SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
 public class ExperienceAddonMapper {

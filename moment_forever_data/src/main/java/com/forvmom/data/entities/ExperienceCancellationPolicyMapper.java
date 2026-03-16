@@ -13,8 +13,7 @@ import java.util.Date;
  * touching the master record.
  */
 @Entity
-@Table(name = "experience_cancellation_policy_mappers", uniqueConstraints = @UniqueConstraint(columnNames = {
-        "experience_id", "policy_id" }))
+@Table(name = "experience_cancellation_policy_mappers")
 @SQLDelete(sql = "UPDATE experience_cancellation_policy_mappers SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
 public class ExperienceCancellationPolicyMapper {

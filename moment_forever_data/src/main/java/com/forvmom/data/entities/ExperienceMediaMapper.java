@@ -21,8 +21,7 @@ import java.util.Date;
  * isActive — can hide without deleting
  */
 @Entity
-@Table(name = "experience_media_mappers", uniqueConstraints = @UniqueConstraint(columnNames = { "experience_id",
-        "media_id" }))
+@Table(name = "experience_media_mappers")
 @SQLDelete(sql = "UPDATE experience_media_mappers SET deleted = true WHERE id = ?")
 @Where(clause = "deleted = false")
 public class ExperienceMediaMapper {
